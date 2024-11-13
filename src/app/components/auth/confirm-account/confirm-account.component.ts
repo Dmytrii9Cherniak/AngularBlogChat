@@ -69,12 +69,23 @@ export class ConfirmAccountComponent implements OnInit, OnDestroy {
     this.verificationService.stopTimer();
   }
 
+  confirmCodeChanged(event: string): void {
+    this.formHelper.form.controls['code'].setValue(event);
+    this.formHelper.form.controls['code'].updateValueAndValidity();
+
+    if (this.formHelper.serverErrors && this.formHelper.serverErrors['code']) {
+      delete this.formHelper.serverErrors['code'];
+    }
+  }
+
   onCodeCompleted(event: string): void {
     this.formHelper.form.controls['code'].setValue(event);
+    this.formHelper.form.controls['code'].updateValueAndValidity();
   }
 
   public confirmMyAccount(): void {
     this.formHelper.formSubmitted = true;
+
     if (this.formHelper.form.invalid) {
       return;
     }
@@ -95,19 +106,12 @@ export class ConfirmAccountComponent implements OnInit, OnDestroy {
         }
 
         if (errorResponse.error && errorResponse.error.errors) {
-          this.formHelper.serverErrors = errorResponse.error.errors;
+          this.formHelper.serverErrors = {
+            code: errorResponse.error.errors.message || 'An error occurred'
+          };
         }
       }
     });
-  }
-
-  public getClientErrorMessage(controlName: string): string | null {
-    return this.formHelper.getClientErrorMessage(controlName);
-  }
-
-  public onInput(controlName: string): void {
-    this.formHelper.onInput(controlName);
-    this.formHelper.serverErrors = null;
   }
 
   public getServerErrorMessage(controlName: string): string | null {
