@@ -1,5 +1,5 @@
+import { BehaviorSubject, interval, Subscription } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, interval } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -7,19 +7,24 @@ import { BehaviorSubject, interval } from 'rxjs';
 export class VerificationService {
   private timerSubject = new BehaviorSubject<string>('0:00');
   public timer$ = this.timerSubject.asObservable();
-  private timerSubscription: any = null;
+  private timerSubscription: Subscription | null = null;
+  private attemptKey = 'confirmationAttempts';
+
+  createTimer(duration: number): void {
+    const endTime = Date.now() + duration;
+    localStorage.setItem('confirmationTimer', endTime.toString());
+  }
 
   startTimer(duration: number, onExpire: () => void): void {
-    const endTime = Date.now() + duration;
-    sessionStorage.setItem('verificationTimer', endTime.toString());
+    this.createTimer(duration);
 
     this.timerSubscription = interval(1000).subscribe(() => {
       const currentTime = Date.now();
-      const remainingTime = Math.max(0, endTime - currentTime);
+      const remainingTime = Math.max(0, this.getSavedTimer()! - currentTime);
 
       if (remainingTime <= 0) {
         this.timerSubject.next('0:00');
-        sessionStorage.removeItem('verificationTimer');
+        localStorage.removeItem('confirmationTimer');
         this.stopTimer();
         onExpire();
       } else {
@@ -40,16 +45,39 @@ export class VerificationService {
   }
 
   getSavedTimer(): number | null {
-    const savedEndTime = sessionStorage.getItem('confirmationTimer');
+    const savedEndTime = localStorage.getItem('confirmationTimer');
     return savedEndTime ? Number(savedEndTime) : null;
   }
 
+  clearStorage(): void {
+    localStorage.removeItem('confirmationTimer');
+    localStorage.removeItem('registrationData');
+    localStorage.removeItem(this.attemptKey);
+  }
+
   hasRegistrationData(): boolean {
-    return !!sessionStorage.getItem('registrationData');
+    return !!localStorage.getItem('registrationData');
   }
 
   isTimerValid(): boolean {
     const endTime = this.getSavedTimer();
     return endTime ? endTime - Date.now() > 0 : false;
+  }
+
+  resetAttempts(): void {
+    localStorage.setItem(this.attemptKey, '0');
+  }
+
+  incrementAttempts(): void {
+    const currentAttempts = this.getAttempts();
+    localStorage.setItem(this.attemptKey, (currentAttempts + 1).toString());
+  }
+
+  getAttempts(): number {
+    return Number(localStorage.getItem(this.attemptKey)) || 0;
+  }
+
+  hasExceededMaxAttempts(maxAttempts: number): boolean {
+    return this.getAttempts() >= maxAttempts;
   }
 }

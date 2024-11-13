@@ -6,12 +6,16 @@ export const registerGuard: CanActivateFn = (route, state) => {
   const router: Router = inject(Router);
   const verificationService: VerificationService = inject(VerificationService);
 
+  const maxAttempts = 5;
+
   if (
     verificationService.hasRegistrationData() &&
-    verificationService.isTimerValid()
+    verificationService.isTimerValid() &&
+    !verificationService.hasExceededMaxAttempts(maxAttempts)
   ) {
     return true; // Дозволяє перехід
   }
 
+  verificationService.clearStorage();
   return router.createUrlTree(['/auth/register']);
 };
