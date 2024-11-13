@@ -1,0 +1,24 @@
+<div class="form-container confirm_account_page_container">
+  <form class="form" [formGroup]="formHelper.form">
+    <article>
+      <h2>Confirm Account</h2>
+      <h3>Enter the 6-digit code</h3>
+    </article>
+
+    <code-input
+      (codeCompleted)="onCodeCompleted($event)"
+      [codeLength]="6"
+      class="custom-code-input"
+    ></code-input>
+
+    <div class="timer">
+      <span *ngIf="timeLeft">Time left: {{ timeLeft }}</span>
+    </div>
+
+    <div *ngIf="formHelper.formSubmitted && formHelper.getClientErrorMessage('code')" class="error-message">
+      {{ formHelper.getClientErrorMessage('code') }}
+    </div>
+
+    <button class="form-button confirm" (click)="confirmMyAccount()">Confirm</button>
+  </form>
+</div>

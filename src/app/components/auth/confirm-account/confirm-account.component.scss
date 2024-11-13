@@ -1,0 +1,66 @@
+.confirm_account_page_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 400px;
+    width: 100%;
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    code-input {
+      --item-height: 50px;
+      --item-font-size: 20px;
+    }
+
+    .timer {
+      font-size: 16px;
+      margin-top: 9px;
+      color: #666;
+      text-align: center;
+    }
+
+    article {
+      text-align: center;
+      margin-bottom: 20px;
+
+      h2 {
+        font-size: 28px;
+        margin-bottom: 10px;
+      }
+
+      h3 {
+        font-size: 18px;
+        color: #666;
+      }
+    }
+
+    .confirm {
+      width: 100%;
+      margin-top: 20px;
+      background-color: #0016df;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #000ccc;
+      }
+
+      &:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+    }
+  }
+}

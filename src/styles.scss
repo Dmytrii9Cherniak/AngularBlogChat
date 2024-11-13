@@ -2,4 +2,117 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+
+.form-container {
+  min-height: calc(100vh - 75px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+
+  .form {
+    padding: 63px 41px 38px 41px;
+    max-width: 500px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 26px;
+
+    article {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      row-gap: 3px;
+      margin-bottom: 48px;
+
+      h2 {
+        font-size: 35px;
+      }
+
+      h3 {
+        font-size: 25px;
+      }
+    }
+
+    .inputs {
+      display: flex;
+      flex-direction: column;
+      row-gap: 22px;
+      width: 100%;
+
+      .input_block {
+        width: 100%;
+
+        input {
+          padding: 13px;
+          width: 100%;
+          height: 43px;
+          border-radius: 10px;
+          border: 1px solid #EAEAEA;
+          color: #B0A9A9;
+
+          &:focus {
+            color: #333333;
+            outline: none;
+          }
+        }
+
+        .error-message {
+          margin-top: 5px;
+          color: red;
+          font-size: 14px;
+          width: 100%;
+          overflow-wrap: break-word;
+        }
+      }
+    }
+
+    .form-button {
+      width: 100%;
+      height: 46px;
+      background-color: #0016DF;
+      border: none;
+      outline: none;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+
+      &.register {
+        margin-top: 35px;
+      }
+    }
+
+    .to_join_us {
+      text-align: center;
+      margin-top: 19px;
+      font-size: 15px;
+
+      a {
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 575px) {
+  .form-container {
+    padding: 0 15px;
+
+    .form {
+      padding: 43px 18px 38px 18px;
+    }
+  }
+}
+
+@media screen and (max-height: 670px) {
+  .form-container {
+    margin-bottom: 15px;
+  }
 }

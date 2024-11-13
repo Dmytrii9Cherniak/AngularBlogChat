@@ -1,0 +1,48 @@
+<div class="form-container login_page_container" @routeAnimation>
+  <form class="form" [formGroup]="formHelper.form" (ngSubmit)="login()">
+    <article>
+      <h2>Login</h2>
+      <h3>To get started</h3>
+    </article>
+
+    <div class="inputs">
+      <div class="input_block">
+        <input
+          type="text"
+          placeholder="Type your nickname or email"
+          formControlName="nickname"
+          (input)="onInput('nickname')"
+        />
+        <div *ngIf="hasClientError('nickname')" class="error-message">
+          {{ getClientErrorMessage('nickname') }}
+        </div>
+        <div *ngIf="getServerErrorMessage('nickname')" class="error-message">
+          {{ getServerErrorMessage('nickname') }}
+        </div>
+      </div>
+
+      <div class="input_block">
+        <input
+          type="password"
+          placeholder="Type your password"
+          formControlName="password"
+          (input)="onInput('password')"
+        />
+        <div *ngIf="hasClientError('password')" class="error-message">
+          {{ getClientErrorMessage('password') }}
+        </div>
+        <div *ngIf="getServerErrorMessage('password')" class="error-message">
+          {{ getServerErrorMessage('password') }}
+        </div>
+      </div>
+    </div>
+
+    <h4 class="forgot_password"> <a [routerLink]="['/auth/forgot-password']"> Forgot password? </a> </h4>
+
+    <button class="form-button" type="submit">Login</button>
+
+    <h3 class="to_join_us">
+      Or you can register <a [routerLink]="'/register'">here</a> to join us
+    </h3>
+  </form>
+</div>
