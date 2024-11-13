@@ -42,19 +42,27 @@ export class ConfirmAccountComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('ConfirmAccountComponent initialized');
     this.formHelper.createConfirmAccountForm();
 
-    // const savedEndTime = this.verificationService.getSavedTimer();
-    // if (savedEndTime) {
-    //   this.verificationService.startTimer(savedEndTime - Date.now(), () => {
-    //     this.router.navigate(['/auth/register']);
-    //   });
-    // } else {
-    //   this.router.navigate(['/auth/register']);
-    // }
+    const savedEndTime = this.verificationService.getSavedTimer();
 
-    this.verificationService.timer$.subscribe((time) => (this.timeLeft = time));
+    if (savedEndTime) {
+      const remainingTime = savedEndTime - Date.now();
+
+      if (remainingTime > 0) {
+        this.verificationService.startTimer(remainingTime, () => {
+          this.router.navigate(['/auth/register']);
+        });
+      } else {
+        this.router.navigate(['/auth/register']);
+      }
+    } else {
+      this.router.navigate(['/auth/register']);
+    }
+
+    this.verificationService.timer$.subscribe((time) => {
+      this.timeLeft = time;
+    });
   }
 
   ngOnDestroy(): void {
@@ -75,9 +83,17 @@ export class ConfirmAccountComponent implements OnInit, OnDestroy {
 
     this.authService.confirmAccount(code).subscribe({
       next: (response): void => {
+        this.verificationService.clearStorage();
         this.router.navigate(['/auth/login']);
       },
       error: (errorResponse): void => {
+        if (this.verificationService.hasExceededMaxAttempts(5)) {
+          this.verificationService.clearStorage();
+          this.router.navigate(['/auth/register']);
+        } else {
+          this.verificationService.incrementAttempts();
+        }
+
         if (errorResponse.error && errorResponse.error.errors) {
           this.formHelper.serverErrors = errorResponse.error.errors;
         }

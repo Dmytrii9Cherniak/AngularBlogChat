@@ -4,6 +4,7 @@ import { FormBuilder } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { Router } from '@angular/router';
 import { FormHelper } from '../../../helpers/form-helper';
+import { VerificationService } from '../../../services/verification.service';
 
 @Component({
   selector: 'app-register',
@@ -33,7 +34,8 @@ export class RegisterComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private verificationService: VerificationService
   ) {
     this.formHelper = new FormHelper(this.fb);
   }
@@ -53,10 +55,11 @@ export class RegisterComponent implements OnInit {
     const formValue = this.formHelper.form.value;
     this.authService.register(formValue).subscribe({
       next: (): void => {
-        sessionStorage.setItem('registrationData', JSON.stringify(formValue));
-        const timerDuration = 3 * 60 * 1000;
-        const endTime = Date.now() + timerDuration;
-        sessionStorage.setItem('confirmationTimer', endTime.toString());
+        localStorage.setItem('registrationData', JSON.stringify(formValue));
+        const timerDuration = 3 * 60 * 1000; // 3 хвилини
+
+        this.verificationService.createTimer(timerDuration);
+        this.verificationService.resetAttempts(); // Скидаємо кількість спроб
 
         this.router.navigate(['/auth/confirm-account']);
       },

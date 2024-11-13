@@ -19,7 +19,7 @@ const routes: Routes = [
       {
         path: 'auth/confirm-account',
         component: ConfirmAccountComponent,
-        canActivate: []
+        canActivate: [registerGuard]
       },
       { path: 'login', redirectTo: 'auth/login', pathMatch: 'full' },
       { path: 'register', redirectTo: 'auth/register', pathMatch: 'full' }
