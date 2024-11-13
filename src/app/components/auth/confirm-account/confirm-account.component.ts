@@ -84,4 +84,20 @@ export class ConfirmAccountComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  public getClientErrorMessage(controlName: string): string | null {
+    return this.formHelper.getClientErrorMessage(controlName);
+  }
+
+  public onInput(controlName: string): void {
+    this.formHelper.onInput(controlName);
+    this.formHelper.serverErrors = null;
+  }
+
+  public getServerErrorMessage(controlName: string): string | null {
+    return this.formHelper.serverErrors
+      ? this.formHelper.serverErrors[controlName] ||
+          this.formHelper.serverErrors['message']
+      : null;
+  }
 }

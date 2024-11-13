@@ -63,14 +63,6 @@
             outline: none;
           }
         }
-
-        .error-message {
-          margin-top: 5px;
-          color: red;
-          font-size: 14px;
-          width: 100%;
-          overflow-wrap: break-word;
-        }
       }
     }
 
@@ -99,6 +91,15 @@
       }
     }
   }
+
+  .error-message {
+    margin-top: 5px;
+    color: red;
+    font-size: 14px;
+    width: 100%;
+    overflow-wrap: break-word;
+  }
+
 }
 
 @media screen and (max-width: 575px) {
