@@ -6,6 +6,8 @@ import { LoginModel } from '../models/login/login.model';
 import { ConfirmCodeResponse } from '../models/confirm_account/confirm.code.response.model';
 import { LoginResponseModel } from '../models/login/login.response.model';
 import { RegisterResponseModel } from '../models/register/register.response.model';
+import { ForgotPasswordModel } from '../models/forgot_password/forgot.password.model';
+import { ForgotPasswordEmailConfirmModel } from '../models/forgot_password/forgot.password.email.confirm.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -37,10 +39,21 @@ export class AuthService {
     );
   }
 
-  public forgotPassword(email: string) {
-    return this.httpClient.post(
-      `${environment.apiUrl}/auth/forgot-password`,
+  public requestPasswordRecovery(
+    email: ForgotPasswordEmailConfirmModel
+  ): Observable<ForgotPasswordEmailConfirmModel> {
+    return this.httpClient.post<ForgotPasswordEmailConfirmModel>(
+      `${environment.apiUrl}/auth/request-password-recovery`,
       email
+    );
+  }
+
+  public resetAccountPassword(
+    body: ForgotPasswordModel
+  ): Observable<ForgotPasswordModel> {
+    return this.httpClient.post<ForgotPasswordModel>(
+      `${environment.apiUrl}/auth/password-recovery`,
+      body
     );
   }
 
