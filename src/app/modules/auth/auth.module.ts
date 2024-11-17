@@ -8,7 +8,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AuthContainerComponent } from '../../components/auth/auth-container/auth-container.component';
 import { ConfirmAccountComponent } from '../../components/auth/confirm-account/confirm-account.component';
 import { CodeInputModule } from 'angular-code-input';
-import { ForgotPasswordComponent } from '../../components/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from '../../components/auth/forgot-password/reset-password.component';
+import { RequestPasswordResetComponent } from '../../components/auth/request-password-reset/request-password-reset.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { ForgotPasswordComponent } from '../../components/auth/forgot-password/f
     LoginComponent,
     RegisterComponent,
     ConfirmAccountComponent,
-    ForgotPasswordComponent
+    ResetPasswordComponent,
+    RequestPasswordResetComponent
   ],
   exports: [LoginComponent],
   imports: [

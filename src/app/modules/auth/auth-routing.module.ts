@@ -5,7 +5,9 @@ import { LoginComponent } from '../../components/auth/login/login.component';
 import { AuthContainerComponent } from '../../components/auth/auth-container/auth-container.component';
 import { ConfirmAccountComponent } from '../../components/auth/confirm-account/confirm-account.component';
 import { registerGuard } from '../../guards/register.guard';
-import { ForgotPasswordComponent } from '../../components/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from '../../components/auth/forgot-password/reset-password.component';
+import { RequestPasswordResetComponent } from '../../components/auth/request-password-reset/request-password-reset.component';
+import { resetPasswordGuardGuard } from '../../guards/reset-password-guard.guard';
 
 const routes: Routes = [
   {
@@ -14,7 +16,15 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
       { path: 'auth/login', component: LoginComponent },
-      { path: 'auth/forgot-password', component: ForgotPasswordComponent },
+      {
+        path: 'auth/request-reset-password',
+        component: RequestPasswordResetComponent
+      },
+      {
+        path: 'auth/reset-password',
+        component: ResetPasswordComponent,
+        canActivate: [resetPasswordGuardGuard]
+      },
       { path: 'auth/register', component: RegisterComponent },
       {
         path: 'auth/confirm-account',
