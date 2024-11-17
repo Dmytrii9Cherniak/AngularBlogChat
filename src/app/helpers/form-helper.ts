@@ -47,10 +47,16 @@ export class FormHelper {
     return this.form;
   }
 
+  createRequestForgotPasswordForm(): FormGroup {
+    this.form = this.fb.group({
+      email: ['', [Validators.required, Validators.pattern(this.emailPattern)]]
+    });
+    return this.form;
+  }
+
   createForgotPasswordForm(): FormGroup {
     this.form = this.fb.group(
       {
-        identifier: ['', Validators.required],
         code: [
           '',
           [

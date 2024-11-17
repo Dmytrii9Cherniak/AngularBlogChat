@@ -4,15 +4,15 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
-export class VerificationService {
+export class ForgotPasswordService {
   private timerSubject = new BehaviorSubject<string>('0:00');
   public timer$ = this.timerSubject.asObservable();
   private timerSubscription: Subscription | null = null;
-  private attemptKey = 'confirmationAttempts';
+  private attemptKey = 'forgotPasswordAttempts';
 
   createTimer(duration: number): void {
     const endTime = Date.now() + duration;
-    localStorage.setItem('confirmationTimer', endTime.toString());
+    localStorage.setItem('forgotPasswordTimer', endTime.toString());
   }
 
   startTimer(duration: number, onExpire: () => void): void {
@@ -31,7 +31,7 @@ export class VerificationService {
 
       if (remainingTime <= 0) {
         this.timerSubject.next('0:00');
-        localStorage.removeItem('confirmationTimer');
+        localStorage.removeItem('forgotPasswordTimer');
         this.stopTimer();
         onExpire();
       } else {
@@ -52,18 +52,18 @@ export class VerificationService {
   }
 
   getSavedTimer(): number | null {
-    const savedEndTime = localStorage.getItem('confirmationTimer');
+    const savedEndTime = localStorage.getItem('forgotPasswordTimer');
     return savedEndTime ? Number(savedEndTime) : null;
   }
 
   clearStorage(): void {
-    localStorage.removeItem('confirmationTimer');
-    localStorage.removeItem('registrationData');
+    localStorage.removeItem('forgotPasswordTimer');
+    localStorage.removeItem('forgotPasswordData');
     localStorage.removeItem(this.attemptKey);
   }
 
-  hasRegistrationData(): boolean {
-    return !!localStorage.getItem('registrationData');
+  hasForgotPasswordData(): boolean {
+    return !!localStorage.getItem('forgotPasswordData');
   }
 
   isTimerValid(): boolean {

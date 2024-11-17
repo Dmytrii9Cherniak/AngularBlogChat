@@ -40,7 +40,7 @@ export class AuthService {
   }
 
   public requestPasswordRecovery(
-    email: ForgotPasswordEmailConfirmModel
+    email: string
   ): Observable<ForgotPasswordEmailConfirmModel> {
     return this.httpClient.post<ForgotPasswordEmailConfirmModel>(
       `${environment.apiUrl}/auth/request-password-recovery`,
