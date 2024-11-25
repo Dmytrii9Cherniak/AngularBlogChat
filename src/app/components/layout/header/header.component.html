@@ -1,4 +1,21 @@
 <header class="header">
-  <button [routerLink]="['/auth/register']"> Register </button>
-  <button [routerLink]="['/auth/login']"> Login </button>
+  <div class="container">
+    <nav class="navigation">
+      <div class="logo">
+        <a routerLink="/">BlogChatApp</a>
+      </div>
+      <div class="auth-buttons">
+        <ng-container *ngIf="!(isAuthenticated | async)">
+          <button routerLink="/auth/register" class="btn btn-primary">Register</button>
+          <button routerLink="/auth/login" class="btn btn-secondary">Login</button>
+        </ng-container>
+        <ng-container *ngIf="isAuthenticated | async">
+          <span class="user-info" *ngIf="(userProfileData | async) as data">
+            Welcome, <strong>{{ data.nickname }}</strong>
+          </span>
+          <button (click)="logout()" class="btn btn-danger">Logout</button>
+        </ng-container>
+      </div>
+    </nav>
+  </div>
 </header>

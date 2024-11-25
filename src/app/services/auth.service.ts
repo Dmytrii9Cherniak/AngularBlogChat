@@ -1,6 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {
+  BehaviorSubject,
+  timer,
+  Observable,
+  Subscription,
+  tap,
+  throwError
+} from 'rxjs';
 import { RegisterModel } from '../models/register/register.model';
 import { LoginModel } from '../models/login/login.model';
 import { ConfirmCodeResponse } from '../models/confirm_account/confirm.code.response.model';
@@ -8,19 +15,42 @@ import { LoginResponseModel } from '../models/login/login.response.model';
 import { RegisterResponseModel } from '../models/register/register.response.model';
 import { ForgotPasswordModel } from '../models/forgot_password/forgot.password.model';
 import { ForgotPasswordEmailConfirmModel } from '../models/forgot_password/forgot.password.email.confirm.model';
+import { TokenService } from './token.service';
 import { environment } from '../../environments/environment';
+import { RefreshTokenResponse } from '../models/token/refresh.token.response';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private httpClient: HttpClient) {}
+  protected isAuthenticatedSubject = new BehaviorSubject<boolean>(
+    this.tokenService.hasValidAccessToken()
+  );
+  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  private tokenExpirationSubscription: Subscription | null = null;
+
+  constructor(
+    private httpClient: HttpClient,
+    private tokenService: TokenService
+  ) {}
 
   public login(body: LoginModel): Observable<LoginResponseModel> {
-    return this.httpClient.post<LoginResponseModel>(
-      `${environment.apiUrl}/auth/login`,
-      body
-    );
+    if (this.isAuthenticatedSubject.value) {
+      return throwError(() => new Error('User is already authenticated.'));
+    }
+
+    return this.httpClient
+      .post<LoginResponseModel>(`${environment.apiUrl}/auth/login`, body)
+      .pipe(
+        tap((response: LoginResponseModel) => {
+          if (response.access_token && response.refresh_token) {
+            this.tokenService.setAccessToken(response.access_token);
+            this.tokenService.setRefreshToken(response.refresh_token);
+            this.isAuthenticatedSubject.next(true);
+            this.scheduleTokenExpirationCheck();
+          }
+        })
+      );
   }
 
   public register(body: RegisterModel): Observable<RegisterResponseModel> {
@@ -33,9 +63,7 @@ export class AuthService {
   public confirmAccount(code: number): Observable<ConfirmCodeResponse> {
     return this.httpClient.post<ConfirmCodeResponse>(
       `${environment.apiUrl}/auth/register-confirm`,
-      {
-        code
-      }
+      { code }
     );
   }
 
@@ -57,7 +85,77 @@ export class AuthService {
     );
   }
 
-  public logout(): Observable<any> {
-    return this.httpClient.post(`${environment.apiUrl}/auth/logout`, {});
+  public refreshToken(): Observable<RefreshTokenResponse> {
+    const refreshToken = this.tokenService.getRefreshToken();
+    if (!refreshToken) {
+      return throwError(() => new Error('Refresh token is missing'));
+    }
+    return this.httpClient
+      .post<RefreshTokenResponse>(`${environment.apiUrl}/auth/token/refresh`, {
+        refresh: refreshToken
+      })
+      .pipe(
+        tap((newTokens) => {
+          if (newTokens.access && newTokens.refresh) {
+            this.tokenService.setAccessToken(newTokens.access);
+            this.tokenService.setRefreshToken(newTokens.refresh);
+            this.isAuthenticatedSubject.next(true);
+          } else {
+            throw new Error('Invalid tokens received');
+          }
+        })
+      );
+  }
+
+  public scheduleTokenExpirationCheck(): void {
+    const token = this.tokenService.getAccessToken();
+    if (!this.isAuthenticatedSubject.value || !token) {
+      return;
+    }
+
+    const expirationDate = this.tokenService.getTokenExpirationDate(token);
+    if (expirationDate) {
+      const timeUntilRefresh =
+        expirationDate.getTime() - new Date().getTime() - 3 * 60 * 1000; // 3 хвилини до завершення
+
+      if (timeUntilRefresh <= 0) {
+        // Токен майже закінчився, виконуємо рефреш негайно
+        this.refreshToken().subscribe({
+          next: () => this.scheduleTokenExpirationCheck(),
+          error: () => this.logout()
+        });
+        return;
+      }
+
+      if (this.tokenExpirationSubscription) {
+        this.tokenExpirationSubscription.unsubscribe();
+      }
+
+      // Запланувати оновлення токена через `timeUntilRefresh` мс
+      this.tokenExpirationSubscription = timer(timeUntilRefresh).subscribe(
+        () => {
+          this.refreshToken().subscribe({
+            next: () => {
+              this.scheduleTokenExpirationCheck(); // Рекурсивно плануємо перевірку
+            },
+            error: () => {
+              this.logout(); // Логаут у разі помилки
+            }
+          });
+        }
+      );
+    }
+  }
+
+  public logout(): void {
+    if (this.tokenExpirationSubscription) {
+      this.tokenExpirationSubscription.unsubscribe();
+      this.tokenExpirationSubscription = null;
+    }
+
+    this.tokenService.removeAccessToken();
+    this.tokenService.removeRefreshToken();
+
+    this.isAuthenticatedSubject.next(false);
   }
 }
