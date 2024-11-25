@@ -15,7 +15,7 @@ export class UserService {
 
   public getUserData(): Observable<UserDataModel> {
     return this.httpClient
-      .get<UserDataModel>(`${environment.apiUrl}/auth/user-data`)
+      .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`)
       .pipe(
         tap((res: UserDataModel): void => {
           this.userProfileData.next(res);

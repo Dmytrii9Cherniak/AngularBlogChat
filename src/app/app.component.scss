@@ -22,8 +22,24 @@
 }
 
 app-header {
-  height: 75px;
-  flex-shrink: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #1a1a2e;
+  color: #fff;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding-top: 55px;
 }
 
 router-outlet {
