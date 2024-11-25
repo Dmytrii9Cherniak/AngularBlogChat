@@ -6,7 +6,8 @@ import {
   Observable,
   Subscription,
   tap,
-  throwError
+  throwError,
+  catchError
 } from 'rxjs';
 import { RegisterModel } from '../models/register/register.model';
 import { LoginModel } from '../models/login/login.model';
@@ -90,61 +91,54 @@ export class AuthService {
     if (!refreshToken) {
       return throwError(() => new Error('Refresh token is missing'));
     }
+
     return this.httpClient
       .post<RefreshTokenResponse>(`${environment.apiUrl}/auth/token/refresh`, {
         refresh: refreshToken
       })
       .pipe(
         tap((newTokens) => {
-          if (newTokens.access && newTokens.refresh) {
+          if (newTokens.access) {
             this.tokenService.setAccessToken(newTokens.access);
-            this.tokenService.setRefreshToken(newTokens.refresh);
-            this.isAuthenticatedSubject.next(true);
-          } else {
-            throw new Error('Invalid tokens received');
           }
+          if (newTokens.refresh) {
+            this.tokenService.setRefreshToken(newTokens.refresh);
+          }
+          this.isAuthenticatedSubject.next(true);
+        }),
+        catchError((error) => {
+          console.error('Refresh token failed:', error);
+          return throwError(() => error);
         })
       );
   }
 
   public scheduleTokenExpirationCheck(): void {
     const token = this.tokenService.getAccessToken();
-    if (!this.isAuthenticatedSubject.value || !token) {
+    if (!token) {
       return;
     }
 
     const expirationDate = this.tokenService.getTokenExpirationDate(token);
-    if (expirationDate) {
-      const timeUntilRefresh =
-        expirationDate.getTime() - new Date().getTime() - 3 * 60 * 1000; // 3 хвилини до завершення
-
-      if (timeUntilRefresh <= 0) {
-        // Токен майже закінчився, виконуємо рефреш негайно
-        this.refreshToken().subscribe({
-          next: () => this.scheduleTokenExpirationCheck(),
-          error: () => this.logout()
-        });
-        return;
-      }
-
-      if (this.tokenExpirationSubscription) {
-        this.tokenExpirationSubscription.unsubscribe();
-      }
-
-      // Запланувати оновлення токена через `timeUntilRefresh` мс
-      this.tokenExpirationSubscription = timer(timeUntilRefresh).subscribe(
-        () => {
-          this.refreshToken().subscribe({
-            next: () => {
-              this.scheduleTokenExpirationCheck(); // Рекурсивно плануємо перевірку
-            },
-            error: () => {
-              this.logout(); // Логаут у разі помилки
-            }
-          });
-        }
-      );
+    if (!expirationDate) {
+      return;
     }
+
+    const timeUntilRefresh =
+      expirationDate.getTime() - new Date().getTime() - 11 * 1000;
+
+    if (this.tokenExpirationSubscription) {
+      this.tokenExpirationSubscription.unsubscribe();
+    }
+
+    this.tokenExpirationSubscription = timer(timeUntilRefresh).subscribe(() => {
+      this.refreshToken().subscribe({
+        next: () => this.scheduleTokenExpirationCheck(),
+        error: () => {
+          console.warn('Token refresh failed. User remains logged in.');
+        }
+      });
+    });
   }
 
   public logout(): void {

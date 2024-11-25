@@ -7,15 +7,13 @@ export class TokenService {
   private readonly ACCESS_TOKEN_KEY = 'accessToken';
   private readonly REFRESH_TOKEN_KEY = 'refreshToken';
 
-  // Встановити куку
-  private setCookie(name: string, value: string, days: number): void {
-    const expires = new Date(
-      Date.now() + days * 24 * 60 * 60 * 1000
-    ).toUTCString();
-    document.cookie = `${name}=${value}; expires=${expires}; path=/; secure; SameSite=Strict`;
+  private setCookie(name: string, value: string, days: number = 365): void {
+    const date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000); // Додаємо `days` днів
+    const expires = `expires=${date.toUTCString()}`;
+    document.cookie = `${name}=${value}; ${expires}; path=/; Secure; SameSite=Strict`;
   }
 
-  // Отримати значення куки
   private getCookie(name: string): string | null {
     const cookies = document.cookie.split('; ');
     for (const cookie of cookies) {
@@ -27,13 +25,12 @@ export class TokenService {
     return null;
   }
 
-  // Видалити куку
   private deleteCookie(name: string): void {
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=Strict`;
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict`;
   }
 
   setAccessToken(token: string): void {
-    this.setCookie(this.ACCESS_TOKEN_KEY, token, 1); // Токен зберігається на 1 день
+    this.setCookie(this.ACCESS_TOKEN_KEY, token, 365); // Зберігати токен 365 днів
   }
 
   getAccessToken(): string | null {
@@ -45,7 +42,7 @@ export class TokenService {
   }
 
   setRefreshToken(token: string): void {
-    this.setCookie(this.REFRESH_TOKEN_KEY, token, 7); // Refresh токен зберігається на 7 днів
+    this.setCookie(this.REFRESH_TOKEN_KEY, token, 3650); // Зберігати refresh токен 10 років
   }
 
   getRefreshToken(): string | null {

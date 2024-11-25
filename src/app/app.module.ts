@@ -12,6 +12,7 @@ import { authInterceptor } from './interceptors/auth.interceptor';
 import { initializeApp } from './helpers/init.app';
 import { AuthService } from './services/auth.service';
 import { UserService } from './services/user.service';
+import { TokenService } from './services/token.service';
 
 @NgModule({
   declarations: [AppComponent, HeaderComponent],
@@ -27,7 +28,7 @@ import { UserService } from './services/user.service';
     {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,
-      deps: [AuthService, UserService],
+      deps: [AuthService, UserService, TokenService],
       multi: true
     }
   ],
