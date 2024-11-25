@@ -8,6 +8,7 @@ import { map, switchMap } from 'rxjs';
 import { UserDataModel } from '../../../models/user/user.data.model';
 import { UserService } from '../../../services/user.service';
 import { LoginResponseModel } from '../../../models/login/login.response.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -37,7 +38,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private router: Router
   ) {
     this.formHelper = new FormHelper(this.fb);
   }
@@ -71,6 +73,7 @@ export class LoginComponent implements OnInit {
       .subscribe({
         next: (): void => {
           this.formHelper.serverErrors = null;
+          this.router.navigate(['/blogs']);
         },
         error: (errorResponse): void => {
           if (errorResponse.error && errorResponse.error.errors) {

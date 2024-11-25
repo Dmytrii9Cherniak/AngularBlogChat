@@ -8,31 +8,31 @@ import { registerGuard } from '../../guards/register.guard';
 import { ResetPasswordComponent } from '../../components/auth/forgot-password/reset-password.component';
 import { RequestPasswordResetComponent } from '../../components/auth/request-password-reset/request-password-reset.component';
 import { resetPasswordGuardGuard } from '../../guards/reset-password-guard.guard';
+import { authGuard } from '../../guards/auth.guard';
 
 const routes: Routes = [
   {
     path: '',
     component: AuthContainerComponent,
+    canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
-      { path: 'auth/login', component: LoginComponent },
+      { path: '', redirectTo: 'login', pathMatch: 'full' },
+      { path: 'login', component: LoginComponent },
       {
-        path: 'auth/request-reset-password',
+        path: 'request-reset-password',
         component: RequestPasswordResetComponent
       },
       {
-        path: 'auth/reset-password',
+        path: 'reset-password',
         component: ResetPasswordComponent,
         canActivate: [resetPasswordGuardGuard]
       },
-      { path: 'auth/register', component: RegisterComponent },
+      { path: 'register', component: RegisterComponent },
       {
-        path: 'auth/confirm-account',
+        path: 'confirm-account',
         component: ConfirmAccountComponent,
         canActivate: [registerGuard]
-      },
-      { path: 'login', redirectTo: 'auth/login', pathMatch: 'full' },
-      { path: 'register', redirectTo: 'auth/register', pathMatch: 'full' }
+      }
     ]
   }
 ];

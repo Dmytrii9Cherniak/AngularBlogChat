@@ -30,6 +30,10 @@ export class AuthService {
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   private tokenExpirationSubscription: Subscription | null = null;
 
+  public get isAuthenticatedValue(): boolean {
+    return this.isAuthenticatedSubject.value;
+  }
+
   constructor(
     private httpClient: HttpClient,
     private tokenService: TokenService
