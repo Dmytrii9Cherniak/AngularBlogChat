@@ -20,11 +20,9 @@ export function initializeApp(
         await firstValueFrom(userService.getUserData());
         authService.scheduleTokenExpirationCheck();
       } else {
-        authService.logout();
       }
     } catch (error) {
       console.error('Initialization error:', error);
-      authService.logout();
     }
   };
 }

@@ -42,7 +42,6 @@ export const authInterceptor: HttpInterceptorFn = (
             return next(clonedRequest);
           }),
           catchError(() => {
-            authService.logout();
             return throwError(() => error);
           })
         );
