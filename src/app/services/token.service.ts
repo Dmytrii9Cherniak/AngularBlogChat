@@ -28,8 +28,7 @@ export class TokenService {
   isTokenExpired(token: string): boolean {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const expirationTime = payload.exp * 1000;
-      return Date.now() >= expirationTime;
+      return Date.now() >= payload.exp * 1000;
     } catch {
       return true;
     }
@@ -56,15 +55,23 @@ export class TokenService {
   private readonly TIMER_KEY = 'timerExpirationTime';
 
   setTimerExpirationTime(expirationTime: number): void {
+    const currentTime = Date.now();
+
+    // Перевірка, щоб час не був у минулому
+    if (expirationTime <= currentTime) {
+      console.error('Invalid timer expiration time. It cannot be in the past.');
+      return; // Не встановлюємо некоректну дату
+    }
+
     const date = new Date(expirationTime).toUTCString();
-    document.cookie = `${this.TIMER_KEY}=${date}; path=/; Secure; SameSite=Strict`;
+    document.cookie = `timerExpirationTime=${date}; path=/; Secure; SameSite=Strict`;
   }
 
   getTimerExpirationTime(): number | null {
     const cookies = document.cookie.split('; ');
     for (const cookie of cookies) {
       const [key, value] = cookie.split('=');
-      if (key === this.TIMER_KEY) {
+      if (key === 'timerExpirationTime') {
         const parsedTime = Date.parse(decodeURIComponent(value));
         if (!isNaN(parsedTime)) {
           return parsedTime;
