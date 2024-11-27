@@ -10,6 +10,13 @@ export function initializeApp(
 ): () => Promise<void> {
   return async (): Promise<void> => {
     const token = authService.getAccessToken();
+    const timerExpiration = tokenService.getTimerExpirationTime();
+    const currentTime = Date.now();
+
+    if (timerExpiration && timerExpiration > currentTime) {
+      const remainingTime = timerExpiration - currentTime;
+      authService.startRefreshTokenExpiryTimer(remainingTime);
+    }
 
     if (token && !authService.isAccessTokenExpired(token)) {
       authService.setAuthenticated(true);

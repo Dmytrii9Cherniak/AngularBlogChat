@@ -189,15 +189,18 @@ export class AuthService {
 
   startRefreshTokenExpiryTimer(duration: number): void {
     const expirationTime = Date.now() + duration;
-    this.tokenService.setTimerExpirationTime(expirationTime); // Зберігаємо час завершення
+    this.tokenService.setTimerExpirationTime(expirationTime); // Зберігаємо час завершення в куки
 
     this.clearRefreshTokenTimer(); // Очищаємо попередній таймер
 
     this.refreshTokenExpiryTimer = timer(duration).subscribe({
       next: () => {
+        console.log('Refresh token timer expired. Logging out...');
         this.logout(); // Виконуємо логаут після завершення таймера
       },
-      error: (err) => {}
+      error: (err) => {
+        console.error('Error in refresh token timer subscription:', err);
+      }
     });
   }
 

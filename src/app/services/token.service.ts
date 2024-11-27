@@ -65,7 +65,10 @@ export class TokenService {
     for (const cookie of cookies) {
       const [key, value] = cookie.split('=');
       if (key === this.TIMER_KEY) {
-        return new Date(decodeURIComponent(value)).getTime();
+        const parsedTime = Date.parse(decodeURIComponent(value));
+        if (!isNaN(parsedTime)) {
+          return parsedTime;
+        }
       }
     }
     return null;
