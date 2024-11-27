@@ -1,5 +1,5 @@
 <div class="form-container login_page_container" @routeAnimation>
-  <form class="form" [formGroup]="formHelper.form" (ngSubmit)="login()">
+  <form class="form" [formGroup]="formHelper.form">
     <article>
       <h2>Login</h2>
       <h3>To get started</h3>
@@ -39,7 +39,7 @@
 
     <h4 class="forgot_password"> <a [routerLink]="['/auth/request-reset-password']"> Forgot password? </a> </h4>
 
-    <button class="form-button" type="submit">Login</button>
+    <button class="form-button" (click)="login()">Login</button>
 
     <h3 class="to_join_us">
       Or you can register <a [routerLink]="'/register'">here</a> to join us

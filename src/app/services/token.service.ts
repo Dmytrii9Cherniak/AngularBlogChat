@@ -5,59 +5,31 @@ import { Injectable } from '@angular/core';
 })
 export class TokenService {
   private readonly ACCESS_TOKEN_KEY = 'accessToken';
-  private readonly REFRESH_TOKEN_KEY = 'refreshToken';
 
-  private setCookie(name: string, value: string, days: number = 365): void {
-    const date = new Date();
-    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000); // Додаємо `days` днів
-    const expires = `expires=${date.toUTCString()}`;
-    document.cookie = `${name}=${value}; ${expires}; path=/; Secure; SameSite=Strict`;
+  setAccessToken(token: string): void {
+    document.cookie = `${this.ACCESS_TOKEN_KEY}=${token}; path=/; Secure; SameSite=Strict`;
   }
 
-  private getCookie(name: string): string | null {
+  getAccessToken(): string | null {
     const cookies = document.cookie.split('; ');
     for (const cookie of cookies) {
       const [key, value] = cookie.split('=');
-      if (key === name) {
+      if (key === this.ACCESS_TOKEN_KEY) {
         return decodeURIComponent(value);
       }
     }
     return null;
   }
 
-  private deleteCookie(name: string): void {
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict`;
-  }
-
-  setAccessToken(token: string): void {
-    this.setCookie(this.ACCESS_TOKEN_KEY, token, 365); // Зберігати токен 365 днів
-  }
-
-  getAccessToken(): string | null {
-    return this.getCookie(this.ACCESS_TOKEN_KEY);
-  }
-
   removeAccessToken(): void {
-    this.deleteCookie(this.ACCESS_TOKEN_KEY);
-  }
-
-  setRefreshToken(token: string): void {
-    this.setCookie(this.REFRESH_TOKEN_KEY, token, 3650); // Зберігати refresh токен 10 років
-  }
-
-  getRefreshToken(): string | null {
-    return this.getCookie(this.REFRESH_TOKEN_KEY);
-  }
-
-  removeRefreshToken(): void {
-    this.deleteCookie(this.REFRESH_TOKEN_KEY);
+    document.cookie = `${this.ACCESS_TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure; SameSite=Strict`;
   }
 
   isTokenExpired(token: string): boolean {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const expirationDate = new Date(payload.exp * 1000);
-      return expirationDate < new Date();
+      const expirationTime = payload.exp * 1000;
+      return Date.now() >= expirationTime;
     } catch {
       return true;
     }
@@ -75,5 +47,51 @@ export class TokenService {
   hasValidAccessToken(): boolean {
     const token = this.getAccessToken();
     return token ? !this.isTokenExpired(token) : false;
+  }
+
+  clearAllTokens(): void {
+    this.removeAccessToken();
+  }
+
+  private readonly TIMER_KEY = 'timerExpirationTime';
+
+  setTimerExpirationTime(expirationTime: number): void {
+    const date = new Date(expirationTime).toUTCString();
+    document.cookie = `${this.TIMER_KEY}=${date}; path=/; Secure; SameSite=Strict`;
+  }
+
+  getTimerExpirationTime(): number | null {
+    const cookies = document.cookie.split('; ');
+    for (const cookie of cookies) {
+      const [key, value] = cookie.split('=');
+      if (key === this.TIMER_KEY) {
+        return new Date(decodeURIComponent(value)).getTime();
+      }
+    }
+    return null;
+  }
+
+  clearTimerExpirationTime(): void {
+    document.cookie = `${this.TIMER_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure; SameSite=Strict`;
+  }
+
+  isValidTokenFormat(token: string): boolean {
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      console.warn('Token format is invalid. Expected 3 parts.');
+      return false;
+    }
+
+    try {
+      const payload = JSON.parse(atob(parts[1]));
+      if (!payload.exp) {
+        console.warn('Token payload does not contain expiration time.');
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error('Failed to parse token payload:', error);
+      return false;
+    }
   }
 }
