@@ -12,8 +12,8 @@ export class FormHelper {
 
   createLoginForm(): FormGroup {
     this.form = this.fb.group({
-      nickname: ['', Validators.required],
-      password: ['', Validators.required]
+      nickname: ['dcheyrnak10@gmail.com', Validators.required],
+      password: ['380984438849Sofia!', Validators.required]
     });
     return this.form;
   }

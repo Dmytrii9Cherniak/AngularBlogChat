@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { UserDataModel } from '../models/user/user.data.model';
 import { environment } from '../../environments/environment';
 
@@ -13,12 +14,18 @@ export class UserService {
 
   constructor(private httpClient: HttpClient) {}
 
+  // Оновлення профілю
+  public updateUserProfile(userData: UserDataModel): void {
+    this.userProfileData.next(userData);
+  }
+
+  // Завантаження даних користувача
   public getUserData(): Observable<UserDataModel> {
     return this.httpClient
       .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`)
       .pipe(
-        tap((res: UserDataModel): void => {
-          this.userProfileData.next(res);
+        tap((userData: UserDataModel) => {
+          this.updateUserProfile(userData);
         })
       );
   }

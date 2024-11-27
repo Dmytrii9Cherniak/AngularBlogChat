@@ -20,7 +20,6 @@ import { RequestPasswordResetComponent } from '../../components/auth/request-pas
     ResetPasswordComponent,
     RequestPasswordResetComponent
   ],
-  exports: [LoginComponent],
   imports: [
     CommonModule,
     AuthRoutingModule,

@@ -9,20 +9,18 @@ export function initializeApp(
   tokenService: TokenService
 ): () => Promise<void> {
   return async (): Promise<void> => {
-    try {
-      const refreshToken = tokenService.getRefreshToken();
+    const token = authService.getAccessToken();
 
-      if (refreshToken && !tokenService.hasValidAccessToken()) {
-        await firstValueFrom(authService.refreshToken());
-      }
+    if (token && !authService.isAccessTokenExpired(token)) {
+      authService.setAuthenticated(true);
+      authService.scheduleTokenExpirationCheck();
 
-      if (tokenService.hasValidAccessToken()) {
-        await firstValueFrom(userService.getUserData());
-        authService.scheduleTokenExpirationCheck();
-      } else {
+      try {
+        const userData = await firstValueFrom(userService.getUserData());
+        userService.userProfileData.next(userData);
+      } catch (error) {
+        console.error('Failed to load user data. Logging out...');
       }
-    } catch (error) {
-      console.error('Initialization error:', error);
     }
   };
 }
