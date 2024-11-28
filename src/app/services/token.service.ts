@@ -4,104 +4,59 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class TokenService {
-  private readonly ACCESS_TOKEN_KEY = 'accessToken';
-
-  setAccessToken(token: string): void {
-    document.cookie = `${this.ACCESS_TOKEN_KEY}=${token}; path=/; Secure; SameSite=Strict`;
-  }
+  private accessTokenKey = 'access_token';
 
   getAccessToken(): string | null {
-    const cookies = document.cookie.split('; ');
-    for (const cookie of cookies) {
-      const [key, value] = cookie.split('=');
-      if (key === this.ACCESS_TOKEN_KEY) {
-        return decodeURIComponent(value);
-      }
-    }
-    return null;
+    return this.getCookie(this.accessTokenKey);
   }
 
-  removeAccessToken(): void {
-    document.cookie = `${this.ACCESS_TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure; SameSite=Strict`;
+  saveAccessToken(token: string): void {
+    const expirationDate = new Date(Date.now() + 30 * 1000); // 30 секунд
+    document.cookie = `${this.accessTokenKey}=${token}; expires=${expirationDate.toUTCString()}; path=/;`;
   }
 
-  isTokenExpired(token: string): boolean {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return Date.now() >= payload.exp * 1000;
-    } catch {
-      return true;
-    }
-  }
-
-  getTokenExpirationDate(token: string): Date | null {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.exp ? new Date(payload.exp * 1000) : null;
-    } catch {
-      return null;
-    }
+  clearTokens(): void {
+    this.deleteCookie(this.accessTokenKey);
   }
 
   hasValidAccessToken(): boolean {
     const token = this.getAccessToken();
-    return token ? !this.isTokenExpired(token) : false;
+    if (!token) return false;
+
+    // Перевіряємо формат токену
+    if (!this.isTokenFormatValid(token)) return false;
+
+    // Перевіряємо, чи не минув термін дії токену
+    return !this.isTokenExpired(token);
   }
 
-  clearAllTokens(): void {
-    this.removeAccessToken();
-  }
-
-  private readonly TIMER_KEY = 'timerExpirationTime';
-
-  setTimerExpirationTime(expirationTime: number): void {
-    const currentTime = Date.now();
-
-    // Перевірка, щоб час не був у минулому
-    if (expirationTime <= currentTime) {
-      console.error('Invalid timer expiration time. It cannot be in the past.');
-      return; // Не встановлюємо некоректну дату
+  isTokenFormatValid(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1])); // Перевіряємо, чи можна розпакувати payload
+      return !!payload && typeof payload.exp === 'number'; // Токен повинен містити поле `exp`
+    } catch (error) {
+      return false; // Якщо токен некоректний, повертаємо false
     }
-
-    const date = new Date(expirationTime).toUTCString();
-    document.cookie = `timerExpirationTime=${date}; path=/; Secure; SameSite=Strict`;
   }
 
-  getTimerExpirationTime(): number | null {
-    const cookies = document.cookie.split('; ');
-    for (const cookie of cookies) {
-      const [key, value] = cookie.split('=');
-      if (key === 'timerExpirationTime') {
-        const parsedTime = Date.parse(decodeURIComponent(value));
-        if (!isNaN(parsedTime)) {
-          return parsedTime;
-        }
-      }
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 < Date.now();
+    } catch (error) {
+      // Якщо токен пошкоджений, вважаємо його недійсним
+      return true;
     }
+  }
+
+  private getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
     return null;
   }
 
-  clearTimerExpirationTime(): void {
-    document.cookie = `${this.TIMER_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure; SameSite=Strict`;
-  }
-
-  isValidTokenFormat(token: string): boolean {
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-      console.warn('Token format is invalid. Expected 3 parts.');
-      return false;
-    }
-
-    try {
-      const payload = JSON.parse(atob(parts[1]));
-      if (!payload.exp) {
-        console.warn('Token payload does not contain expiration time.');
-        return false;
-      }
-      return true;
-    } catch (error) {
-      console.error('Failed to parse token payload:', error);
-      return false;
-    }
+  private deleteCookie(name: string): void {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
   }
 }
