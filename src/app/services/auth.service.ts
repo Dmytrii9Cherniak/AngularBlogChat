@@ -22,22 +22,18 @@ import { TokenService } from './token.service';
 import { environment } from '../../environments/environment';
 import { UserDataModel } from '../models/user/user.data.model';
 import { UserService } from './user.service';
+import { LoginResponseModel } from '../models/login/login.response.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private broadcastChannel = new BroadcastChannel('auth-channel');
-  protected isAuthenticatedSubject = new BehaviorSubject<boolean>(
-    this.tokenService.hasValidAccessToken()
-  );
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  private isRefreshingToken = false; // Запобігання одночасним запитам
-  private tokenRefreshSubject = new BehaviorSubject<string | null>(null);
-
-  private tokenExpirationSubscription: Subscription | null = null;
-  private refreshTokenExpiryTimer: Subscription | null = null;
+  private accessTokenTimer: any;
+  private refreshTokenTimer: any;
 
   constructor(
     private httpClient: HttpClient,
@@ -85,30 +81,42 @@ export class AuthService {
     );
   }
 
-  login(
-    body: LoginModel
-  ): Observable<{ access_token: string; user: UserDataModel }> {
+  setAuthenticated(isAuthenticated: boolean): void {
+    this.isAuthenticatedSubject.next(isAuthenticated);
+  }
+
+  login(body: any): Observable<{ access_token: string; user: UserDataModel }> {
     if (this.isAuthenticatedSubject.value) {
-      throw new Error('User is already authenticated.');
+      throw new Error('User is already logged in.');
     }
 
     return this.httpClient
-      .post<{ access_token: string }>(`${environment.apiUrl}/auth/login`, body)
+      .post<{
+        access_token: string;
+      }>(`${environment.apiUrl}/auth/login`, body, { withCredentials: true })
       .pipe(
         switchMap((response) => {
-          this.tokenService.setAccessToken(response.access_token);
+          // Зберігаємо access_token
+          this.tokenService.saveAccessToken(response.access_token);
+
+          // Встановлюємо стан авторизації
           this.setAuthenticated(true);
 
-          this.clearAllTimers();
-          this.scheduleTokenExpirationCheck();
+          // Очищаємо всі таймери і запускаємо нові
+          this.clearTimers();
+          this.startRefreshTokenExpiryTimer();
 
-          const timerDuration = 50 * 1000; // Таймер розлогування через 50 секунд
-          this.startRefreshTokenExpiryTimer(timerDuration);
+          // Синхронізація між вкладками
+          this.broadcastChannel.postMessage('login');
 
+          // Виконуємо запит на отримання даних користувача
           return this.httpClient
-            .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`)
+            .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`, {
+              withCredentials: true
+            })
             .pipe(
               tap((userData) => {
+                // Зберігаємо дані користувача в UserService
                 this.userService.userProfileData.next(userData);
               }),
               map((userData) => ({
@@ -120,135 +128,104 @@ export class AuthService {
       );
   }
 
-  logout(): void {
-    this.tokenService.clearAllTokens();
-    this.tokenExpirationSubscription?.unsubscribe();
-    this.tokenService.clearTimerExpirationTime();
-    this.isAuthenticatedSubject.next(false);
-    this.clearAllTimers();
-  }
-
   refreshToken(): Observable<{ access_token: string }> {
-    if (this.isRefreshingToken) {
-      return this.tokenRefreshSubject.pipe(
-        switchMap((token) => {
-          if (!token) {
-            return throwError(() => new Error('No token available.'));
-          }
-          return this.httpClient.post<{ access_token: string }>(
-            `${environment.apiUrl}/auth/token/refresh`,
-            {}
-          );
-        })
-      );
-    }
-
-    this.isRefreshingToken = true;
-    this.tokenRefreshSubject.next(null);
-
     return this.httpClient
       .post<{
         access_token: string;
-      }>(`${environment.apiUrl}/auth/token/refresh`, {})
+      }>(
+        `${environment.apiUrl}/auth/token/refresh`,
+        {},
+        { withCredentials: true }
+      )
       .pipe(
         tap((response) => {
-          this.tokenService.setAccessToken(response.access_token);
-          this.tokenRefreshSubject.next(response.access_token);
-          this.scheduleTokenExpirationCheck();
+          this.tokenService.saveAccessToken(response.access_token);
         }),
         catchError((error) => {
-          console.error('Token refresh failed:', error);
-          this.tokenRefreshSubject.next(null);
+          console.error('Refresh token failed:', error);
           this.logout();
           return throwError(() => error);
-        }),
-        finalize(() => {
-          this.isRefreshingToken = false;
         })
       );
   }
 
-  scheduleTokenExpirationCheck(): void {
-    const token = this.tokenService.getAccessToken();
-    if (!token) return;
+  logout(): void {
+    this.setAuthenticated(false);
+    this.tokenService.clearTokens();
+    this.clearTimers();
+    this.broadcastChannel.postMessage('logout');
+  }
 
-    const expirationDate = this.tokenService.getTokenExpirationDate(token);
-    if (!expirationDate) return;
+  startRefreshTokenExpiryTimer(): void {
+    this.clearTimers();
 
-    const now = new Date().getTime();
-    const delay = expirationDate.getTime() - now - 11000; // 11 секунд до закінчення
+    // Розрахунок часу завершення таймерів
+    const now = Date.now();
+    const accessTokenExpiry = now + 20000; // 20 секунд для access_token
+    const refreshTokenExpiry = now + 50000; // 50 секунд для refresh_token
 
-    if (this.tokenExpirationSubscription) {
-      this.tokenExpirationSubscription.unsubscribe();
-    }
+    // Зберігаємо час завершення у localStorage
+    localStorage.setItem('accessTokenExpiry', accessTokenExpiry.toString());
+    localStorage.setItem('refreshTokenExpiry', refreshTokenExpiry.toString());
 
-    if (delay <= 0) {
+    // Запускаємо таймери
+    this.accessTokenTimer = setTimeout(() => {
       this.refreshToken().subscribe();
-    } else {
-      this.tokenExpirationSubscription = timer(delay).subscribe(() => {
-        this.refreshToken().subscribe();
-      });
+    }, 20000);
+
+    this.refreshTokenTimer = setTimeout(() => {
+      this.logout();
+    }, 50000);
+  }
+
+  private clearTimers(): void {
+    if (this.accessTokenTimer) {
+      clearInterval(this.accessTokenTimer);
     }
-  }
-
-  startRefreshTokenExpiryTimer(duration: number): void {
-    const expirationTime = Date.now() + duration;
-
-    if (duration <= 0) {
-      console.error('Invalid timer duration. It must be greater than 0.');
-      return;
-    }
-
-    this.tokenService.setTimerExpirationTime(expirationTime);
-
-    this.clearRefreshTokenTimer();
-
-    this.refreshTokenExpiryTimer = timer(duration).subscribe({
-      next: () => {
-        this.logout();
-      },
-      error: (err) => {
-        console.error('Error in refresh token timer subscription:', err);
-      }
-    });
-  }
-
-  clearAllTimers(): void {
-    if (this.tokenExpirationSubscription) {
-      this.tokenExpirationSubscription.unsubscribe();
-    }
-    if (this.refreshTokenExpiryTimer) {
-      this.refreshTokenExpiryTimer.unsubscribe();
-    }
-  }
-
-  public getAccessToken(): string | null {
-    return this.tokenService.getAccessToken();
-  }
-
-  public isAccessTokenExpired(token: string): boolean {
-    return this.tokenService.isTokenExpired(token);
-  }
-
-  public setAuthenticated(isAuthenticated: boolean): void {
-    this.isAuthenticatedSubject.next(isAuthenticated);
-  }
-
-  private clearRefreshTokenTimer(): void {
-    if (this.refreshTokenExpiryTimer) {
-      this.refreshTokenExpiryTimer.unsubscribe();
+    if (this.refreshTokenTimer) {
+      clearTimeout(this.refreshTokenTimer);
     }
   }
 
   private handleLogoutSync(): void {
-    this.isAuthenticatedSubject.next(false);
-    this.clearAllTimers();
+    this.logout();
   }
 
   private handleLoginSync(): void {
-    if (this.tokenService.hasValidAccessToken()) {
-      this.isAuthenticatedSubject.next(true);
-      this.scheduleTokenExpirationCheck();
+    this.startRefreshTokenExpiryTimer();
+  }
+
+  initializeTimers(): void {
+    const now = Date.now();
+    const accessTokenExpiry = parseInt(
+      localStorage.getItem('accessTokenExpiry') || '0',
+      10
+    );
+    const refreshTokenExpiry = parseInt(
+      localStorage.getItem('refreshTokenExpiry') || '0',
+      10
+    );
+
+    // Розрахунок залишкового часу
+    const accessTokenRemaining = accessTokenExpiry - now;
+    const refreshTokenRemaining = refreshTokenExpiry - now;
+
+    if (accessTokenRemaining > 0) {
+      this.accessTokenTimer = setTimeout(() => {
+        this.refreshToken().subscribe();
+      }, accessTokenRemaining);
+    } else {
+      // Якщо час закінчився, оновлюємо токен одразу
+      this.refreshToken().subscribe();
+    }
+
+    if (refreshTokenRemaining > 0) {
+      this.refreshTokenTimer = setTimeout(() => {
+        this.logout();
+      }, refreshTokenRemaining);
+    } else {
+      // Якщо refreshToken вже закінчився, виконуємо logout
+      this.logout();
     }
   }
 }
