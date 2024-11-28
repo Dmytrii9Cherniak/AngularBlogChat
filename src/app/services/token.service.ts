@@ -10,9 +10,9 @@ export class TokenService {
     return this.getCookie(this.accessTokenKey);
   }
 
-  saveAccessToken(token: string): void {
-    const expirationDate = new Date(Date.now() + 30 * 1000); // 30 секунд
-    document.cookie = `${this.accessTokenKey}=${token}; expires=${expirationDate.toUTCString()}; path=/;`;
+  saveAccessToken(token: string | undefined): void {
+    const expirationDate = new Date(Date.now() + 5 * 60 * 1000); // 5 хвилин
+    document.cookie = `${this.accessTokenKey}=${token}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Strict`;
   }
 
   clearTokens(): void {

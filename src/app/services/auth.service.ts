@@ -2,15 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
   BehaviorSubject,
-  timer,
   Observable,
-  Subscription,
   tap,
   throwError,
   catchError,
   switchMap,
-  map,
-  finalize
+  map
 } from 'rxjs';
 import { RegisterModel } from '../models/register/register.model';
 import { LoginModel } from '../models/login/login.model';
@@ -22,7 +19,6 @@ import { TokenService } from './token.service';
 import { environment } from '../../environments/environment';
 import { UserDataModel } from '../models/user/user.data.model';
 import { UserService } from './user.service';
-import { LoginResponseModel } from '../models/login/login.response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +27,8 @@ export class AuthService {
   private broadcastChannel = new BroadcastChannel('auth-channel');
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+
+  private uniqueTabId = Math.random().toString(36).substr(2, 9);
 
   private accessTokenTimer: any;
   private refreshTokenTimer: any;
@@ -41,9 +39,14 @@ export class AuthService {
     private userService: UserService
   ) {
     this.broadcastChannel.onmessage = (event) => {
-      if (event.data === 'logout') {
+      const { type, source } = event.data || {};
+      if (source === this.uniqueTabId) {
+        return;
+      }
+
+      if (type === 'logout') {
         this.handleLogoutSync();
-      } else if (event.data === 'login') {
+      } else if (type === 'login') {
         this.handleLoginSync();
       }
     };
@@ -85,7 +88,9 @@ export class AuthService {
     this.isAuthenticatedSubject.next(isAuthenticated);
   }
 
-  login(body: any): Observable<{ access_token: string; user: UserDataModel }> {
+  login(
+    body: LoginModel
+  ): Observable<{ access_token: string; user: UserDataModel }> {
     if (this.isAuthenticatedSubject.value) {
       throw new Error('User is already logged in.');
     }
@@ -96,27 +101,23 @@ export class AuthService {
       }>(`${environment.apiUrl}/auth/login`, body, { withCredentials: true })
       .pipe(
         switchMap((response) => {
-          // Зберігаємо access_token
           this.tokenService.saveAccessToken(response.access_token);
-
-          // Встановлюємо стан авторизації
           this.setAuthenticated(true);
 
-          // Очищаємо всі таймери і запускаємо нові
           this.clearTimers();
           this.startRefreshTokenExpiryTimer();
 
-          // Синхронізація між вкладками
-          this.broadcastChannel.postMessage('login');
+          this.broadcastChannel.postMessage({
+            type: 'login',
+            source: this.uniqueTabId
+          });
 
-          // Виконуємо запит на отримання даних користувача
           return this.httpClient
             .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`, {
               withCredentials: true
             })
             .pipe(
               tap((userData) => {
-                // Зберігаємо дані користувача в UserService
                 this.userService.userProfileData.next(userData);
               }),
               map((userData) => ({
@@ -124,6 +125,10 @@ export class AuthService {
                 user: userData
               }))
             );
+        }),
+        catchError((error) => {
+          console.error('Login failed:', error);
+          return throwError(() => error);
         })
       );
   }
@@ -150,25 +155,29 @@ export class AuthService {
   }
 
   logout(): void {
+    if (!this.isAuthenticatedSubject.value) {
+      return;
+    }
+
+    this.broadcastChannel.postMessage({
+      type: 'logout',
+      source: this.uniqueTabId
+    });
     this.setAuthenticated(false);
     this.tokenService.clearTokens();
     this.clearTimers();
-    this.broadcastChannel.postMessage('logout');
   }
 
   startRefreshTokenExpiryTimer(): void {
     this.clearTimers();
 
-    // Розрахунок часу завершення таймерів
     const now = Date.now();
     const accessTokenExpiry = now + 20000; // 20 секунд для access_token
     const refreshTokenExpiry = now + 50000; // 50 секунд для refresh_token
 
-    // Зберігаємо час завершення у localStorage
     localStorage.setItem('accessTokenExpiry', accessTokenExpiry.toString());
     localStorage.setItem('refreshTokenExpiry', refreshTokenExpiry.toString());
 
-    // Запускаємо таймери
     this.accessTokenTimer = setTimeout(() => {
       this.refreshToken().subscribe();
     }, 20000);
@@ -188,11 +197,29 @@ export class AuthService {
   }
 
   private handleLogoutSync(): void {
+    if (!this.isAuthenticatedSubject.value) {
+      return;
+    }
+
     this.logout();
   }
 
   private handleLoginSync(): void {
+    this.setAuthenticated(true);
     this.startRefreshTokenExpiryTimer();
+
+    this.httpClient
+      .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`, {
+        withCredentials: true
+      })
+      .subscribe({
+        next: (userData) => {
+          this.userService.userProfileData.next(userData);
+        },
+        error: (error) => {
+          this.logout();
+        }
+      });
   }
 
   initializeTimers(): void {
