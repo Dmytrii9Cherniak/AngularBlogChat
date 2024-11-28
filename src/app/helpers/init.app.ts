@@ -12,24 +12,20 @@ export function initializeApp(
     const accessToken = tokenService.getAccessToken();
 
     if (accessToken && tokenService.hasValidAccessToken()) {
-      // Токен є і він валідний
-      authService.startRefreshTokenExpiryTimer();
-      authService.setAuthenticated(true); // Оновлюємо стан авторизації
+      authService.initializeTimers(); // Відновлюємо таймери
+      authService.setAuthenticated(true);
 
       try {
-        // Отримуємо дані користувача
         const userData = await firstValueFrom(userService.getUserData());
         userService.userProfileData.next(userData);
       } catch (error) {
         console.error('Error fetching user data:', error);
-        // authService.logout();
       }
     } else if (accessToken) {
-      // Токен є, але він недійсний. Виконуємо refreshToken
       try {
         await firstValueFrom(authService.refreshToken());
-        authService.startRefreshTokenExpiryTimer();
-        authService.setAuthenticated(true); // Оновлюємо стан авторизації
+        authService.initializeTimers(); // Відновлюємо таймери
+        authService.setAuthenticated(true);
 
         const userData = await firstValueFrom(userService.getUserData());
         userService.userProfileData.next(userData);
@@ -38,7 +34,6 @@ export function initializeApp(
         authService.logout();
       }
     } else {
-      // Токен відсутній, користувач не авторизований
       authService.logout();
     }
   };
