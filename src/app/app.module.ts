@@ -13,6 +13,9 @@ import { initializeApp } from './helpers/init.app';
 import { AuthService } from './services/auth.service';
 import { UserService } from './services/user.service';
 import { TokenService } from './services/token.service';
+import { WebsocketsService } from './services/websockets.service';
+import { TabManagerService } from './services/tab-manager.service';
+import { BroadcastService } from './services/broadcast.service';
 
 @NgModule({
   declarations: [AppComponent, HeaderComponent],
@@ -28,7 +31,14 @@ import { TokenService } from './services/token.service';
     {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,
-      deps: [AuthService, UserService, TokenService],
+      deps: [
+        AuthService,
+        UserService,
+        TokenService,
+        WebsocketsService,
+        TabManagerService,
+        BroadcastService
+      ],
       multi: true
     }
   ],
