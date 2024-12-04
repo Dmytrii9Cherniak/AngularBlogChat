@@ -98,9 +98,11 @@ export class AuthService {
     }
 
     return this.httpClient
-      .post<{
-        access_token: string;
-      }>(`${environment.apiUrl}/auth/login`, body, { withCredentials: true })
+      .post<{ access_token: string }>(
+        `${environment.apiUrl}/auth/login`,
+        body,
+        { withCredentials: true }
+      )
       .pipe(
         switchMap((response) => {
           this.tokenService.saveAccessToken(response.access_token);
@@ -111,20 +113,23 @@ export class AuthService {
 
           this.broadcastChannel.postMessage({
             type: 'login',
-            source: this.uniqueTabId
+            source: this.uniqueTabId,
           });
 
           return this.httpClient
             .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`, {
-              withCredentials: true
+              withCredentials: true,
             })
             .pipe(
               tap((userData) => {
                 this.userService.userProfileData.next(userData);
+
+                // Підключення WebSocket після логіну
+                this.websocketsService.connectPrivate(userData.userId);
               }),
               map((userData) => ({
                 access_token: response.access_token,
-                user: userData
+                user: userData,
               }))
             );
         }),
@@ -161,11 +166,15 @@ export class AuthService {
       return;
     }
 
+    // Відключаємо WebSocket перед виходом
+    this.websocketsService.disconnect();
+
+    // Синхронізація між вкладками
     this.broadcastChannel.postMessage({
       type: 'logout',
-      source: this.uniqueTabId
+      source: this.uniqueTabId,
     });
-    this.websocketsService.disconnect();
+
     this.setAuthenticated(false);
     this.tokenService.clearTokens();
     this.clearTimers();
@@ -204,6 +213,8 @@ export class AuthService {
       return;
     }
 
+    // Відключення WebSocket
+    this.websocketsService.disconnect();
     this.logout();
   }
 
@@ -213,16 +224,18 @@ export class AuthService {
 
     this.httpClient
       .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`, {
-        withCredentials: true
+        withCredentials: true,
       })
       .subscribe({
         next: (userData: UserDataModel) => {
           this.userService.userProfileData.next(userData);
+
+          // Підключення WebSocket після синхронізації логіну
           this.websocketsService.connectPrivate(userData.userId);
         },
-        error: (error) => {
+        error: () => {
           this.logout();
-        }
+        },
       });
   }
 

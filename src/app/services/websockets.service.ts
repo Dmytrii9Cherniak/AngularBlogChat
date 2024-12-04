@@ -6,11 +6,6 @@ import { Injectable } from '@angular/core';
 export class WebsocketsService {
   private socket: WebSocket | null = null;
 
-  connectPublic(sessionId: string): void {
-    const url = `ws://localhost:8000/ws/public_room/?sessionId=${sessionId}`;
-    this.createSocket(url);
-  }
-
   connectPrivate(userId: string): void {
     const url = `ws://localhost:8000/ws/private/?userId=${userId}`;
     this.createSocket(url);

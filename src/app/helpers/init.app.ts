@@ -61,9 +61,6 @@ export function initializeApp(
       }
     } else {
       authService.logout();
-
-      // Для неавторизованих користувачів - публічний WebSocket
-      websocketsService.connectPublic(sessionId);
     }
 
     // Очистка WebSocket при закритті вкладки
