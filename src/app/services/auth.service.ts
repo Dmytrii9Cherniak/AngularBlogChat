@@ -19,6 +19,7 @@ import { TokenService } from './token.service';
 import { environment } from '../../environments/environment';
 import { UserDataModel } from '../models/user/user.data.model';
 import { UserService } from './user.service';
+import { WebsocketsService } from './websockets.service';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +37,8 @@ export class AuthService {
   constructor(
     private httpClient: HttpClient,
     private tokenService: TokenService,
-    private userService: UserService
+    private userService: UserService,
+    private websocketsService: WebsocketsService
   ) {
     this.broadcastChannel.onmessage = (event) => {
       const { type, source } = event.data || {};
@@ -163,6 +165,7 @@ export class AuthService {
       type: 'logout',
       source: this.uniqueTabId
     });
+    this.websocketsService.disconnect();
     this.setAuthenticated(false);
     this.tokenService.clearTokens();
     this.clearTimers();
@@ -213,8 +216,9 @@ export class AuthService {
         withCredentials: true
       })
       .subscribe({
-        next: (userData) => {
+        next: (userData: UserDataModel) => {
           this.userService.userProfileData.next(userData);
+          this.websocketsService.connectPrivate(userData.userId);
         },
         error: (error) => {
           this.logout();
