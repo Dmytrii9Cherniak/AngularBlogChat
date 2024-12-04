@@ -7,7 +7,7 @@ export class WebsocketsService {
   private socket: WebSocket | null = null;
 
   connectPublic(sessionId: string): void {
-    const url = `ws://localhost:8000/ws/public/?sessionId=${sessionId}`;
+    const url = `ws://localhost:8000/ws/public_room/?sessionId=${sessionId}`;
     this.createSocket(url);
   }
 
