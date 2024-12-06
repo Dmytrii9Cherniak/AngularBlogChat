@@ -4,42 +4,64 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class WebsocketsService {
-  private socket: WebSocket | null = null;
+  private sockets: { [key: string]: WebSocket } = {};
 
   connectPrivate(userId: string): void {
-    const url = `ws://localhost:8000/ws/private/?userId=${userId}`;
-    this.createSocket(url);
+    const privateUrl = `ws://localhost:8000/ws/chat/notifications/${encodeURIComponent(userId)}/`;
+    const publicUrl = `ws://localhost:8000/ws/public_room/?userId=${encodeURIComponent(userId)}`;
+
+    // Створення приватного WebSocket
+    this.createSocket(privateUrl, 'private');
+
+    // Створення публічного WebSocket
+    this.createSocket(publicUrl, 'public');
   }
 
-  private createSocket(url: string): void {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      console.warn('WebSocket already connected');
-      return;
+  private createSocket(url: string, type: string): void {
+    if (this.sockets[type]) {
+      const existingSocket = this.sockets[type];
+
+      if (existingSocket.readyState === WebSocket.OPEN) {
+        console.warn(`${type} WebSocket already connected`);
+        return;
+      }
+
+      if (existingSocket.readyState === WebSocket.CONNECTING) {
+        console.warn(`${type} WebSocket is still connecting`);
+        return;
+      }
     }
 
-    this.socket = new WebSocket(url);
+    const socket = new WebSocket(url);
 
-    this.socket.onopen = () => {
-      console.log('WebSocket connection established');
+    socket.onopen = () => {
+      console.log(`${type} WebSocket connection established`);
     };
 
-    this.socket.onclose = (event) => {
-      console.log('WebSocket connection closed:', event);
+    socket.onclose = (event) => {
+      console.log(`${type} WebSocket connection closed:`, event);
+      console.log('Reason:', event.reason, 'Code:', event.code);
+      this.sockets[type] = null as any;
     };
 
-    this.socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
+    socket.onerror = (error) => {
+      console.error(`${type} WebSocket error:`, error);
     };
 
-    this.socket.onmessage = (message) => {
-      console.log('WebSocket message received:', message.data);
+    socket.onmessage = (message) => {
+      console.log(`${type} WebSocket message received:`, message.data);
     };
+
+    this.sockets[type] = socket;
   }
 
   disconnect(): void {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.close();
-      this.socket = null;
+    for (const [type, socket] of Object.entries(this.sockets)) {
+      if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+        console.log(`Closing ${type} WebSocket connection`);
+        socket.close();
+      }
+      this.sockets[type] = null as any;
     }
   }
 }

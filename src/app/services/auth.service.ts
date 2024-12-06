@@ -134,7 +134,7 @@ export class AuthService {
             );
         }),
         catchError((error) => {
-          console.error('Login failed:', error);
+          console.error('Login failed:', error.message || error);
           return throwError(() => error);
         })
       );
@@ -142,9 +142,7 @@ export class AuthService {
 
   refreshToken(): Observable<{ access_token: string }> {
     return this.httpClient
-      .post<{
-        access_token: string;
-      }>(
+      .post<{ access_token: string }>(
         `${environment.apiUrl}/auth/token/refresh`,
         {},
         { withCredentials: true }
@@ -166,37 +164,66 @@ export class AuthService {
       return;
     }
 
-    // Відключаємо WebSocket перед виходом
-    this.websocketsService.disconnect();
-
-    // Синхронізація між вкладками
-    this.broadcastChannel.postMessage({
-      type: 'logout',
-      source: this.uniqueTabId,
+    this.httpClient.post(`${environment.apiUrl}/auth/logout`, {}).subscribe({
+      next: () => {
+        this.websocketsService.disconnect();
+        this.broadcastChannel.postMessage({
+          type: 'logout',
+          source: this.uniqueTabId,
+        });
+        this.setAuthenticated(false);
+        this.tokenService.clearTokens();
+        this.clearTimers();
+      },
+      error: (error) => {
+        console.error('Logout failed:', error);
+      },
     });
-
-    this.setAuthenticated(false);
-    this.tokenService.clearTokens();
-    this.clearTimers();
   }
 
   startRefreshTokenExpiryTimer(): void {
     this.clearTimers();
 
+    const accessToken = this.tokenService.getAccessToken();
+    if (!accessToken) {
+      console.error('Access token is missing.');
+      this.logout();
+      return;
+    }
+
+    const payload = JSON.parse(atob(accessToken.split('.')[1]));
+    const expiresAt = payload.exp * 1000;
     const now = Date.now();
-    const accessTokenExpiry = now + 20000; // 20 секунд для access_token
-    const refreshTokenExpiry = now + 50000; // 50 секунд для refresh_token
 
-    localStorage.setItem('accessTokenExpiry', accessTokenExpiry.toString());
-    localStorage.setItem('refreshTokenExpiry', refreshTokenExpiry.toString());
+    const timeToExpiry = expiresAt - now;
 
-    this.accessTokenTimer = setTimeout(() => {
+    if (timeToExpiry <= 0) {
+      console.error('Access token has already expired.');
+      this.logout();
+      return;
+    }
+
+    const refreshTime = timeToExpiry - 3 * 60 * 1000;
+    if (refreshTime > 0) {
+      this.accessTokenTimer = setTimeout(() => {
+        this.refreshToken().subscribe();
+      }, refreshTime);
+    } else {
+      console.warn('Access token is too close to expiry for scheduled refresh.');
       this.refreshToken().subscribe();
-    }, 20000);
+    }
 
+    const refreshTokenLifetime = 21 * 24 * 60 * 60 * 1000;
+    const refreshTokenExpiryTime = now + refreshTokenLifetime - 15 * 60 * 1000;
     this.refreshTokenTimer = setTimeout(() => {
       this.logout();
-    }, 50000);
+    }, refreshTokenExpiryTime - now);
+
+    console.log(
+      `Access token refresh timer set for ${
+        refreshTime / 1000
+      } seconds, logout timer for ${refreshTokenExpiryTime - now} milliseconds.`
+    );
   }
 
   private clearTimers(): void {
@@ -213,7 +240,6 @@ export class AuthService {
       return;
     }
 
-    // Відключення WebSocket
     this.websocketsService.disconnect();
     this.logout();
   }
@@ -222,21 +248,21 @@ export class AuthService {
     this.setAuthenticated(true);
     this.startRefreshTokenExpiryTimer();
 
-    this.httpClient
-      .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`, {
-        withCredentials: true,
-      })
-      .subscribe({
-        next: (userData: UserDataModel) => {
-          this.userService.userProfileData.next(userData);
-
-          // Підключення WebSocket після синхронізації логіну
-          this.websocketsService.connectPrivate(userData.userId);
-        },
-        error: () => {
-          this.logout();
-        },
-      });
+    if (!this.userService.userProfileData.value) {
+      this.httpClient
+        .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`, {
+          withCredentials: true,
+        })
+        .subscribe({
+          next: (userData: UserDataModel) => {
+            this.userService.userProfileData.next(userData);
+            this.websocketsService.connectPrivate(userData.userId);
+          },
+          error: () => {
+            this.logout();
+          },
+        });
+    }
   }
 
   initializeTimers(): void {
@@ -250,7 +276,6 @@ export class AuthService {
       10
     );
 
-    // Розрахунок залишкового часу
     const accessTokenRemaining = accessTokenExpiry - now;
     const refreshTokenRemaining = refreshTokenExpiry - now;
 
@@ -259,7 +284,6 @@ export class AuthService {
         this.refreshToken().subscribe();
       }, accessTokenRemaining);
     } else {
-      // Якщо час закінчився, оновлюємо токен одразу
       this.refreshToken().subscribe();
     }
 
@@ -268,7 +292,6 @@ export class AuthService {
         this.logout();
       }, refreshTokenRemaining);
     } else {
-      // Якщо refreshToken вже закінчився, виконуємо logout
       this.logout();
     }
   }
