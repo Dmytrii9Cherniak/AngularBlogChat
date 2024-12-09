@@ -5,37 +5,37 @@ import { Injectable } from '@angular/core';
 })
 export class TokenService {
   private accessTokenKey = 'access_token';
+  private refreshTokenKey = 'refreshToken';
 
   getAccessToken(): string | null {
     return this.getCookie(this.accessTokenKey);
   }
 
   saveAccessToken(token: string | undefined): void {
-    const expirationDate = new Date(Date.now() + 5 * 60 * 1000); // 5 хвилин
+    const expirationDate = new Date(Date.now() + 5 * 60 * 1000);
     document.cookie = `${this.accessTokenKey}=${token}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Strict`;
   }
 
   clearTokens(): void {
     this.deleteCookie(this.accessTokenKey);
+    this.deleteCookie(this.refreshTokenKey);
   }
 
   hasValidAccessToken(): boolean {
     const token = this.getAccessToken();
     if (!token) return false;
 
-    // Перевіряємо формат токену
     if (!this.isTokenFormatValid(token)) return false;
 
-    // Перевіряємо, чи не минув термін дії токену
     return !this.isTokenExpired(token);
   }
 
   isTokenFormatValid(token: string): boolean {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1])); // Перевіряємо, чи можна розпакувати payload
-      return !!payload && typeof payload.exp === 'number'; // Токен повинен містити поле `exp`
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return !!payload && typeof payload.exp === 'number';
     } catch (error) {
-      return false; // Якщо токен некоректний, повертаємо false
+      return false;
     }
   }
 
@@ -44,7 +44,6 @@ export class TokenService {
       const payload = JSON.parse(atob(token.split('.')[1]));
       return payload.exp * 1000 < Date.now();
     } catch (error) {
-      // Якщо токен пошкоджений, вважаємо його недійсним
       return true;
     }
   }
