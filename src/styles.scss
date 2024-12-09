@@ -5,6 +5,21 @@
   font-family: "Plus Jakarta Sans", sans-serif;
 }
 
+html, body {
+  width: 100vw !important;
+  min-width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100%;
+  overflow-x: hidden !important;
+  margin: 0;
+  padding: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 .form-container {
   min-height: calc(100vh - 75px);

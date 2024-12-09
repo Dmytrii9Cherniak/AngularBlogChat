@@ -15,9 +15,10 @@ import { UserService } from './services/user.service';
 import { TokenService } from './services/token.service';
 import {WebsocketsService} from "./services/websockets.service";
 import {BroadcastChannelService} from "./services/broadcast-channel.service";
+import { WowComponent } from './components/content/wow/wow.component';
 
 @NgModule({
-  declarations: [AppComponent, HeaderComponent],
+  declarations: [AppComponent, HeaderComponent, WowComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
