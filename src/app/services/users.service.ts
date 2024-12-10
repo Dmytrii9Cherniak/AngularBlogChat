@@ -10,7 +10,7 @@ export class UsersService {
   constructor(private httpClient: HttpClient) {}
 
   public getAllUsers(): Observable<any> {
-    return this.httpClient.get(`${environment.apiUrl}/users/list/`);
+    return this.httpClient.get(`${environment.apiUrl}/users/list/?page=2`);
   }
 
   public getDifferentUser(userId: string): Observable<any> {

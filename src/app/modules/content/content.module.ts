@@ -7,6 +7,7 @@ import { ChatComponent } from '../../components/content/chat/chat.component';
 import { WowComponent } from '../../components/content/wow/wow.component';
 import { AllUsersListComponent } from '../../components/users/all-users-list/all-users-list.component';
 import { UserDetailsInfoComponent } from '../../components/users/user-details-info/user-details-info.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,6 @@ import { UserDetailsInfoComponent } from '../../components/users/user-details-in
     AllUsersListComponent,
     UserDetailsInfoComponent
   ],
-  imports: [CommonModule, ContentRoutingModule]
+  imports: [CommonModule, ContentRoutingModule, ReactiveFormsModule]
 })
 export class ContentModule {}

@@ -1,1 +1,25 @@
-<h1>Написати юзеру: {{ userNickname }}</h1>
+<div class="chat-container">
+  <!-- Заголовок чату -->
+  <header class="chat-header">
+    <h1>Чат із {{ userNickname }}</h1>
+  </header>
+
+  <!-- Секція повідомлень -->
+  <div class="messages-container">
+    <div *ngFor="let message of messages"
+         [ngClass]="{'message': true, 'sent': message.type === 'sent', 'received': message.type === 'received'}">
+      <p>{{ message.message }}</p>
+      <span class="timestamp">{{ message.time }}</span>
+    </div>
+  </div>
+
+  <!-- Реактивна форма для надсилання повідомлення -->
+  <form [formGroup]="messageForm" class="chat-form" (ngSubmit)="sendMessage()">
+    <input formControlName="message" placeholder="Введіть повідомлення..." />
+    <button type="submit" [disabled]="messageForm.invalid">
+      <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24">
+        <path d="M128 896V768l480-192-480-192V256l800 320-800 320Z"/>
+      </svg>
+    </button>
+  </form>
+</div>

@@ -17,17 +17,17 @@ export function initializeApp(
     const sessionId = localStorage.getItem('sessionId') || uuidv4();
     localStorage.setItem('sessionId', sessionId);
 
-    // Синхронізація вкладок через BroadcastChannel
     broadcastChannelService.onMessage((message) => {
       const { type, data } = message;
       if (type === 'login') {
-        websocketsService.connectPrivate(data?.userId);
+        if (data?.userId) {
+          websocketsService.connectPrivate(data.userId);
+        }
       } else if (type === 'logout') {
         websocketsService.disconnect();
       }
     });
 
-    // Перевірка токена
     const accessToken = tokenService.getAccessToken();
     if (accessToken && tokenService.hasValidAccessToken()) {
       authService.initializeTimers();
@@ -39,7 +39,9 @@ export function initializeApp(
 
         // Підключення приватного WebSocket для авторизованого користувача
         websocketsService.connectPrivate(userData.userId);
-        broadcastChannelService.postMessage('login', { userId: userData.userId });
+        broadcastChannelService.postMessage('login', {
+          userId: userData.userId
+        });
       } catch (error) {
         console.error('Error fetching users data:', error);
       }
@@ -52,9 +54,10 @@ export function initializeApp(
         const userData = await firstValueFrom(userService.getUserData());
         userService.userProfileData.next(userData);
 
-        // Підключення приватного WebSocket
         websocketsService.connectPrivate(userData.userId);
-        broadcastChannelService.postMessage('login', { userId: userData.userId });
+        broadcastChannelService.postMessage('login', {
+          userId: userData.userId
+        });
       } catch (error) {
         console.error('Error refreshing token or fetching users data:', error);
         authService.logout();
@@ -63,7 +66,6 @@ export function initializeApp(
       authService.logout();
     }
 
-    // Очистка WebSocket при закритті вкладки
     window.addEventListener('beforeunload', () => {
       websocketsService.disconnect();
     });

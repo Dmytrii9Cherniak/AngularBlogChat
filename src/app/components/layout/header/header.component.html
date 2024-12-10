@@ -3,6 +3,7 @@
     <nav class="navigation">
       <div class="logo">
         <a routerLink="/">BlogChatApp</a>
+        <a [routerLink]="['/users']"> users </a>
       </div>
       <div class="auth-buttons">
         <ng-container *ngIf="!(isAuthenticated | async)">

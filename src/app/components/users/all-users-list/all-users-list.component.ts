@@ -30,6 +30,12 @@ export class AllUsersListComponent implements OnInit {
     });
   }
 
+  // navigateToChat(user: any): void {
+  //   this.router.navigate(['/chat'], {
+  //     queryParams: { userId: user.id, userNickname: user.nickname }
+  //   });
+  // }
+
   navigateToUserInfo(user: any): void {
     this.router.navigate(['/users', user.id]);
   }
