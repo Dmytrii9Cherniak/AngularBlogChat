@@ -15,14 +15,12 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    // Відстежуємо зміну маршруту
     this.subscription = this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.fixViewportWidth();
       }
     });
 
-    // Відстежуємо зміну розміру та зміну орієнтації
     this.subscription.add(
       fromEvent(window, 'resize').subscribe(() =>
         this.debouncedViewportWidthUpdate()
@@ -35,7 +33,6 @@ export class AppComponent implements OnInit, OnDestroy {
       )
     );
 
-    // Встановлюємо ширину при завантаженні сторінки
     this.fixViewportWidth();
   }
 
@@ -44,21 +41,14 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.resizeFrame) cancelAnimationFrame(this.resizeFrame);
   }
 
-  /**
-   * Викликається тільки якщо розмір екрану змінився
-   */
   debouncedViewportWidthUpdate(): void {
     if (this.resizeFrame) cancelAnimationFrame(this.resizeFrame);
     this.resizeFrame = requestAnimationFrame(() => this.fixViewportWidth());
   }
 
-  /**
-   * Фіксуємо ширину для всіх елементів
-   */
   fixViewportWidth(): void {
     const viewportWidth = window.innerWidth;
 
-    // Якщо ширина не змінилася, не оновлюємо стилі
     if (this.lastViewportWidth === viewportWidth) return;
     this.lastViewportWidth = viewportWidth;
 
@@ -71,7 +61,5 @@ export class AppComponent implements OnInit, OnDestroy {
     elements.forEach((element) => {
       element.style.width = `${viewportWidth}px`;
     });
-
-    console.log('Viewport width updated to:', viewportWidth);
   }
 }

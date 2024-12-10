@@ -13,12 +13,14 @@ import { initializeApp } from './helpers/init.app';
 import { AuthService } from './services/auth.service';
 import { UserService } from './services/user.service';
 import { TokenService } from './services/token.service';
-import {WebsocketsService} from "./services/websockets.service";
-import {BroadcastChannelService} from "./services/broadcast-channel.service";
-import { WowComponent } from './components/content/wow/wow.component';
+import { WebsocketsService } from './services/websockets.service';
+import { BroadcastChannelService } from './services/broadcast-channel.service';
 
 @NgModule({
-  declarations: [AppComponent, HeaderComponent, WowComponent],
+  declarations: [
+    AppComponent,
+    HeaderComponent,
+  ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -31,7 +33,13 @@ import { WowComponent } from './components/content/wow/wow.component';
     {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,
-      deps: [AuthService, UserService, TokenService, WebsocketsService, BroadcastChannelService],
+      deps: [
+        AuthService,
+        UserService,
+        TokenService,
+        WebsocketsService,
+        BroadcastChannelService
+      ],
       multi: true
     }
   ],
