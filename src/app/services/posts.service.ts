@@ -9,6 +9,6 @@ export class PostsService {
   constructor(private httpClient: HttpClient) {}
 
   public getAllPosts() {
-    return this.httpClient.get(`${environment.apiUrl}/api/posts`);
+    return this.httpClient.get(`${environment.apiUrl}/api/posts/`);
   }
 }

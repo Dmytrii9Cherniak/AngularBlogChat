@@ -21,7 +21,7 @@ export function initializeApp(
     broadcastChannelService.onMessage((message) => {
       const { type, data } = message;
       if (type === 'login') {
-        websocketsService.connectPrivate(data.userId);
+        websocketsService.connectPrivate(data?.userId);
       } else if (type === 'logout') {
         websocketsService.disconnect();
       }
@@ -41,7 +41,7 @@ export function initializeApp(
         websocketsService.connectPrivate(userData.userId);
         broadcastChannelService.postMessage('login', { userId: userData.userId });
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('Error fetching users data:', error);
       }
     } else if (accessToken) {
       try {
@@ -56,7 +56,7 @@ export function initializeApp(
         websocketsService.connectPrivate(userData.userId);
         broadcastChannelService.postMessage('login', { userId: userData.userId });
       } catch (error) {
-        console.error('Error refreshing token or fetching user data:', error);
+        console.error('Error refreshing token or fetching users data:', error);
         authService.logout();
       }
     } else {

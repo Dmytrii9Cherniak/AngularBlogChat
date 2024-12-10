@@ -1,19 +1,16 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class WebsocketsService {
   private sockets: { [key: string]: WebSocket } = {};
 
   connectPrivate(userId: string): void {
-    const privateUrl = `ws://localhost:8000/ws/chat/notifications/${encodeURIComponent(userId)}/`;
-    const publicUrl = `ws://localhost:8000/ws/public_room/?userId=${encodeURIComponent(userId)}`;
+    const privateUrl = `ws://localhost:8000/ws/chat/notifications/${encodeURIComponent(userId)}`;
+    const publicUrl = `ws://localhost:8000/ws/public_room?userId=${encodeURIComponent(userId)}`;
 
-    // Створення приватного WebSocket
     this.createSocket(privateUrl, 'private');
-
-    // Створення публічного WebSocket
     this.createSocket(publicUrl, 'public');
   }
 
@@ -57,7 +54,11 @@ export class WebsocketsService {
 
   disconnect(): void {
     for (const [type, socket] of Object.entries(this.sockets)) {
-      if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+      if (
+        socket &&
+        (socket.readyState === WebSocket.OPEN ||
+          socket.readyState === WebSocket.CONNECTING)
+      ) {
         console.log(`Closing ${type} WebSocket connection`);
         socket.close();
       }

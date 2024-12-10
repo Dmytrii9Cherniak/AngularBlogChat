@@ -1,0 +1,7 @@
+<div *ngIf="user$ | async as user">
+  <h1>Інформація про користувача</h1>
+  <p>ID: {{ user.id }}</p>
+  <p>Nickname: {{ user.nickname }}</p>
+  <p>Username: {{ user.username }}</p>
+  <button (click)="navigateToChat(user.id, user.nickname)">Написати цьому користувачу</button>
+</div>
