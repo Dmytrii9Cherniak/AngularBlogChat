@@ -20,6 +20,7 @@ import { environment } from '../../environments/environment';
 import { UserDataModel } from '../models/user/user.data.model';
 import { UserService } from './user.service';
 import { WebsocketsService } from './websockets.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +39,8 @@ export class AuthService {
     private httpClient: HttpClient,
     private tokenService: TokenService,
     private userService: UserService,
-    private websocketsService: WebsocketsService
+    private websocketsService: WebsocketsService,
+    private router: Router,
   ) {
     this.broadcastChannel.onmessage = (event) => {
       const { type, source } = event.data || {};
@@ -98,11 +100,9 @@ export class AuthService {
     }
 
     return this.httpClient
-      .post<{ access_token: string }>(
-        `${environment.apiUrl}/auth/login`,
-        body,
-        { withCredentials: true }
-      )
+      .post<{
+        access_token: string;
+      }>(`${environment.apiUrl}/auth/login`, body, { withCredentials: true })
       .pipe(
         switchMap((response) => {
           this.tokenService.saveAccessToken(response.access_token);
@@ -113,12 +113,12 @@ export class AuthService {
 
           this.broadcastChannel.postMessage({
             type: 'login',
-            source: this.uniqueTabId,
+            source: this.uniqueTabId
           });
 
           return this.httpClient
             .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`, {
-              withCredentials: true,
+              withCredentials: true
             })
             .pipe(
               tap((userData) => {
@@ -129,7 +129,7 @@ export class AuthService {
               }),
               map((userData) => ({
                 access_token: response.access_token,
-                user: userData,
+                user: userData
               }))
             );
         }),
@@ -142,7 +142,9 @@ export class AuthService {
 
   refreshToken(): Observable<{ access_token: string }> {
     return this.httpClient
-      .post<{ access_token: string }>(
+      .post<{
+        access_token: string;
+      }>(
         `${environment.apiUrl}/auth/token/refresh`,
         {},
         { withCredentials: true }
@@ -169,15 +171,16 @@ export class AuthService {
         this.websocketsService.disconnect();
         this.broadcastChannel.postMessage({
           type: 'logout',
-          source: this.uniqueTabId,
+          source: this.uniqueTabId
         });
         this.setAuthenticated(false);
         this.tokenService.clearTokens();
         this.clearTimers();
+        this.router.navigate(['/blogs']);
       },
       error: (error) => {
         console.error('Logout failed:', error);
-      },
+      }
     });
   }
 
@@ -209,7 +212,9 @@ export class AuthService {
         this.refreshToken().subscribe();
       }, refreshTime);
     } else {
-      console.warn('Access token is too close to expiry for scheduled refresh.');
+      console.warn(
+        'Access token is too close to expiry for scheduled refresh.'
+      );
       this.refreshToken().subscribe();
     }
 
@@ -251,7 +256,7 @@ export class AuthService {
     if (!this.userService.userProfileData.value) {
       this.httpClient
         .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`, {
-          withCredentials: true,
+          withCredentials: true
         })
         .subscribe({
           next: (userData: UserDataModel) => {
@@ -260,7 +265,7 @@ export class AuthService {
           },
           error: () => {
             this.logout();
-          },
+          }
         });
     }
   }
