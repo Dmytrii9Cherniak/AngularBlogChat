@@ -13,7 +13,7 @@ export const resetPasswordGuardGuard: CanActivateFn = (route, state) => {
     forgotPasswordService.isTimerValid() &&
     !forgotPasswordService.hasExceededMaxAttempts(maxAttempts)
   ) {
-    return true; // Дозволяє перехід
+    return true;
   }
 
   forgotPasswordService.clearStorage();

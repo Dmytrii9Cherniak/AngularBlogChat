@@ -13,7 +13,7 @@ export const registerGuard: CanActivateFn = (route, state) => {
     verificationService.isTimerValid() &&
     !verificationService.hasExceededMaxAttempts(maxAttempts)
   ) {
-    return true; // Дозволяє перехід
+    return true;
   }
 
   verificationService.clearStorage();

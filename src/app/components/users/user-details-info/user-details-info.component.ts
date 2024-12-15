@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UsersService } from '../../../services/users.service';
 import { Observable } from 'rxjs';
+import { DifferentUserDetailsInfoModel } from '../../../models/user/different.user.details.info.model';
 
 @Component({
   selector: 'app-user-details-info',
@@ -9,7 +10,7 @@ import { Observable } from 'rxjs';
   styleUrls: ['./user-details-info.component.scss']
 })
 export class UserDetailsInfoComponent implements OnInit {
-  public user$: Observable<any>;
+  public user$: Observable<DifferentUserDetailsInfoModel>;
 
   constructor(
     private route: ActivatedRoute,
@@ -24,16 +25,10 @@ export class UserDetailsInfoComponent implements OnInit {
     }
   }
 
-  navigateToChat(userId: string, nickname: string): void {
+  navigateToChat(userId: number, nickname: string): void {
+    const stringUserId = String(userId);
     this.router.navigate(['/chat'], {
-      queryParams: { userId, userNickname: nickname }
+      queryParams: { stringUserId, userNickname: nickname }
     });
   }
-
-
-  // navigateToChat(userId: string, nickname: string): void {
-  //   this.router.navigate(['/chat'], {
-  //     queryParams: { userId, userNickname: nickname }
-  //   });
-  // }
 }
