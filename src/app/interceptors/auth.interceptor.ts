@@ -53,7 +53,6 @@ function addAuthHeader(request: HttpRequest<any>, token: string | null) {
     });
   }
 
-  // Якщо токен некоректний, не додаємо Authorization
   return request;
 }
 

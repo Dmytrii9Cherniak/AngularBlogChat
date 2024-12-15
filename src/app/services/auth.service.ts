@@ -19,8 +19,9 @@ import { TokenService } from './token.service';
 import { environment } from '../../environments/environment';
 import { UserDataModel } from '../models/user/user.data.model';
 import { UserService } from './user.service';
-import { WebsocketsService } from './websockets.service';
 import { Router } from '@angular/router';
+import { WebsocketsService } from './websockets.service';
+import { ChatService } from './chat.service';
 
 @Injectable({
   providedIn: 'root'
@@ -32,15 +33,16 @@ export class AuthService {
 
   private uniqueTabId = Math.random().toString(36).substr(2, 9);
 
-  private accessTokenTimer: any;
-  private refreshTokenTimer: any;
+  private accessTokenTimer: ReturnType<typeof setTimeout>;
+  private refreshTokenTimer: ReturnType<typeof setTimeout>;
 
   constructor(
     private httpClient: HttpClient,
     private tokenService: TokenService,
     private userService: UserService,
-    private websocketsService: WebsocketsService,
     private router: Router,
+    private websocketsService: WebsocketsService,
+    private chatService: ChatService
   ) {
     this.broadcastChannel.onmessage = (event) => {
       const { type, source } = event.data || {};
@@ -123,9 +125,8 @@ export class AuthService {
             .pipe(
               tap((userData) => {
                 this.userService.userProfileData.next(userData);
-
-                // Підключення WebSocket після логіну
-                this.websocketsService.connectPrivate(userData.userId);
+                this.websocketsService.connect(userData.userId);
+                this.chatService.initializeChatList();
               }),
               map((userData) => ({
                 access_token: response.access_token,
@@ -168,13 +169,13 @@ export class AuthService {
 
     this.httpClient.post(`${environment.apiUrl}/auth/logout`, {}).subscribe({
       next: () => {
-        this.websocketsService.disconnect();
         this.broadcastChannel.postMessage({
           type: 'logout',
           source: this.uniqueTabId
         });
         this.setAuthenticated(false);
         this.tokenService.clearTokens();
+        this.websocketsService.disconnect();
         this.clearTimers();
         this.router.navigate(['/blogs']);
       },
@@ -182,6 +183,35 @@ export class AuthService {
         console.error('Logout failed:', error);
       }
     });
+  }
+
+  private handleLogoutSync(): void {
+    if (!this.isAuthenticatedSubject.value) {
+      return;
+    }
+
+    this.logout();
+  }
+
+  private handleLoginSync(): void {
+    this.setAuthenticated(true);
+    this.startRefreshTokenExpiryTimer();
+
+    if (!this.userService.userProfileData.value) {
+      this.httpClient
+        .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`, {
+          withCredentials: true
+        })
+        .subscribe({
+          next: (userData: UserDataModel) => {
+            this.userService.userProfileData.next(userData);
+            this.websocketsService.connect(userData.userId);
+          },
+          error: () => {
+            this.logout();
+          }
+        });
+    }
   }
 
   startRefreshTokenExpiryTimer(): void {
@@ -237,36 +267,6 @@ export class AuthService {
     }
     if (this.refreshTokenTimer) {
       clearTimeout(this.refreshTokenTimer);
-    }
-  }
-
-  private handleLogoutSync(): void {
-    if (!this.isAuthenticatedSubject.value) {
-      return;
-    }
-
-    this.websocketsService.disconnect();
-    this.logout();
-  }
-
-  private handleLoginSync(): void {
-    this.setAuthenticated(true);
-    this.startRefreshTokenExpiryTimer();
-
-    if (!this.userService.userProfileData.value) {
-      this.httpClient
-        .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`, {
-          withCredentials: true
-        })
-        .subscribe({
-          next: (userData: UserDataModel) => {
-            this.userService.userProfileData.next(userData);
-            this.websocketsService.connectPrivate(userData.userId);
-          },
-          error: () => {
-            this.logout();
-          }
-        });
     }
   }
 

@@ -1,139 +1,80 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { WebsocketsMessageModel } from '../models/websockets/websockets-message-model';
+import { shareReplay } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebsocketsService {
-  private sockets: { [key: string]: WebSocket } = {};
+  private socket: WebSocket | null = null;
+  private messageSubject = new Subject<WebsocketsMessageModel>();
+  private connectionStatus = new BehaviorSubject<boolean>(false);
+  private isConnected = false;
 
-  /**
-   * Підключення приватного та публічного WebSocket
-   */
-  connectPrivate(userId: string): void {
-    const privateUrl = `ws://localhost:8000/ws/chat/notifications/${encodeURIComponent(userId)}`;
-    const publicUrl = `ws://localhost:8000/ws/public_room?userId=${encodeURIComponent(userId)}`;
+  constructor() {}
 
-    this.createSocket(privateUrl, 'private');
-    this.createSocket(publicUrl, 'public');
+  connect(userId: number): void {
+    const wsUrl = `ws://127.0.0.1:8000/ws/community?userId=${userId}`;
+    this.connectWithRetry(wsUrl);
   }
 
-  /**
-   * З'єднання для індивідуального чату між користувачами
-   */
-  connectChat(
-    user1Id: string,
-    user2Id: string,
-    onMessageCallback: (message: any) => void
-  ): void {
-    const [minId, maxId] = this.sortIds(user1Id, user2Id);
-    const chatUrl = `ws://localhost:8000/ws/chat/${minId}/${maxId}/`;
-    const chatType = `chat_${minId}_${maxId}`;
+  private connectWithRetry(wsUrl: string, retryCount = 3): void {
+    let attempt = 0;
+    const connectSocket = () => {
+      this.socket = new WebSocket(wsUrl);
 
-    this.createSocket(chatUrl, chatType, onMessageCallback);
-  }
-
-  /**
-   * Відправлення повідомлення до чату
-   */
-  sendMessage(user1Id: string, user2Id: string, message: string): void {
-    const [minId, maxId] = this.sortIds(user1Id, user2Id);
-    const chatType = `chat_${minId}_${maxId}`;
-
-    if (this.sockets[chatType]) {
-      const payload = {
-        senderId: user1Id,
-        message
+      this.socket.onopen = () => {
+        this.isConnected = true;
+        this.connectionStatus.next(true);
+        console.log('✅ WebSocket connected');
       };
 
-      this.sockets[chatType].send(JSON.stringify(payload));
-      console.log(`Повідомлення надіслано в ${chatType}:`, payload);
-    } else {
-      console.warn(`Сокет для ${chatType} не знайдено`);
-    }
+      this.socket.onmessage = (event) => {
+        const data: WebsocketsMessageModel = JSON.parse(event.data);
+        this.messageSubject.next(data);
+      };
+
+      this.socket.onerror = (event) =>
+        console.error('❌ WebSocket error:', event);
+
+      this.socket.onclose = () => {
+        this.isConnected = false;
+        this.connectionStatus.next(false);
+        console.warn('⚠️ WebSocket connection closed');
+
+        if (attempt < retryCount) {
+          attempt++;
+          setTimeout(connectSocket, 2000);
+        } else {
+          console.error('❌ Failed to reconnect after 3 attempts');
+        }
+      };
+    };
+
+    connectSocket();
   }
 
-  /**
-   * Метод для створення WebSocket-з'єднання
-   */
-  private createSocket(url: string, type: string, onMessageCallback?: (message: any) => void): void {
-    if (this.sockets[type]) {
-      const existingSocket = this.sockets[type];
-
-      if (existingSocket.readyState === WebSocket.OPEN) {
-        console.warn(`${type} WebSocket вже підключено`);
-        return;
-      }
-
-      if (existingSocket.readyState === WebSocket.CONNECTING) {
-        console.warn(`${type} WebSocket все ще підключається`);
-        return;
-      }
-    }
-
-    const socket = new WebSocket(url);
-
-    socket.onopen = () => {
-      console.log(`${type} WebSocket підключено`);
-    };
-
-    socket.onclose = () => {
-      console.log(`${type} WebSocket відключено`);
-      delete this.sockets[type];
-    };
-
-    socket.onerror = (error) => {
-      console.error(`${type} WebSocket помилка`, error);
-    };
-
-    socket.onmessage = (message) => {
-      const parsedMessage = JSON.parse(message.data);
-      console.log(`${type} WebSocket отримав повідомлення`, parsedMessage);
-      if (onMessageCallback) {
-        onMessageCallback(parsedMessage);
-      }
-    };
-
-    this.sockets[type] = socket;
-  }
-
-  /**
-   * Від'єднання чату між двома користувачами
-   */
-  disconnectChat(user1Id: string, user2Id: string): void {
-    const [minId, maxId] = this.sortIds(user1Id, user2Id);
-    const chatType = `chat_${minId}_${maxId}`;
-
-    this.disconnectSocket(chatType);
-  }
-
-  /**
-   * Від'єднання всіх з'єднань (під час розлогування)
-   */
   disconnect(): void {
-    for (const [type, socket] of Object.entries(this.sockets)) {
-      if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
-        console.log(`Закриття WebSocket з'єднання ${type}`);
-        socket.close();
-      }
-      delete this.sockets[type];
+    if (this.socket) {
+      this.socket.close();
+      this.socket = null;
     }
   }
 
-  /**
-   * Від'єднання конкретного WebSocket-з'єднання за типом
-   */
-  private disconnectSocket(type: string): void {
-    if (this.sockets[type]) {
-      this.sockets[type].close();
-      delete this.sockets[type];
-      console.log(`WebSocket для типу ${type} відключено`);
+  sendMessage(message: WebsocketsMessageModel): void {
+    if (this.isConnected && this.socket?.readyState === WebSocket.OPEN) {
+      this.socket.send(JSON.stringify(message));
+    } else {
+      console.warn('⚠️ WebSocket not connected. Message not sent:', message);
     }
   }
 
-  /**
-   * Допоміжний метод для сортування ID
-   */
-  private sortIds(id1: string, id2: string): [string, string] {
-    return [id1, id2].map(id => parseInt(id, 10)).sort((a, b) => a - b).map(id => id.toString()) as [string, string];
+  onMessage(): Observable<WebsocketsMessageModel> {
+    return this.messageSubject.asObservable().pipe(shareReplay(1));
+  }
+
+  onConnectionStatus(): Observable<boolean> {
+    return this.connectionStatus.asObservable();
   }
 }

@@ -60,7 +60,7 @@ export class RequestPasswordResetComponent implements OnInit {
     this.authService.requestPasswordRecovery(email).subscribe({
       next: (): void => {
         localStorage.setItem('forgotPasswordData', JSON.stringify(email));
-        const timerDuration = 3 * 60 * 1000; // 3 хвилини
+        const timerDuration = 3 * 60 * 1000;
 
         this.forgotPasswordService.createTimer(timerDuration);
         this.forgotPasswordService.resetAttempts();

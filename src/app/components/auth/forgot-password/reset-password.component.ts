@@ -96,7 +96,7 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
 
     this.authService.resetAccountPassword(resetPasswordValue).subscribe({
       next: (): void => {
-        this.forgotPasswordService.clearStorage(); // Очищення сховища після успішного скидання паролю
+        this.forgotPasswordService.clearStorage();
         this.router.navigate(['/auth/login']);
       },
       error: (errorResponse): void => {

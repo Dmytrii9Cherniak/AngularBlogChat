@@ -3,6 +3,8 @@ import { Observable } from 'rxjs';
 import { UsersService } from '../../../services/users.service';
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
+import { UsersListModel } from '../../../models/user/users.list.model';
+import { DifferentUserDetailsInfoModel } from '../../../models/user/different.user.details.info.model';
 
 @Component({
   selector: 'app-all-users-list',
@@ -10,7 +12,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./all-users-list.component.scss']
 })
 export class AllUsersListComponent implements OnInit {
-  public allUsersList: Observable<any>;
+  public allUsersList: Observable<UsersListModel[]>;
   public isAuthenticated: Observable<boolean>;
 
   constructor(
@@ -24,19 +26,13 @@ export class AllUsersListComponent implements OnInit {
     this.allUsersList = this.usersService.getAllUsers();
   }
 
-  navigateToChat(user: any): void {
+  navigateToChat(user: DifferentUserDetailsInfoModel): void {
     this.router.navigate(['/chat'], {
       queryParams: { userId: user.id, userNickname: user.nickname }
     });
   }
 
-  // navigateToChat(user: any): void {
-  //   this.router.navigate(['/chat'], {
-  //     queryParams: { userId: user.id, userNickname: user.nickname }
-  //   });
-  // }
-
-  navigateToUserInfo(user: any): void {
+  navigateToUserInfo(user: DifferentUserDetailsInfoModel): void {
     this.router.navigate(['/users', user.id]);
   }
 }

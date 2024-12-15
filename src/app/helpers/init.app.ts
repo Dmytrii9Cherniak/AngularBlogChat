@@ -21,7 +21,7 @@ export function initializeApp(
       const { type, data } = message;
       if (type === 'login') {
         if (data?.userId) {
-          websocketsService.connectPrivate(data.userId);
+          websocketsService.connect(data.userId);
         }
       } else if (type === 'logout') {
         websocketsService.disconnect();
@@ -37,13 +37,12 @@ export function initializeApp(
         const userData = await firstValueFrom(userService.getUserData());
         userService.userProfileData.next(userData);
 
-        // Підключення приватного WebSocket для авторизованого користувача
-        websocketsService.connectPrivate(userData.userId);
+        websocketsService.connect(userData.userId);
         broadcastChannelService.postMessage('login', {
           userId: userData.userId
         });
       } catch (error) {
-        console.error('Error fetching users data:', error);
+        console.error('Error fetching user data:', error);
       }
     } else if (accessToken) {
       try {
@@ -54,12 +53,12 @@ export function initializeApp(
         const userData = await firstValueFrom(userService.getUserData());
         userService.userProfileData.next(userData);
 
-        websocketsService.connectPrivate(userData.userId);
+        websocketsService.connect(userData.userId);
         broadcastChannelService.postMessage('login', {
           userId: userData.userId
         });
       } catch (error) {
-        console.error('Error refreshing token or fetching users data:', error);
+        console.error('Error refreshing token or fetching user data:', error);
         authService.logout();
       }
     } else {

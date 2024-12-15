@@ -56,10 +56,10 @@ export class RegisterComponent implements OnInit {
     this.authService.register(formValue).subscribe({
       next: (): void => {
         localStorage.setItem('registrationData', JSON.stringify(formValue));
-        const timerDuration = 3 * 60 * 1000; // 3 хвилини
+        const timerDuration = 3 * 60 * 1000;
 
         this.verificationService.createTimer(timerDuration);
-        this.verificationService.resetAttempts(); // Скидаємо кількість спроб
+        this.verificationService.resetAttempts();
 
         this.router.navigate(['/auth/confirm-account']);
       },

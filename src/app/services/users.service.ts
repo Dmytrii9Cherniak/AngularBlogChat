@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { UsersListModel } from '../models/user/users.list.model';
+import { DifferentUserDetailsInfoModel } from '../models/user/different.user.details.info.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -9,11 +11,17 @@ import { environment } from '../../environments/environment';
 export class UsersService {
   constructor(private httpClient: HttpClient) {}
 
-  public getAllUsers(): Observable<any> {
-    return this.httpClient.get(`${environment.apiUrl}/users/list/?page=2`);
+  public getAllUsers(): Observable<UsersListModel[]> {
+    return this.httpClient.get<UsersListModel[]>(
+      `${environment.apiUrl}/users/list/?page=1`
+    );
   }
 
-  public getDifferentUser(userId: string): Observable<any> {
-    return this.httpClient.get(`${environment.apiUrl}/users/data/${userId}`);
+  public getDifferentUser(
+    userId: string
+  ): Observable<DifferentUserDetailsInfoModel> {
+    return this.httpClient.get<DifferentUserDetailsInfoModel>(
+      `${environment.apiUrl}/users/data/${userId}`
+    );
   }
 }

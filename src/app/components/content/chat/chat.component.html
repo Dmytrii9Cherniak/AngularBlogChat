@@ -1,25 +1,60 @@
 <div class="chat-container">
-  <!-- Заголовок чату -->
-  <header class="chat-header">
-    <h1>Чат із {{ userNickname }}</h1>
-  </header>
-
-  <!-- Секція повідомлень -->
-  <div class="messages-container">
-    <div *ngFor="let message of messages"
-         [ngClass]="{'message': true, 'sent': message.type === 'sent', 'received': message.type === 'received'}">
-      <p>{{ message.message }}</p>
-      <span class="timestamp">{{ message.time }}</span>
+  <!-- Ліва панель зі списком чатів -->
+  <aside class="chat-sidebar">
+    <div class="chat-header">
+      <h2 class="sidebar-title">Чати</h2>
     </div>
-  </div>
+    <div *ngIf="(chats | async) as chatList" class="chat-list">
+      <div
+        *ngFor="let chat of chatList"
+        class="chat-item"
+        (click)="selectChat(chat.chat_id)"
+        [ngClass]="{'active-chat': chat.chat_id === selectedChatId}"
+      >
+        <div class="chat-info">
+          <span class="chat-users">{{ chat.chat_users }}</span>
+          <span class="last-message-time">{{ chat.last_message_time | date: 'shortTime' }}</span>
+        </div>
+      </div>
+    </div>
+  </aside>
 
-  <!-- Реактивна форма для надсилання повідомлення -->
-  <form [formGroup]="messageForm" class="chat-form" (ngSubmit)="sendMessage()">
-    <input formControlName="message" placeholder="Введіть повідомлення..." />
-    <button type="submit" [disabled]="messageForm.invalid">
-      <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24">
-        <path d="M128 896V768l480-192-480-192V256l800 320-800 320Z"/>
-      </svg>
-    </button>
-  </form>
+  <section class="chat-content">
+    <div class="chat-header">
+      <div class="user-info">
+        <span class="user-nickname">{{ userNickname }}</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" #messageContainer>
+      <div
+        *ngFor="let message of messages"
+        [ngClass]="{'message-sent': message.user_id === currentUserId, 'message-received': message.user_id !== currentUserId}"
+        class="message-bubble"
+      >
+        <div class="message-content">
+          <p class="message-text">{{ message.message }}</p>
+          <span class="message-time">{{ message.timestamp | date: 'shortTime' }}</span>
+          <button
+            class="delete-btn"
+            *ngIf="message.user_id === currentUserId"
+            (click)="deleteMessage(message.message_id)"
+          >
+            🗑️
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="messageForm" (ngSubmit)="sendMessage()" class="chat-input-container">
+      <input
+        type="text"
+        placeholder="Введіть повідомлення..."
+        formControlName="message"
+        class="message-input"
+        (keyup.enter)="sendMessage()"
+      />
+      <button type="submit" class="send-btn" [disabled]="!messageForm.valid">Відправити</button>
+    </form>
+  </section>
 </div>

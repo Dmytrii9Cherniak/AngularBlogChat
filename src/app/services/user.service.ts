@@ -14,12 +14,10 @@ export class UserService {
 
   constructor(private httpClient: HttpClient) {}
 
-  // Оновлення профілю
   public updateUserProfile(userData: UserDataModel): void {
     this.userProfileData.next(userData);
   }
 
-  // Завантаження даних користувача
   public getUserData(): Observable<UserDataModel> {
     return this.httpClient
       .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`)
