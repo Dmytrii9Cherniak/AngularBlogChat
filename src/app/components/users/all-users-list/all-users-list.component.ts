@@ -28,7 +28,7 @@ export class AllUsersListComponent implements OnInit {
 
   navigateToChat(user: DifferentUserDetailsInfoModel): void {
     this.router.navigate(['/chat'], {
-      queryParams: { userId: user.id, userNickname: user.nickname }
+      queryParams: { userId: user.id, username: user.username }
     });
   }
 
