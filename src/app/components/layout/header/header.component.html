@@ -4,7 +4,7 @@
       <div class="logo">
         <a routerLink="/">BlogChatApp</a>
         <a [routerLink]="['/users']"> users </a>
-        <a [routerLink]="['/chat']"> chats </a>
+        <a [routerLink]="['/chat']" *ngIf="isAuthenticated | async"> chats </a>
       </div>
       <div class="auth-buttons">
         <ng-container *ngIf="!(isAuthenticated | async)">

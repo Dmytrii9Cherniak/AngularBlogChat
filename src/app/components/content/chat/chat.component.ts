@@ -20,6 +20,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   public chats: Observable<DifferentChatModel[]>;
   public currentUserId: number = 0;
   public selectedChatId: number | null = null;
+  public recipientUserId: number | null = null;
   private messageSubscription: Subscription | null = null;
 
   constructor(
@@ -36,12 +37,22 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Отримуємо id поточного користувача
     this.userService.userProfileData.subscribe((value) => {
       this.currentUserId = Number(value?.userId);
     });
 
+    // Отримуємо queryParams (userId і userNickname)
     this.route.queryParams.subscribe((params) => {
-      this.userNickname = params['userNickname'];
+      this.recipientUserId = params['userId'] ? Number(params['userId']) : null;
+      this.userNickname = params['userNickname'] || '';
+
+      if (this.recipientUserId) {
+        console.log(
+          `Написання повідомлення користувачу з userId: ${this.recipientUserId}`
+        );
+        this.selectedChatId = null;
+      }
     });
 
     this.chats = this.chatService.requestChatList();
@@ -56,13 +67,12 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.messageSubscription.unsubscribe();
       }
 
+      this.updateQueryParams({ chatId });
       this.connectToChat(chatId);
     }
   }
 
   private connectToChat(chatId: number): void {
-    console.log('Підключаємося до чату з chatId:', chatId);
-
     if (this.messageSubscription) {
       this.messageSubscription.unsubscribe();
     }
@@ -74,10 +84,7 @@ export class ChatComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response: { messages: MessageChatModel[] }) => {
           if (response && Array.isArray(response.messages)) {
-            console.log('Отримані повідомлення:', response.messages);
             this.messages = response.messages;
-          } else {
-            console.warn('Неправильний формат відповіді:', response);
           }
         },
         error: (error: unknown) => {
@@ -89,20 +96,23 @@ export class ChatComponent implements OnInit, OnDestroy {
   sendMessage(): void {
     if (this.messageForm.valid) {
       const message = this.messageForm.value.message;
-      const currentUserId = this.currentUserId;
+      const chatId = this.recipientUserId ?? this.selectedChatId;
 
-      console.log(currentUserId);
-
-      if (!isNaN(currentUserId) && this.selectedChatId) {
-        console.log('works');
+      if (
+        !isNaN(this.currentUserId) &&
+        chatId !== null &&
+        chatId !== undefined
+      ) {
         this.chatService.sendChatMessage(
-          [currentUserId, this.selectedChatId],
-          currentUserId,
+          [this.currentUserId, chatId],
+          this.currentUserId,
           this.userNickname,
           message
         );
-        this.addMessage(currentUserId, message);
+        this.addMessage(this.currentUserId, message);
         this.messageForm.reset();
+      } else {
+        console.warn('recipientUserId або selectedChatId не визначено');
       }
     }
   }
@@ -131,5 +141,13 @@ export class ChatComponent implements OnInit, OnDestroy {
     if (this.messageSubscription) {
       this.messageSubscription.unsubscribe();
     }
+  }
+
+  private updateQueryParams(params: { [key: string]: any }): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: params,
+      queryParamsHandling: 'merge'
+    });
   }
 }
