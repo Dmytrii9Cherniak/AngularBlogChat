@@ -78,6 +78,14 @@ export class FormHelper {
     return this.form;
   }
 
+  createChatForm(): FormGroup {
+    this.form = this.fb.group({
+      message: ['', [Validators.required, Validators.minLength(1)]]
+    });
+
+    return this.form;
+  }
+
   createConfirmAccountForm(): FormGroup {
     this.form = this.fb.group({
       code: [

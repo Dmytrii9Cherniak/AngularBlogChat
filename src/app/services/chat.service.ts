@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { WebsocketsService } from './websockets.service';
 import { WebsocketEventType } from '../enums/websocket-event-types';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { filter, map, shareReplay, tap } from 'rxjs/operators';
 import { DifferentChatModel } from '../models/chat/different.chat.model';
 import { MessageChatModel } from '../models/chat/message.chat.model';
@@ -11,7 +11,7 @@ import { WebsocketsMessageModel } from '../models/websockets/websockets-message-
   providedIn: 'root'
 })
 export class ChatService {
-  private chatsListSubject = new BehaviorSubject<DifferentChatModel[]>([]);
+  chatsListSubject = new BehaviorSubject<DifferentChatModel[]>([]);
   private chatListRequested = false;
 
   constructor(private wsService: WebsocketsService) {
@@ -27,7 +27,7 @@ export class ChatService {
             message: WebsocketsMessageModel
           ): message is WebsocketsMessageModel & {
             chats: DifferentChatModel[];
-          } => message.type === WebsocketEventType.CHAT_LIST
+          } => message.type === WebsocketEventType.ALL_CHATS_LIST
         ),
         tap((message) => {
           console.log('Отримано список чатів:', message);
@@ -77,17 +77,18 @@ export class ChatService {
     participants: number[],
     senderId: number,
     senderName: string,
-    message: string
+    message: string,
+    chat_id: number
   ): void {
-    let b = {
+    let bodyToSend = {
       type: WebsocketEventType.CHAT_MESSAGE,
       participants: participants.join(','),
       sender: senderId,
       sender_name: senderName,
-      message
+      message,
+      chat_id
     };
-    console.log(b);
-    this.wsService.sendMessage(b);
+    this.wsService.sendMessage(bodyToSend);
   }
 
   updateChatMessage(messageId: number, newMessageContent: string): void {
@@ -102,6 +103,13 @@ export class ChatService {
     this.wsService.sendMessage({
       type: WebsocketEventType.DELETE_CHAT_MESSAGE,
       message_id: messageId
+    });
+  }
+
+  deleteDifferentChat(chatId: number): void {
+    this.wsService.sendMessage({
+      type: WebsocketEventType.DELETE_DIFFERENT_CHAT,
+      chat_id: chatId
     });
   }
 
