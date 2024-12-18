@@ -3,16 +3,24 @@
     <div class="chat-header">
       <h2 class="sidebar-title">Чати</h2>
     </div>
-    <div *ngIf="(chats | async) as chatList" class="chat-list">
+    <div *ngIf="(chats$ | async) as chatList" class="chat-list">
       <div
         *ngFor="let chat of chatList"
         class="chat-item"
-        (click)="selectChat(chat.chat_id, chat)"
+        (mouseenter)="hoveredDifferentChatId = chat.chat_id"
+        (mouseleave)="hoveredDifferentChatId = null"
+        (click)="selectChat(chat.chat_id)"
         [ngClass]="{'active-chat': chat.chat_id === selectedChatId}"
       >
         <div class="chat-info">
           <span class="chat-users">{{ chat.chat_users }}</span>
           <span class="last-message-time">{{ chat.last_message_time | date: 'shortTime' }}</span>
+          <button
+            (click)="deleteChat(chat.chat_id); $event.stopPropagation()"
+            *ngIf="hoveredDifferentChatId === chat.chat_id"
+            class="delete-button">
+            Delete
+          </button>
         </div>
       </div>
     </div>
@@ -26,15 +34,144 @@
     </div>
 
     <div class="chat-messages">
-      <div *ngFor="let message of messages" class="message-bubble" [ngClass]="{'message-sent': message.user_id === currentUserId, 'message-received': message.user_id !== currentUserId}">
+      <div *ngFor="let message of messages; let i = index"
+           class="message-bubble"
+           [ngClass]="{
+             'message-sent': message.user_id === currentUserId,
+             'message-received': message.user_id !== currentUserId,
+             'editing-message': editedMessageId === message.message_id
+           }"
+           (mouseenter)="hoveredMessageId = message.message_id"
+           (mouseleave)="hoveredMessageId = null">
+
         <p class="message-text">{{ message.message }}</p>
+
+        <button *ngIf="hoveredMessageId === message.message_id && message.user_id === currentUserId && editedMessageId !== message.message_id"
+                class="my-button"
+                (click)="deleteMessage(message.message_id)">
+          Видалити
+        </button>
+
+        <button *ngIf="hoveredMessageId === message.message_id && message.user_id === currentUserId && editedMessageId !== message.message_id"
+                class="edit-button"
+                (click)="editMessage(message.message_id, message.message)">
+          Змінити
+        </button>
+
         <span class="message-time">{{ message.timestamp | date: 'shortTime' }}</span>
       </div>
     </div>
 
-    <form [formGroup]="messageForm" (ngSubmit)="sendMessage()" class="chat-input-container">
-      <input formControlName="message" placeholder="Введіть повідомлення..." class="message-input" />
-      <button type="submit" [disabled]="!messageForm.valid" class="send-btn">Відправити</button>
+    <form [formGroup]="formHelper.form"
+          (ngSubmit)="editedMessageId ? confirmEdit() : sendMessage()"
+          class="chat-input-container">
+
+      <input formControlName="message"
+             placeholder="Введіть повідомлення..."
+             class="message-input"
+             (keydown.escape)="cancelEdit()" />
+
+      <button *ngIf="editedMessageId"
+              type="button"
+              class="cancel-btn"
+              (click)="cancelEdit()">
+        Відмінити
+      </button>
+
+      <button type="submit"
+              class="send-btn">
+        {{ editedMessageId ? 'Змінити' : 'Відправити' }}
+      </button>
     </form>
   </section>
 </div>
+
+
+
+<!--<div class="chat-container">-->
+<!--  <aside class="chat-sidebar">-->
+<!--    <div class="chat-header">-->
+<!--      <h2 class="sidebar-title">Чати</h2>-->
+<!--    </div>-->
+<!--    <div *ngIf="(chats | async) as chatList" class="chat-list">-->
+<!--      <div-->
+<!--        *ngFor="let chat of chatList"-->
+<!--        class="chat-item"-->
+<!--        (mouseenter)="hoveredDifferentChatId = chat.chat_id"-->
+<!--        (mouseleave)="hoveredDifferentChatId = null"-->
+<!--        (click)="selectChat(chat.chat_id)"-->
+<!--        [ngClass]="{'active-chat': chat.chat_id === selectedChatId}"-->
+<!--      >-->
+<!--        <div class="chat-info">-->
+<!--          <span class="chat-users">{{ chat.chat_users }}</span>-->
+<!--          <span class="last-message-time">{{ chat.last_message_time | date: 'shortTime' }}</span>-->
+<!--          <button-->
+<!--            (click)="deleteChat(chat.chat_id); $event.stopPropagation()"-->
+<!--            *ngIf="hoveredDifferentChatId === chat.chat_id"-->
+<!--            class="delete-button">-->
+<!--            Delete current chat-->
+<!--          </button>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </aside>-->
+
+<!--  <section class="chat-content">-->
+<!--    <div class="chat-header">-->
+<!--      <div class="user-info">-->
+<!--        <span class="user-nickname">{{ username }}</span>-->
+<!--      </div>-->
+<!--    </div>-->
+
+<!--    <div class="chat-messages">-->
+<!--      <div *ngFor="let message of messages; let i = index"-->
+<!--           class="message-bubble"-->
+<!--           [ngClass]="{-->
+<!--       'message-sent': message.user_id === currentUserId,-->
+<!--       'message-received': message.user_id !== currentUserId,-->
+<!--       'editing-message': editedMessageId === message.message_id-->
+<!--     }"-->
+<!--           (mouseenter)="hoveredMessageId = message.message_id"-->
+<!--           (mouseleave)="hoveredMessageId = null">-->
+
+<!--        <p class="message-text">{{ message.message }}</p>-->
+
+<!--        <button *ngIf="hoveredMessageId === message.message_id && message.user_id === currentUserId && editedMessageId !== message.message_id"-->
+<!--                class="my-button"-->
+<!--                (click)="deleteMessage(message.message_id)">-->
+<!--          Видалити-->
+<!--        </button>-->
+
+<!--        <button *ngIf="hoveredMessageId === message.message_id && message.user_id === currentUserId && editedMessageId !== message.message_id"-->
+<!--                class="edit-button"-->
+<!--                (click)="editMessage(message.message_id, message.message)">-->
+<!--          Змінити-->
+<!--        </button>-->
+
+<!--        <span class="message-time">{{ message.timestamp | date: 'shortTime' }}</span>-->
+<!--      </div>-->
+<!--    </div>-->
+
+<!--    <form [formGroup]="formHelper.form"-->
+<!--          (ngSubmit)="editedMessageId ? confirmEdit() : sendMessage()"-->
+<!--          class="chat-input-container">-->
+
+<!--      <input formControlName="message"-->
+<!--             placeholder="Введіть повідомлення..."-->
+<!--             class="message-input"-->
+<!--             (keydown.escape)="cancelEdit()" />-->
+
+<!--      <button *ngIf="editedMessageId"-->
+<!--              type="button"-->
+<!--              class="cancel-btn"-->
+<!--              (click)="cancelEdit()">-->
+<!--        Відмінити-->
+<!--      </button>-->
+
+<!--      <button type="submit"-->
+<!--              class="send-btn">-->
+<!--        {{ editedMessageId ? 'Змінити' : 'Відправити' }}-->
+<!--      </button>-->
+<!--    </form>-->
+<!--  </section>-->
+<!--</div>-->

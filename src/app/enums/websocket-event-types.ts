@@ -6,7 +6,7 @@ export enum WebsocketEventType {
   UPDATE_CHAT_MESSAGE = 'update_chat_message',
   MESSAGE_DELETED = 'message_deleted',
   MESSAGE_UPDATED = 'message_updated',
-  CHAT_LIST = 'chat_list',
+  ALL_CHATS_LIST = 'chat_list',
   CHAT_MESSAGES = 'chat_messages',
   DELETE_DIFFERENT_CHAT = 'delete_chat'
 }

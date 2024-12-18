@@ -8,7 +8,7 @@ import { shareReplay } from 'rxjs/operators';
 })
 export class WebsocketsService {
   private socket: WebSocket | null = null;
-  private messageSubject = new Subject<WebsocketsMessageModel>();
+  private wsEventSubject = new Subject<WebsocketsMessageModel>();
   private connectionStatus = new BehaviorSubject<boolean>(false);
   private isConnected = false;
 
@@ -32,7 +32,8 @@ export class WebsocketsService {
 
       this.socket.onmessage = (event) => {
         const data: WebsocketsMessageModel = JSON.parse(event.data);
-        this.messageSubject.next(data);
+        this.wsEventSubject.next(data);
+        console.log(data, 'data from subject');
       };
 
       this.socket.onerror = (event) =>
@@ -71,7 +72,7 @@ export class WebsocketsService {
   }
 
   onMessage(): Observable<WebsocketsMessageModel> {
-    return this.messageSubject.asObservable().pipe(shareReplay(1));
+    return this.wsEventSubject.asObservable().pipe(shareReplay(1));
   }
 
   onConnectionStatus(): Observable<boolean> {
