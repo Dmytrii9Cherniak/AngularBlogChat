@@ -13,7 +13,7 @@ export class UsersService {
 
   public getAllUsers(): Observable<UsersListModel[]> {
     return this.httpClient.get<UsersListModel[]>(
-      `${environment.apiUrl}/users/list/?page=1`
+      `${environment.apiUrl}/users/list/`
     );
   }
 

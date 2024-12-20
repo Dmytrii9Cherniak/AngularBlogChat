@@ -77,16 +77,14 @@ export class ChatService {
     participants: number[],
     senderId: number,
     senderName: string,
-    message: string,
-    chat_id: number
+    message: string
   ): void {
     let bodyToSend = {
       type: WebsocketEventType.CHAT_MESSAGE,
       participants: participants.join(','),
       sender: senderId,
       sender_name: senderName,
-      message,
-      chat_id
+      message: message
     };
     this.wsService.sendMessage(bodyToSend);
   }
@@ -99,10 +97,11 @@ export class ChatService {
     });
   }
 
-  deleteChatMessage(messageId: number): void {
+  deleteChatMessage(messageId: number, chatId: number): void {
     this.wsService.sendMessage({
       type: WebsocketEventType.DELETE_CHAT_MESSAGE,
-      message_id: messageId
+      message_id: messageId,
+      chat_id: chatId
     });
   }
 

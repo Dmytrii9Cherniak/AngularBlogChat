@@ -22,6 +22,7 @@ import { UserService } from './user.service';
 import { Router } from '@angular/router';
 import { WebsocketsService } from './websockets.service';
 import { ChatService } from './chat.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
@@ -42,7 +43,8 @@ export class AuthService {
     private userService: UserService,
     private router: Router,
     private websocketsService: WebsocketsService,
-    private chatService: ChatService
+    private chatService: ChatService,
+    private toastrService: ToastrService
   ) {
     this.broadcastChannel.onmessage = (event) => {
       const { type, source } = event.data || {};
@@ -125,6 +127,7 @@ export class AuthService {
             .pipe(
               tap((userData) => {
                 this.userService.userProfileData.next(userData);
+                this.toastrService.success(`Ласкаво просимо в систему, ${userData.username}`)
                 this.websocketsService.connect(userData.userId);
                 this.chatService.initializeChatList();
               }),
@@ -253,12 +256,6 @@ export class AuthService {
     this.refreshTokenTimer = setTimeout(() => {
       this.logout();
     }, refreshTokenExpiryTime - now);
-
-    console.log(
-      `Access token refresh timer set for ${
-        refreshTime / 1000
-      } seconds, logout timer for ${refreshTokenExpiryTime - now} milliseconds.`
-    );
   }
 
   private clearTimers(): void {

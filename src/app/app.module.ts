@@ -15,18 +15,18 @@ import { UserService } from './services/user.service';
 import { TokenService } from './services/token.service';
 import { WebsocketsService } from './services/websockets.service';
 import { BroadcastChannelService } from './services/broadcast-channel.service';
+import { ToastrModule } from 'ngx-toastr';
+import { toastrMessagesSettings } from './helpers/toastr.messages.settings';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    HeaderComponent,
-  ],
+  declarations: [AppComponent, HeaderComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
     AuthRoutingModule,
-    FormsModule
+    FormsModule,
+    ToastrModule.forRoot(toastrMessagesSettings)
   ],
   providers: [
     provideHttpClient(withInterceptors([authInterceptor])),
