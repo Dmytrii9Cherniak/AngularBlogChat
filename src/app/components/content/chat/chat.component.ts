@@ -98,27 +98,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
   }
 
-  // selectChat(chatId: number): void {
-  //   if (this.selectedChatId !== chatId) {
-  //     this.selectedChatId = chatId;
-  //     this.recipientUserId = null;
-  //
-  //     this.chatService.requestChatList().subscribe((chats) => {
-  //       const selectedChat = chats.find((chat) => chat.chat_id === chatId);
-  //       if (selectedChat) {
-  //         this.recipientUserId = this.getRecipientIdFromChat(selectedChat);
-  //         this.username =
-  //           selectedChat.chat_users
-  //             .split(', ')
-  //             .find((user) => user !== this.currentUserId.toString()) ||
-  //           'Unknown User';
-  //         this.updateQueryParams({ chatId, username: this.username });
-  //       }
-  //     });
-  //     this.connectToChat(chatId);
-  //   }
-  // }
-
   private connectToChat(chatId: number): void {
     this.messages = [];
 
@@ -138,6 +117,7 @@ export class ChatComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (sortedMessages) => {
           this.messages = sortedMessages;
+          console.log(this.messages, '123');
         }
       });
   }
@@ -289,8 +269,32 @@ export class ChatComponent implements OnInit, OnDestroy {
       case WebsocketEventType.CHAT_MESSAGE:
         this.handleNewChatMessage(message);
         break;
+      case WebsocketEventType.MESSAGE_UPDATED:
+        if (message.message_id && message.new_content) {
+          this.updateMessageContent(message.message_id, message.new_content);
+        }
+        break;
+      case WebsocketEventType.MESSAGE_DELIVERED:
+        if (message.message_id) {
+          this.markMessageAsDelivered(message.message_id);
+        }
+        break;
+      case WebsocketEventType.MESSAGE_IS_READ:
+        if (message.messages) {
+          const messageIds = message.messages.split(',').map(Number);
+          this.markMessagesAsRead(messageIds);
+        }
+        break;
+      case WebsocketEventType.FORWARD_MESSAGE:
+        this.handleForwardedMessage(message);
+        break;
+      case WebsocketEventType.MESSAGE_PINNED:
+        this.handlePinnedMessage(message);
+        break;
       case WebsocketEventType.MESSAGE_DELETED:
-        this.handleMessageDeleted(message);
+        if (message.message_id) {
+          this.handleMessageDeleted(message);
+        }
         break;
       case WebsocketEventType.CHAT_CREATED:
         this.handleChatCreated(message);
@@ -298,9 +302,74 @@ export class ChatComponent implements OnInit, OnDestroy {
       case WebsocketEventType.CHAT_DELETED:
         this.handleChatDeleted(message);
         break;
-
       default:
         console.warn('🚫 Невідомий тип повідомлення:', message.type);
+    }
+  }
+
+  handlePinnedMessage(message: IncomingMessageModel): void {
+    if (!message.message_id || !message.pin_owner_username) return;
+
+    const pinnedMessage = this.messages.find(
+      (msg) => msg.message_id === message.message_id
+    );
+
+    if (pinnedMessage) {
+      pinnedMessage.is_pinned = true;
+      this.toastrService.success(
+        `Повідомлення закріплено користувачем ${message.pin_owner_username}`,
+        'Закріплення повідомлення'
+      );
+    } else {
+      console.warn('Закріплене повідомлення не знайдено.');
+    }
+  }
+
+  updateMessageContent(messageId: number, newContent: string): void {
+    const message = this.messages.find((msg) => msg.message_id === messageId);
+    if (message) {
+      message.message = newContent;
+      this.toastrService.success('Повідомлення оновлено', 'Оновлення');
+    } else {
+      console.warn('Не вдалося знайти повідомлення для оновлення.');
+    }
+  }
+
+  markMessageAsDelivered(messageId: number): void {
+    const message = this.messages.find((msg) => msg.message_id === messageId);
+    if (message) {
+      message['status:'] = 'delivered';
+      this.toastrService.info('Повідомлення доставлено', 'Статус');
+    } else {
+      console.warn('Не вдалося знайти повідомлення для оновлення статусу.');
+    }
+  }
+
+  handleForwardedMessage(message: IncomingMessageModel): void {
+    if (
+      !message.message_content ||
+      !message.sender_username ||
+      !message.to_chat_id
+    ) {
+      return;
+    }
+
+    const forwardedMessage: MessageChatModel = {
+      message_id: Date.now(),
+      message: `${message.message_content} (переслано від ${message.sender_username})`,
+      timestamp: new Date().toISOString(),
+      user_id: message.sender_id!, // Гарантовано, що user_id не буде undefined
+      username: message.sender_username,
+      is_forwarded: true
+    };
+
+    if (message.to_chat_id === this.selectedChatId) {
+      this.messages.push(forwardedMessage);
+    } else {
+      this.toastrService.info(
+        `Переслано повідомлення від ${message.sender_username}: "${message.message_content}"`,
+        'Нове переслане повідомлення'
+      );
     }
   }
 
@@ -324,7 +393,7 @@ export class ChatComponent implements OnInit, OnDestroy {
           message_id: Date.now(),
           message: incomingMessage.message,
           timestamp: incomingMessage.timestamp || new Date().toISOString(),
-          user_id: incomingMessage.sender_id,
+          user_id: Number(incomingMessage.sender_id),
           username: incomingMessage.username
         });
       }
@@ -337,7 +406,6 @@ export class ChatComponent implements OnInit, OnDestroy {
       );
     }
   }
-
 
   handleChatCreated(message: any): void {
     if (!message?.chat_id) {
@@ -397,6 +465,44 @@ export class ChatComponent implements OnInit, OnDestroy {
       this.selectedChatId = null;
       this.messages = [];
       this.updateQueryParams({ chatId: null, username: null });
+    }
+  }
+
+  markMessagesAsRead(messageIds: number[]): void {
+    messageIds.forEach((id) => {
+      const message = this.messages.find((msg) => msg.message_id === id);
+      if (message) {
+        message['status:'] = 'read';
+      }
+    });
+    this.toastrService.info('Повідомлення прочитано');
+  }
+
+  pinMessage(messageId: number): void {
+    this.chatService.pinMessage(messageId, this.currentUserId, this.username);
+    const message = this.messages.find((msg) => msg.message_id === messageId);
+    if (message) {
+      message.is_pinned = true;
+      this.toastrService.success(
+        'Повідомлення успішно закріплено.',
+        'Закріплено'
+      );
+    }
+  }
+
+  openForwardModal(messageId: number, messageContent: string): void {
+    // Тут можна інтегрувати модальне вікно (наприклад, Angular Material Dialog).
+    const toChatId = prompt('Введіть ID чату, куди переслати повідомлення:');
+    if (toChatId) {
+      this.chatService.forwardMessage(
+        messageId,
+        messageContent,
+        this.currentUserId,
+        this.username,
+        parseInt(toChatId, 10)
+      );
+      console.log(messageId);
+      this.toastrService.info('Повідомлення переслано.', 'Пересилання');
     }
   }
 
