@@ -1,8 +1,17 @@
 export interface IncomingMessageModel {
   type: string;
-  sender_id: number;
+  message_id?: number;
+  chat_id?: number;
+  sender_id?: number;
   username: string;
+  sender_username?: string;
+  message_content?: string;
+  messages?: string;
+  new_content?: string;
+  pin_owner_id?: number;
+  pin_owner_username?: string;
+  to_chat_id?: number;
+  reply_to?: number;
   message: string;
-  chat_id: number;
-  timestamp: string;
+  timestamp?: string;
 }
