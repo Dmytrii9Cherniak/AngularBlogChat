@@ -360,7 +360,8 @@ export class ChatComponent implements OnInit, OnDestroy {
       timestamp: new Date().toISOString(),
       user_id: message.sender_id!, // Гарантовано, що user_id не буде undefined
       username: message.sender_username,
-      is_forwarded: true
+      is_forwarded: true,
+      reply_from_user: message.sender_id!
     };
 
     if (message.to_chat_id === this.selectedChatId) {
@@ -394,7 +395,8 @@ export class ChatComponent implements OnInit, OnDestroy {
           message: incomingMessage.message,
           timestamp: incomingMessage.timestamp || new Date().toISOString(),
           user_id: Number(incomingMessage.sender_id),
-          username: incomingMessage.username
+          username: incomingMessage.username,
+          reply_from_user: Number(incomingMessage.sender_id)
         });
       }
     }

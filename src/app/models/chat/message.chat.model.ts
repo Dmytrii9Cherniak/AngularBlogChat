@@ -8,4 +8,5 @@ export interface MessageChatModel {
   is_pinned?: boolean;
   is_forwarded?: boolean;
   reply_to?: number;
+  reply_from_user: number;
 }

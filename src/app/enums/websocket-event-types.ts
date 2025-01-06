@@ -15,6 +15,8 @@ export enum WebsocketEventType {
 
   MESSAGE_DELIVERED = 'message_delivered',
   MESSAGE_IS_READ = 'message_is_read',
-  MESSAGE_PINNED = 'message_pinned',
-  FORWARD_MESSAGE = 'forward_message'
+  MESSAGE_PINNED = 'pin_chat_message', // подія для закріплення
+  MESSAGE_PINNED_RESPONSE = 'message_pinned', // результат закріплення повідомлення чату,
+  FORWARD_MESSAGE = 'forward_chat_message',
+  FORWARD_MESSAGE_RESPONSE = 'forward_message'
 }
