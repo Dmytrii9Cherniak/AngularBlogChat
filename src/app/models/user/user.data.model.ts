@@ -4,5 +4,5 @@ export class UserDataModel {
   email: string;
   is_activated: boolean;
   role: string;
-  userId: number;
+  id: number;
 }

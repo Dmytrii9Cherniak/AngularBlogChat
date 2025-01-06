@@ -45,8 +45,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.formHelper.createChatForm();
 
     this.userService.userProfileData.subscribe((value) => {
-      if (value?.userId) {
-        this.currentUserId = value.userId;
+      if (value?.id) {
+        this.currentUserId = value.id;
       }
     });
 

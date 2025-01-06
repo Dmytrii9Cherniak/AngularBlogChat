@@ -37,10 +37,10 @@ export function initializeApp(
         const userData = await firstValueFrom(userService.getUserData());
         userService.userProfileData.next(userData);
 
-        if (userData.userId) {
-          websocketsService.connect(userData.userId);
+        if (userData.id) {
+          websocketsService.connect(userData.id);
           broadcastChannelService.postMessage('login', {
-            userId: userData.userId
+            id: userData.id
           });
         }
       } catch (error) {
@@ -55,10 +55,10 @@ export function initializeApp(
         const userData = await firstValueFrom(userService.getUserData());
         userService.userProfileData.next(userData);
 
-        if (userData.userId) {
-          websocketsService.connect(userData.userId);
+        if (userData.id) {
+          websocketsService.connect(userData.id);
           broadcastChannelService.postMessage('login', {
-            userId: userData.userId
+            id: userData.id
           });
         }
       } catch (error) {

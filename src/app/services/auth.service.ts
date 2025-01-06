@@ -130,8 +130,8 @@ export class AuthService {
                 this.toastrService.success(
                   `Ласкаво просимо в систему, ${userData.username}`
                 );
-                if (userData.userId) {
-                  this.websocketsService.connect(userData.userId);
+                if (userData.id) {
+                  this.websocketsService.connect(userData.id);
                 }
 
                 this.chatService.initializeChatList();
@@ -213,7 +213,7 @@ export class AuthService {
         .subscribe({
           next: (userData: UserDataModel) => {
             this.userService.userProfileData.next(userData);
-            this.websocketsService.connect(userData.userId);
+            this.websocketsService.connect(userData.id);
           },
           error: () => {
             this.logout();
