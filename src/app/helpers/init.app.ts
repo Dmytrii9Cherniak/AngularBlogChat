@@ -37,10 +37,12 @@ export function initializeApp(
         const userData = await firstValueFrom(userService.getUserData());
         userService.userProfileData.next(userData);
 
-        websocketsService.connect(userData.userId);
-        broadcastChannelService.postMessage('login', {
-          userId: userData.userId
-        });
+        if (userData.userId) {
+          websocketsService.connect(userData.userId);
+          broadcastChannelService.postMessage('login', {
+            userId: userData.userId
+          });
+        }
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -53,10 +55,12 @@ export function initializeApp(
         const userData = await firstValueFrom(userService.getUserData());
         userService.userProfileData.next(userData);
 
-        websocketsService.connect(userData.userId);
-        broadcastChannelService.postMessage('login', {
-          userId: userData.userId
-        });
+        if (userData.userId) {
+          websocketsService.connect(userData.userId);
+          broadcastChannelService.postMessage('login', {
+            userId: userData.userId
+          });
+        }
       } catch (error) {
         console.error('Error refreshing token or fetching user data:', error);
         authService.logout();

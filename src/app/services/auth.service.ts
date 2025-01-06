@@ -127,8 +127,13 @@ export class AuthService {
             .pipe(
               tap((userData) => {
                 this.userService.userProfileData.next(userData);
-                this.toastrService.success(`Ласкаво просимо в систему, ${userData.username}`)
-                this.websocketsService.connect(userData.userId);
+                this.toastrService.success(
+                  `Ласкаво просимо в систему, ${userData.username}`
+                );
+                if (userData.userId) {
+                  this.websocketsService.connect(userData.userId);
+                }
+
                 this.chatService.initializeChatList();
               }),
               map((userData) => ({
