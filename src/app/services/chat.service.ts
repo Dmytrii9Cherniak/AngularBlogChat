@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { WebsocketsService } from './websockets.service';
 import { WebsocketEventType } from '../enums/websocket-event-types';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { filter, map, shareReplay, tap } from 'rxjs/operators';
 import { DifferentChatModel } from '../models/chat/different.chat.model';
 import { MessageChatModel } from '../models/chat/message.chat.model';
@@ -117,6 +117,43 @@ export class ChatService {
       if (isConnected && !this.chatListRequested) {
         this.requestChatList();
       }
+    });
+  }
+
+  pinMessage(
+    messageId: number,
+    pinOwnerId: number,
+    pinOwnerUsername: string
+  ): void {
+    this.wsService.sendMessage({
+      type: WebsocketEventType.MESSAGE_PINNED,
+      message_id: messageId,
+      pin_owner_id: pinOwnerId,
+      pin_owner_username: pinOwnerUsername
+    });
+  }
+
+  forwardMessage(
+    messageId: number,
+    messageContent: string,
+    fromUserId: number,
+    fromUserUsername: string,
+    toChatId: number
+  ): void {
+    this.wsService.sendMessage({
+      messageId: messageId,
+      type: WebsocketEventType.FORWARD_MESSAGE,
+      message_content: messageContent,
+      from_user_id: fromUserId,
+      from_user_username: fromUserUsername,
+      to_chat_id: toChatId
+    });
+  }
+
+  markMessagesAsRead(messageIds: number[]): void {
+    this.wsService.sendMessage({
+      type: WebsocketEventType.MESSAGE_IS_READ,
+      messages: messageIds.join(',')
     });
   }
 }

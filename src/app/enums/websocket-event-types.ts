@@ -7,7 +7,6 @@ export enum WebsocketEventType {
   UPDATE_CHAT_MESSAGE = 'update_chat_message',
   CHAT_DELETED = 'chat_deleted',
 
-
   MESSAGE_DELETED = 'message_deleted',
   MESSAGE_UPDATED = 'message_updated',
   CHAT_MESSAGES = 'chat_messages',
@@ -15,5 +14,9 @@ export enum WebsocketEventType {
   CHAT_CREATED = 'chat_created',
 
   MESSAGE_DELIVERED = 'message_delivered',
-  MESSAGE_IS_READ = 'message_is_read'
+  MESSAGE_IS_READ = 'message_is_read',
+  MESSAGE_PINNED = 'pin_chat_message', // подія для закріплення
+  MESSAGE_PINNED_RESPONSE = 'message_pinned', // результат закріплення повідомлення чату,
+  FORWARD_MESSAGE = 'forward_chat_message',
+  FORWARD_MESSAGE_RESPONSE = 'forward_message'
 }
