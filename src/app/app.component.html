@@ -1,6 +1,6 @@
 <div class="app">
-  <app-header></app-header>
-  <div class="content">
+  <app-sidenav (toggle)="handleToggle($event)"></app-sidenav>
+  <div class="content" [class.collapsed]="isCollapsed">
     <router-outlet></router-outlet>
   </div>
 </div>

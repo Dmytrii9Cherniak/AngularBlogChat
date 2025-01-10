@@ -18,9 +18,10 @@ import { BroadcastChannelService } from './services/broadcast-channel.service';
 import { ToastrModule } from 'ngx-toastr';
 import { errorInterceptor } from './interceptors/error.interceptor';
 import { toastrMessagesSettings } from './helpers/toastr.messages.settings';
+import { SidenavComponent } from './components/layout/sidenav/sidenav.component';
 
 @NgModule({
-  declarations: [AppComponent, HeaderComponent],
+  declarations: [AppComponent, HeaderComponent, SidenavComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

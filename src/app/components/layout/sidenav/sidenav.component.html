@@ -1,0 +1,15 @@
+<div class="sidenav" [class.collapsed]="isCollapsed">
+  <button (click)="toggleSidenav()" class="toggle-btn">
+    <span *ngIf="isCollapsed">➡️</span>
+    <span *ngIf="!isCollapsed">⬅️</span>
+  </button>
+
+  <nav class="menu">
+    <ul>
+      <li *ngFor="let item of menuItems">
+        <i class="icon"></i>
+        <span *ngIf="!isCollapsed">{{ item }}</span>
+      </li>
+    </ul>
+  </nav>
+</div>

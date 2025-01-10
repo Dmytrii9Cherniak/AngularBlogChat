@@ -1,0 +1,59 @@
+.sidenav {
+  width: 250px;
+  height: 100vh;
+  background-color: #1a1a2e;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: auto;
+  transition: width 0.3s ease-in-out;
+
+  &.collapsed {
+    width: 60px;
+  }
+
+  .toggle-btn {
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    padding: 10px;
+    cursor: pointer;
+    align-self: flex-end;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  .menu {
+    flex-grow: 1;
+    padding: 10px;
+
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        margin: 15px 0;
+        display: flex;
+        align-items: center;
+
+        i {
+          font-size: 24px;
+          margin-right: 10px;
+        }
+
+        span {
+          color: white;
+        }
+
+        &:hover {
+          background-color: #2a6be0;
+          border-radius: 8px;
+        }
+      }
+    }
+  }
+}
