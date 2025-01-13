@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { UsersService } from '../../../services/users.service';
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
@@ -23,7 +23,13 @@ export class AllUsersListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isAuthenticated = this.authService.isAuthenticated$;
-    this.allUsersList = this.usersService.getAllUsers();
+    this.allUsersList = this.usersService
+      .getAllUsers()
+      .pipe(
+        map((data) =>
+          Array.from({ length: 111 }, (_, i) => data[i % data.length])
+        )
+      );
   }
 
   navigateToChat(user: DifferentUserDetailsInfoModel): void {

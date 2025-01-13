@@ -1,17 +1,26 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { MainLayoutComponent } from './components/layout/main-layout/main-layout.component';
 
 const routes: Routes = [
-  {
-    path: 'auth',
-    loadChildren: () =>
-      import('./modules/auth/auth.module').then((m) => m.AuthModule)
-  },
+  // Усі маршрути обгорнуті в MainLayoutComponent
   {
     path: '',
-    loadChildren: () =>
-      import('./modules/content/content.module').then((m) => m.ContentModule)
+    component: MainLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('./modules/content/content.module').then((m) => m.ContentModule)
+      },
+      {
+        path: 'auth',
+        loadChildren: () =>
+          import('./modules/auth/auth.module').then((m) => m.AuthModule)
+      }
+    ]
   },
+  // Перенаправлення на головну
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
 

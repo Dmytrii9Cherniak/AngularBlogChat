@@ -46,7 +46,7 @@
     }
 
     &.active-chat {
-      background-color: #3f8cff !important;
+      background-color: #3f8cff;
       color: #ffffff;
     }
   }
@@ -92,7 +92,7 @@
     }
 
     &.editing-message {
-      background-color: #ffeeba !important;
+      background-color: #ffeeba;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
       transform: scale(1.02);
     }

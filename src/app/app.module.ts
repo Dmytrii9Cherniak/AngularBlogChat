@@ -18,9 +18,12 @@ import { BroadcastChannelService } from './services/broadcast-channel.service';
 import { ToastrModule } from 'ngx-toastr';
 import { errorInterceptor } from './interceptors/error.interceptor';
 import { toastrMessagesSettings } from './helpers/toastr.messages.settings';
+import { MainLayoutComponent } from './components/layout/main-layout/main-layout.component';
+import { PgSidenavComponent } from './components/layout/pg-sidenav/pg-sidenav.component';
+import { PageContainerComponent } from './components/layout/page-container/page-container.component';
 
 @NgModule({
-  declarations: [AppComponent, HeaderComponent],
+  declarations: [AppComponent, HeaderComponent, MainLayoutComponent, PgSidenavComponent, PageContainerComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
