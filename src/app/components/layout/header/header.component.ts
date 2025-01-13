@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 import { Observable } from 'rxjs';
 import { UserService } from '../../../services/user.service';
@@ -10,6 +10,8 @@ import { UserDataModel } from '../../../models/user/user.data.model';
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit {
+  @Output() toggleMenu = new EventEmitter<void>();
+
   public isAuthenticated: Observable<boolean>;
   public userProfileData: Observable<UserDataModel | null>;
 
@@ -25,5 +27,9 @@ export class HeaderComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  onMenuClick() {
+    this.toggleMenu.emit();
   }
 }

@@ -3,6 +3,7 @@
     <nav class="navigation">
       <div class="logo">
         <a routerLink="/">Clerbie</a>
+        <button (click)="onMenuClick()">Menu</button>
         <a [routerLink]="['/chat']" [queryParams]="{ chatId: null, username: null }" *ngIf="isAuthenticated | async">chats</a>
       </div>
       <div class="auth-buttons">

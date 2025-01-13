@@ -1,5 +1,25 @@
-<div>
-    <ul>
-      123
-    </ul>
-</div>
+<nav>
+  <ul>
+    <li>
+      <span [routerLink]="['/posts']">🏠 Home </span>
+    </li>
+    <li>
+      <span [routerLink]="['/users']">📄 Users </span>
+    </li>
+    <li>
+      <span [routerLink]="['/chat']">⚙️ Chats </span>
+    </li>
+  </ul>
+
+
+  <ng-container *ngIf="!(isAuthenticated | async)">
+    <button routerLink="/auth/register" class="btn btn-primary">Register</button>
+    <button routerLink="/auth/login" class="btn btn-secondary">Login</button>
+  </ng-container>
+  <ng-container *ngIf="isAuthenticated | async">
+          <span class="user-info" *ngIf="(userProfileData | async) as data">
+            Welcome, <strong>{{ data.nickname }}</strong>
+          </span>
+    <button (click)="logout()" class="btn btn-danger">Logout</button>
+  </ng-container>
+</nav>
