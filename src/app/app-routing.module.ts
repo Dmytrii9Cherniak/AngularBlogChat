@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { MainLayoutComponent } from './components/layout/main-layout/main-layout.component';
 
 const routes: Routes = [
-  // Усі маршрути обгорнуті в MainLayoutComponent
   {
     path: '',
     component: MainLayoutComponent,
@@ -20,7 +19,6 @@ const routes: Routes = [
       }
     ]
   },
-  // Перенаправлення на головну
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
 

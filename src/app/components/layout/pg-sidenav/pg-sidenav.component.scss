@@ -1,3 +1,4 @@
+/* Базовий стан меню */
 :host {
   position: fixed;
   top: 0;
@@ -6,19 +7,22 @@
   background-color: #f0f0f0;
   overflow-y: auto;
   z-index: 1000;
+  width: 70px;
+  transform: translateX(-100%);
   transition: transform 0.3s ease, width 0.3s ease;
 }
 
-:host.collapsed {
-  width: 70px;
-}
-
-:host:not(.collapsed) {
-  width: 250px;
-}
 
 :host.open {
   transform: translateX(0);
+  width: 250px;
+}
+
+@media (min-width: 728px) {
+  :host:not(.open) {
+    transform: translateX(0);
+    width: 70px;
+  }
 }
 
 @media (max-width: 728px) {
@@ -32,24 +36,12 @@
   }
 }
 
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-li {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  cursor: pointer;
-
-  span:first-child {
-    width: 30px;
-    text-align: center;
+@supports (-o-object-fit: fill) {
+  :host {
+    transform: translateX(-100%);
   }
 
-  span:last-child {
-    margin-left: 10px;
+  :host.open {
+    transform: translateX(0);
   }
 }
