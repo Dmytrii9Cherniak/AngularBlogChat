@@ -1,0 +1,27 @@
+<nav>
+  <button (click)="closeSidenav()" *ngIf="(isSidenavOpen | async) && width < 768">Close</button>
+
+  <ul>
+    <li>
+      <span [routerLink]="['/posts']">🏠</span>
+      <span [routerLink]="['/posts']">Home</span>
+    </li>
+    <li>
+      <span [routerLink]="['/users']">📄</span>
+      <span [routerLink]="['/users']">Users</span>
+    </li>
+    <li>
+      <span [routerLink]="['/chat']">⚙️</span>
+      <span [routerLink]="['/chat']">Chats</span>
+    </li>
+  </ul>
+
+  <div class="auth-buttons" *ngIf="!(isAuthenticated | async)">
+    <button [routerLink]="['/auth/login']">Login</button>
+    <button [routerLink]="['/auth/register']">Register</button>
+  </div>
+
+  <div class="logout-button" *ngIf="(isAuthenticated | async)">
+    <button (click)="logout()">Logout</button>
+  </div>
+</nav>
