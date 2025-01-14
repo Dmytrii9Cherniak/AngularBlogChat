@@ -11,10 +11,19 @@ export class FormHelper {
   constructor(private fb: FormBuilder) {}
 
   createLoginForm(): FormGroup {
+    const isWindows = window.navigator.platform.toLowerCase().includes('win');
+
     this.form = this.fb.group({
-      nickname: ['dcheyrnak10@gmail.com', Validators.required],
-      password: ['380984438849Sofia!', Validators.required]
+      nickname: [
+        isWindows ? 'dcheyrnak10@gmail.com' : 'stepanenko.dan@e-u.edu.ua',
+        Validators.required
+      ],
+      password: [
+        !isWindows ? 'password1%' : '380984438849Sofia!',
+        Validators.required
+      ]
     });
+
     return this.form;
   }
 
