@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
-export class UserService {
+export class UserProfileService {
   public userProfileData: BehaviorSubject<UserDataModel | null> =
     new BehaviorSubject<UserDataModel | null>(null);
 
@@ -26,5 +26,12 @@ export class UserService {
           this.updateUserProfile(userData);
         })
       );
+  }
+
+  public updateUserProfilePersonalData(data: FormData): Observable<any> {
+    return this.httpClient.patch(
+      `${environment.apiUrl}/profile/update-general`,
+      data
+    );
   }
 }

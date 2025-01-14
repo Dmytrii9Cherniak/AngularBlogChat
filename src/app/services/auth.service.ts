@@ -18,7 +18,7 @@ import { ForgotPasswordEmailConfirmModel } from '../models/forgot_password/forgo
 import { TokenService } from './token.service';
 import { environment } from '../../environments/environment';
 import { UserDataModel } from '../models/user/user.data.model';
-import { UserService } from './user.service';
+import { UserProfileService } from './user.profile.service';
 import { Router } from '@angular/router';
 import { WebsocketsService } from './websockets.service';
 import { ChatService } from './chat.service';
@@ -40,7 +40,7 @@ export class AuthService {
   constructor(
     private httpClient: HttpClient,
     private tokenService: TokenService,
-    private userService: UserService,
+    private userService: UserProfileService,
     private router: Router,
     private websocketsService: WebsocketsService,
     private chatService: ChatService,

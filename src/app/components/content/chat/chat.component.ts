@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WebsocketsService } from '../../../services/websockets.service';
-import { UserService } from '../../../services/user.service';
+import { UserProfileService } from '../../../services/user.profile.service';
 import { ChatService } from '../../../services/chat.service';
 import { filter, map, Observable } from 'rxjs';
 import { DifferentChatModel } from '../../../models/chat/different.chat.model';
@@ -34,7 +34,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private wsService: WebsocketsService,
     private router: Router,
-    private userService: UserService,
+    private userService: UserProfileService,
     private chatService: ChatService,
     private toastrService: ToastrService
   ) {

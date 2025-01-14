@@ -1,0 +1,39 @@
+<div class="profile-container" *ngIf="userProfileData">
+  <!-- Заголовок профілю -->
+  <div class="profile-header">
+    <div class="avatar-section">
+      <img [src]="userProfileData.avatar" alt="Avatar" *ngIf="userProfileData?.avatar" />
+      <img src="assets/images/no_profile_avatar.png" alt="Default Avatar" *ngIf="!userProfileData?.avatar" />
+      <label for="avatarInput" class="change-avatar-button">Change Avatar</label>
+      <input id="avatarInput" type="file" (change)="onAvatarChange($event)" />
+    </div>
+    <div class="profile-info">
+      <h1>{{ userProfileData.username }}</h1>
+      <p>{{ userProfileData.email }}</p>
+      <span class="role">{{ userProfileData.role }}</span>
+    </div>
+  </div>
+
+  <!-- Основна інформація -->
+  <div class="profile-details">
+    <div class="detail-item">
+      <strong>Country:</strong>
+      <span>{{ userProfileData.country }}</span>
+    </div>
+    <div class="detail-item">
+      <strong>Timezone:</strong>
+      <span>{{ userProfileData.time_zones }}</span>
+    </div>
+    <div class="detail-item" *ngIf="userProfileData.phone_number">
+      <strong>Phone:</strong>
+      <span>{{ userProfileData.phone_number }}</span>
+    </div>
+    <div class="detail-item" *ngIf="userProfileData.birthday">
+      <strong>Birthday:</strong>
+      <span>{{ userProfileData.birthday }}</span>
+    </div>
+  </div>
+
+
+  <button class="update-profile-button" (click)="updateProfile()">Update Profile</button>
+</div>
