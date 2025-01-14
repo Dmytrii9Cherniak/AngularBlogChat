@@ -3,6 +3,7 @@ import { AuthService } from '../../../services/auth.service';
 import { Observable } from 'rxjs';
 import { UserService } from '../../../services/user.service';
 import { UserDataModel } from '../../../models/user/user.data.model';
+import { SidenavService } from '../../../services/sidenav.service';
 
 @Component({
   selector: 'app-header',
@@ -17,7 +18,8 @@ export class HeaderComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private sidenavService: SidenavService
   ) {}
 
   ngOnInit() {
@@ -30,6 +32,9 @@ export class HeaderComponent implements OnInit {
   }
 
   onMenuClick() {
-    this.toggleMenu.emit();
+    const sidenav = document.querySelector('app-pg-sidenav') as HTMLElement;
+    if (sidenav) {
+      this.sidenavService.toggleSidenav(sidenav);
+    }
   }
 }
