@@ -2,7 +2,7 @@
   <button (click)="closeSidenav()" *ngIf="(isSidenavOpen | async) && width < 768">Close</button>
 
   <div class="user-info" *ngIf="userProfileData && (isAuthenticated | async)">
-    <img [src]="userProfileData.avatar || 'assets/images/no_profile_avatar.png'" alt="Avatar" />
+    <img [src]="getAvatarUrl()" alt="Avatar" (error)="onImageError($event)" />
     <span [routerLink]="['/profile']">{{ userProfileData.username }}</span>
   </div>
   <ul>

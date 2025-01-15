@@ -2,9 +2,9 @@
   max-width: 800px;
   margin: 20px auto;
   padding: 20px;
-  background-color: #fff;
+  background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family: 'Arial', sans-serif;
 
   .profile-header {
@@ -14,6 +14,7 @@
 
     .avatar-section {
       position: relative;
+      margin-right: 20px;
 
       img {
         width: 100px;
@@ -21,17 +22,24 @@
         border-radius: 50%;
         object-fit: cover;
         border: 3px solid #007bff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       }
 
       .change-avatar-button {
         position: absolute;
-        bottom: 0;
+        bottom: -10px;
         left: 50%;
         transform: translateX(-50%);
         background-color: #007bff;
-        color: #fff;
-        padding: 5px 10px;
-        font-size: 14px;
+        color: #ffffff;
+        padding: 5px 12px;
+        font-size: 12px;
         border-radius: 20px;
         cursor: pointer;
         transition: background-color 0.3s ease;
@@ -47,22 +55,21 @@
     }
 
     .profile-info {
-      margin-left: 20px;
-
       h1 {
         font-size: 24px;
         margin: 0;
+        color: #333333;
       }
 
       p {
-        color: #666;
+        color: #666666;
         margin: 5px 0;
       }
 
       .role {
         display: inline-block;
         background-color: #007bff;
-        color: #fff;
+        color: #ffffff;
         padding: 4px 10px;
         border-radius: 5px;
         font-size: 14px;
@@ -81,11 +88,29 @@
       border-bottom: 1px solid #f0f0f0;
 
       strong {
-        color: #333;
+        color: #333333;
+        font-weight: 600;
       }
 
       span {
-        color: #666;
+        color: #666666;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #cccccc;
+        border-radius: 5px;
+        margin-top: 5px;
+        font-size: 14px;
+        color: #333333;
+      }
+
+      input:focus,
+      select:focus {
+        border-color: #007bff;
+        outline: none;
       }
     }
   }
@@ -96,6 +121,7 @@
     h3 {
       font-size: 18px;
       margin-bottom: 10px;
+      color: #333333;
     }
 
     ul {
@@ -118,12 +144,13 @@
     }
   }
 
-  .update-profile-button {
+  .edit-profile-button,
+  .save-profile-button {
     display: block;
     width: 100%;
-    padding: 10px 0;
+    padding: 12px 0;
     background-color: #007bff;
-    color: #fff;
+    color: #ffffff;
     border: none;
     border-radius: 5px;
     font-size: 16px;
@@ -132,6 +159,84 @@
 
     &:hover {
       background-color: #0056b3;
+    }
+  }
+
+  .save-profile-button {
+    background-color: #28a745;
+
+    &:hover {
+      background-color: #218838;
+    }
+  }
+
+  .cancel-button {
+    display: block;
+    width: 100%;
+    padding: 12px 0;
+    background-color: #dc3545;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+
+    &:hover {
+      background-color: #c82333;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 15px;
+
+    .profile-header {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+
+      .avatar-section {
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+
+      .profile-info {
+        h1 {
+          font-size: 22px;
+        }
+
+        p {
+          font-size: 14px;
+        }
+
+        .role {
+          font-size: 12px;
+        }
+      }
+    }
+
+    .detail-item {
+      flex-direction: column;
+      align-items: flex-start;
+
+      strong {
+        margin-bottom: 5px;
+      }
+
+      input,
+      select {
+        width: 100%;
+      }
+    }
+
+    .edit-profile-button,
+    .save-profile-button,
+    .cancel-button {
+      padding: 10px 0;
+      font-size: 14px;
     }
   }
 }

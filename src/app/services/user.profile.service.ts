@@ -28,7 +28,7 @@ export class UserProfileService {
       );
   }
 
-  public updateUserProfilePersonalData(data: FormData): Observable<any> {
+  public updatePersonalUserProfileData(data: FormData): Observable<any> {
     return this.httpClient.patch(
       `${environment.apiUrl}/profile/update-general`,
       data

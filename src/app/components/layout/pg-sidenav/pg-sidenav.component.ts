@@ -69,6 +69,17 @@ export class PgSidenavComponent implements OnInit {
     this.width = width;
   }
 
+  getAvatarUrl(): string {
+    return this.userProfileData?.avatar
+      ? `/assets/${this.userProfileData.avatar}`
+      : 'assets/images/no_profile_avatar.png';
+  }
+
+  onImageError(event: Event) {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = 'assets/images/no_profile_avatar.png';
+  }
+
   public logout(): void {
     this.authService.logout();
   }

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserDataModel } from '../../../models/user/user.data.model';
 import { UserProfileService } from '../../../services/user.profile.service';
 
@@ -8,15 +9,40 @@ import { UserProfileService } from '../../../services/user.profile.service';
   styleUrls: ['./user-profile-data.component.scss']
 })
 export class UserProfileDataComponent implements OnInit {
-  public userProfileData: UserDataModel | null = null;
+  public profileForm: FormGroup;
+  public isEditMode = false;
   private updatedAvatarFile: File | null = null;
 
-  constructor(private userProfileService: UserProfileService) {}
+  constructor(
+    private fb: FormBuilder,
+    private userProfileService: UserProfileService
+  ) {}
 
   ngOnInit() {
+    this.initializeForm();
+
     this.userProfileService.userProfileData.subscribe((value) => {
-      this.userProfileData = value;
+      if (value) {
+        this.profileForm.patchValue(value);
+      }
     });
+  }
+
+  initializeForm() {
+    this.profileForm = this.fb.group({
+      username: ['', [Validators.required, Validators.maxLength(50)]],
+      avatar: [''],
+      gender: [''],
+      birthday: [''],
+      phone_number: [''],
+      country: [''],
+      time_zones: [''],
+      business_email: ['', [Validators.email]]
+    });
+  }
+
+  toggleEditMode() {
+    this.isEditMode = !this.isEditMode;
   }
 
   onAvatarChange(event: Event) {
@@ -38,35 +64,47 @@ export class UserProfileDataComponent implements OnInit {
 
     const reader = new FileReader();
     reader.onload = () => {
-      if (this.userProfileData) {
-        this.userProfileData.avatar = reader.result as string;
-      }
+      this.profileForm.patchValue({ avatar: reader.result as string });
     };
     reader.readAsDataURL(file);
   }
 
+  getAvatarUrl(): string {
+    return this.profileForm.value.avatar
+      ? `/assets/${this.profileForm.value.avatar}`
+      : 'assets/images/no_profile_avatar.png';
+  }
+
+  onImageError(event: Event) {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = 'assets/images/no_profile_avatar.png';
+  }
+
   updateProfile() {
-    if (!this.userProfileData) return;
+    if (this.profileForm.invalid) return;
 
     const formData = new FormData();
-    // formData.append('username', this.userProfileData.username);
-    // formData.append('email', this.userProfileData.email);
-    // formData.append('role', this.userProfileData.role);
-    // formData.append('country', this.userProfileData.country);
-    // formData.append('time_zones', this.userProfileData.time_zones);
+    formData.append('username', this.profileForm.value.username);
+    formData.append('gender', this.profileForm.value.gender);
+    formData.append('birthday', this.profileForm.value.birthday);
+    formData.append('phone_number', this.profileForm.value.phone_number);
+    formData.append('country', this.profileForm.value.country);
+    formData.append('time_zones', this.profileForm.value.time_zones);
+    formData.append('business_email', this.profileForm.value.business_email);
 
     if (this.updatedAvatarFile) {
       formData.append('avatar', this.updatedAvatarFile);
     }
 
-    this.userProfileService.updateUserProfilePersonalData(formData).subscribe({
+    this.userProfileService.updatePersonalUserProfileData(formData).subscribe({
       next: (res) => {
-        console.log('Profile updated successfully:', res);
-        alert('Profile updated!');
+        alert('Profile updated successfully!');
+        this.isEditMode = false;
+        this.userProfileService.userProfileData.next(res);
       },
       error: (err) => {
-        console.error('Error updating profile:', err);
         alert('Failed to update profile.');
+        console.error(err);
       }
     });
   }
