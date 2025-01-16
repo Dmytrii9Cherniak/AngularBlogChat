@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserDataModel } from '../../../models/user/user.data.model';
 import { UserProfileService } from '../../../services/user.profile.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-user-profile-data',
@@ -15,7 +16,8 @@ export class UserProfileDataComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private userProfileService: UserProfileService
+    private userProfileService: UserProfileService,
+    private toastrServie: ToastrService
   ) {}
 
   ngOnInit() {
@@ -23,7 +25,11 @@ export class UserProfileDataComponent implements OnInit {
 
     this.userProfileService.userProfileData.subscribe((value) => {
       if (value) {
-        this.profileForm.patchValue(value);
+        // Заповнюємо форму отриманими даними
+        this.profileForm.patchValue({
+          ...value,
+          business_email: value.socials?.business_email || '' // Завантажуємо business_email
+        });
       }
     });
   }
@@ -37,7 +43,7 @@ export class UserProfileDataComponent implements OnInit {
       phone_number: [''],
       country: [''],
       time_zones: [''],
-      business_email: ['', [Validators.email]]
+      business_email: ['', [Validators.email]] // Коректно додаємо поле
     });
   }
 
@@ -51,12 +57,14 @@ export class UserProfileDataComponent implements OnInit {
 
     const validExtensions = ['image/png', 'image/jpeg', 'image/webp'];
     if (!validExtensions.includes(file.type)) {
-      alert('Invalid file type. Only PNG, JPG, and WEBP are allowed.');
+      this.toastrServie.info(
+        'Невалидний тип фото. Лише PNG, JPG та WEBP дозволені формати.'
+      );
       return;
     }
 
     if (file.size > 1 * 1024 * 1024) {
-      alert('File size must not exceed 1MB.');
+      this.toastrServie.info('Максимальний розмір фото - 1 мб');
       return;
     }
 
@@ -83,29 +91,81 @@ export class UserProfileDataComponent implements OnInit {
   updateProfile() {
     if (this.profileForm.invalid) return;
 
+    const updatedFields = this.getChangedFields();
     const formData = new FormData();
-    formData.append('username', this.profileForm.value.username);
-    formData.append('gender', this.profileForm.value.gender);
-    formData.append('birthday', this.profileForm.value.birthday);
-    formData.append('phone_number', this.profileForm.value.phone_number);
-    formData.append('country', this.profileForm.value.country);
-    formData.append('time_zones', this.profileForm.value.time_zones);
-    formData.append('business_email', this.profileForm.value.business_email);
+
+    Object.keys(updatedFields).forEach((key) => {
+      if (key === 'socials') {
+        const socials = updatedFields[key] as UserDataModel['socials'];
+        Object.keys(socials).forEach((socialKey) => {
+          const key = socialKey as keyof UserDataModel['socials'];
+          formData.append(`socials.${key}`, socials[key] || '');
+        });
+      } else {
+        formData.append(
+          key,
+          updatedFields[key as keyof UserDataModel] as string
+        );
+      }
+    });
 
     if (this.updatedAvatarFile) {
       formData.append('avatar', this.updatedAvatarFile);
     }
 
     this.userProfileService.updatePersonalUserProfileData(formData).subscribe({
-      next: (res) => {
-        alert('Profile updated successfully!');
+      next: () => {
+        this.toastrServie.success('Дані профілю були успішно оновлені');
         this.isEditMode = false;
-        this.userProfileService.userProfileData.next(res);
+
+        // Оновлення лише змінених полів
+        this.userProfileService.userProfileData.next({
+          ...this.userProfileService.userProfileData.value!,
+          ...updatedFields
+        });
       },
       error: (err) => {
-        alert('Failed to update profile.');
+        this.toastrServie.error('Помилка при оновлені даних');
         console.error(err);
       }
     });
+  }
+
+  getChangedFields(): Partial<UserDataModel> {
+    const updatedFields: Partial<UserDataModel> = {};
+
+    Object.keys(this.profileForm.controls).forEach((key) => {
+      const originalValue =
+        this.userProfileService.userProfileData.value?.[
+          key as keyof UserDataModel
+        ];
+      const currentValue = this.profileForm.get(key)?.value;
+
+      if (key === 'socials') {
+        const originalSocials = originalValue as UserDataModel['socials'];
+        const currentSocials = currentValue as UserDataModel['socials'];
+        const socials: Partial<UserDataModel['socials']> = {};
+
+        Object.keys(currentSocials).forEach((socialKey) => {
+          const socialValue =
+            currentSocials[socialKey as keyof UserDataModel['socials']];
+          if (
+            socialValue !==
+            originalSocials?.[socialKey as keyof UserDataModel['socials']]
+          ) {
+            socials[socialKey as keyof UserDataModel['socials']] =
+              socialValue || null; // Завжди `string | null`
+          }
+        });
+
+        if (Object.keys(socials).length > 0) {
+          updatedFields.socials = socials as UserDataModel['socials'];
+        }
+      } else if (currentValue !== originalValue) {
+        updatedFields[key as keyof UserDataModel] = currentValue;
+      }
+    });
+
+    return updatedFields;
   }
 }
