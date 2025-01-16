@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 import { TokenService } from '../services/token.service';
-import { UserService } from '../services/user.service';
+import { UserProfileService } from '../services/user.profile.service';
 import { AuthService } from '../services/auth.service';
 import { WebsocketsService } from '../services/websockets.service';
 import { BroadcastChannelService } from '../services/broadcast-channel.service';
@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export function initializeApp(
   authService: AuthService,
-  userService: UserService,
+  userService: UserProfileService,
   tokenService: TokenService,
   websocketsService: WebsocketsService,
   broadcastChannelService: BroadcastChannelService

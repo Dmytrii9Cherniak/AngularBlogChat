@@ -18,6 +18,33 @@
   width: 250px;
 }
 
+.user-info {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+  }
+
+  span {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    cursor: pointer;
+
+    &:hover {
+      color: red;
+      transition: 0.3ms;
+    }
+  }
+}
+
 button {
   background-color: #007bff;
   color: #ffffff;

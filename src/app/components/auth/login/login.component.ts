@@ -4,7 +4,6 @@ import { AuthService } from '../../../services/auth.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { LoginModel } from '../../../models/login/login.model';
 import { FormHelper } from '../../../helpers/form-helper';
-import { UserService } from '../../../services/user.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -35,7 +34,6 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private userService: UserService,
     private router: Router
   ) {
     this.formHelper = new FormHelper(this.fb);

@@ -1,0 +1,88 @@
+<div class="profile-container" [formGroup]="profileForm">
+  <div class="profile-header">
+    <div class="avatar-section">
+      <img
+        [src]="getAvatarUrl()"
+        alt="Avatar"
+        (error)="onImageError($event)"
+      />
+      <label *ngIf="isEditMode" for="avatarInput" class="change-avatar-button">
+        Change Avatar
+      </label>
+      <input
+        id="avatarInput"
+        type="file"
+        (change)="onAvatarChange($event)"
+        *ngIf="isEditMode"
+      />
+    </div>
+  </div>
+
+  <div class="profile-info">
+    <div class="detail-item">
+      <label>Username:</label>
+      <input *ngIf="isEditMode" formControlName="username" type="text" />
+      <p *ngIf="!isEditMode">{{ profileForm.value.username }}</p>
+    </div>
+
+    <div class="detail-item">
+      <label>Gender:</label>
+      <select *ngIf="isEditMode" formControlName="gender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+      <p *ngIf="!isEditMode">{{ profileForm.value['gender'] }}</p>
+    </div>
+
+    <div class="detail-item">
+      <label>Birthday:</label>
+      <input *ngIf="isEditMode" formControlName="birthday" type="date" />
+      <p *ngIf="!isEditMode">{{ profileForm.value['birthday'] }}</p>
+    </div>
+
+    <div class="detail-item">
+      <label>Phone Number:</label>
+      <input *ngIf="isEditMode" formControlName="phone_number" type="tel" />
+      <p *ngIf="!isEditMode">{{ profileForm.value['phone_number'] }}</p>
+    </div>
+
+    <div class="detail-item">
+      <label>Country:</label>
+      <input *ngIf="isEditMode" formControlName="country" type="text" />
+      <p *ngIf="!isEditMode">{{ profileForm.value['country'] }}</p>
+    </div>
+
+    <div class="detail-item">
+      <label>Time Zones:</label>
+      <input *ngIf="isEditMode" formControlName="time_zones" type="text" />
+      <p *ngIf="!isEditMode">{{ profileForm.value['time_zones'] }}</p>
+    </div>
+
+    <div class="detail-item">
+      <label>Business Email:</label>
+      <input
+        *ngIf="isEditMode"
+        formControlName="business_email"
+        type="email"
+        placeholder="Enter business email"
+      />
+      <p *ngIf="!isEditMode">{{ profileForm.value['business_email'] }}</p>
+    </div>
+  </div>
+
+  <button
+    *ngIf="!isEditMode"
+    class="edit-profile-button"
+    (click)="toggleEditMode()"
+  >
+    Edit Profile
+  </button>
+  <button
+    *ngIf="isEditMode"
+    class="save-profile-button"
+    (click)="updateProfile()"
+  >
+    Save Changes
+  </button>
+</div>

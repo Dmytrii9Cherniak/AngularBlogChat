@@ -1,6 +1,10 @@
 <nav>
   <button (click)="closeSidenav()" *ngIf="(isSidenavOpen | async) && width < 768">Close</button>
 
+  <div class="user-info" *ngIf="userProfileData && (isAuthenticated | async)">
+    <img [src]="getAvatarUrl()" alt="Avatar" (error)="onImageError($event)" />
+    <span [routerLink]="['/profile']">{{ userProfileData.username }}</span>
+  </div>
   <ul>
     <li>
       <span [routerLink]="['/posts']">🏠</span>
@@ -21,7 +25,7 @@
     <button [routerLink]="['/auth/register']">Register</button>
   </div>
 
-  <div class="logout-button" *ngIf="(isAuthenticated | async)">
+  <div class="logout-button" *ngIf="isAuthenticated | async">
     <button (click)="logout()">Logout</button>
   </div>
 </nav>
