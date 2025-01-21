@@ -105,6 +105,30 @@ export class FormHelper {
     return this.form;
   }
 
+  createProjectForm(): FormGroup {
+    this.form = this.fb.group({
+      name: ['', [Validators.required]],
+      description: ['', [Validators.required]],
+      technologies: this.fb.array([this.fb.control('', Validators.required)])
+    });
+
+    return this.form;
+  }
+
+  createUpdateUserProfileDataForm(): FormGroup {
+    this.form = this.fb.group({
+      username: ['', [Validators.required, Validators.maxLength(50)]],
+      avatar: [''],
+      gender: [''],
+      birthday: [''],
+      phone_number: [''],
+      country: [''],
+      time_zones: [''],
+      business_email: ['', [Validators.email]]
+    });
+    return this.form;
+  }
+
   getClientErrorMessage(controlName: string): string | null {
     const control = this.form.get(controlName);
     const errorMessages: { [key: string]: { [key: string]: string } } = {

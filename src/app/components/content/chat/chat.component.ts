@@ -58,7 +58,7 @@ export class ChatComponent implements OnInit, OnDestroy {
       this.username = params['username'] || '';
 
       if (!chatId && !userId) {
-        this.clearChatState(); // Очистити стан, якщо немає активного чату
+        this.clearChatState();
       } else if (chatId) {
         this.selectChat(chatId);
       } else if (userId) {
@@ -79,7 +79,6 @@ export class ChatComponent implements OnInit, OnDestroy {
       this.selectedChatId = chatId;
       this.recipientUserId = null;
 
-      // Очищення повідомлень перед завантаженням нового чату
       this.messages = [];
 
       this.chatService.requestChatList().subscribe((chats) => {
@@ -188,7 +187,6 @@ export class ChatComponent implements OnInit, OnDestroy {
         newMessageContent
       );
 
-      // Візуально оновити повідомлення у списку
       this.messages = this.messages.map((msg) =>
         msg.message_id === this.editedMessageId
           ? { ...msg, message: newMessageContent }
@@ -212,16 +210,14 @@ export class ChatComponent implements OnInit, OnDestroy {
   deleteChat(chatId: number): void {
     this.chatService.deleteDifferentChat(chatId);
 
-    // Видаляємо чат із локального списку чатів
     this.chats = this.chats.pipe(
       map((chatList) => chatList.filter((chat) => chat.chat_id !== chatId))
     );
 
-    // Якщо видаляється обраний чат, скидаємо вибір чату та очищуємо повідомлення
     if (this.selectedChatId === chatId) {
       this.selectedChatId = null;
       this.messages = [];
-      this.updateQueryParams({ chatId: null, username: null }); // Очищаємо параметри URL
+      this.updateQueryParams({ chatId: null, username: null });
     }
   }
 
@@ -358,7 +354,7 @@ export class ChatComponent implements OnInit, OnDestroy {
       message_id: Date.now(),
       message: `${message.message_content} (переслано від ${message.sender_username})`,
       timestamp: new Date().toISOString(),
-      user_id: message.sender_id!, // Гарантовано, що user_id не буде undefined
+      user_id: message.sender_id!,
       username: message.sender_username,
       is_forwarded: true,
       reply_from_user: message.sender_id!
@@ -381,7 +377,6 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     const incomingMessage: IncomingMessageModel = message;
 
-    // Якщо повідомлення для активного чату, просто додаємо його в список повідомлень
     if (incomingMessage.chat_id === this.selectedChatId) {
       const isMessageExists = this.messages.some(
         (msg) =>
@@ -400,7 +395,6 @@ export class ChatComponent implements OnInit, OnDestroy {
         });
       }
     }
-    // Якщо чат неактивний, показуємо сповіщення Toastr
     else {
       this.toastrService.info(
         `Нове повідомлення від ${incomingMessage.username}: "${incomingMessage.message}"`,
@@ -493,7 +487,6 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   openForwardModal(messageId: number, messageContent: string): void {
-    // Тут можна інтегрувати модальне вікно (наприклад, Angular Material Dialog).
     const toChatId = prompt('Введіть ID чату, куди переслати повідомлення:');
     if (toChatId) {
       this.chatService.forwardMessage(

@@ -1,0 +1,69 @@
+<div class="project-list-container">
+  <div class="create-section">
+    <button class="create-button" (click)="createNewProject()" *ngIf="!isCreateProject && (isAuthenticated | async)">
+      Create New Project
+    </button>
+  </div>
+
+  <div *ngIf="!projects && !isCreateProject" class="loading-message">
+    Loading projects, please wait...
+  </div>
+
+  <div *ngIf="projects && projects.length === 0 && !isCreateProject" class="no-projects-message">
+    No projects available. Please create a new project.
+  </div>
+
+  <div class="project-list" *ngIf="projects && projects.length > 0 && !isCreateProject">
+    <div class="project-card" *ngFor="let project of projects">
+      <h2 class="project-name">{{ project.name }}</h2>
+      <p class="project-description">{{ project.description }}</p>
+      <div class="technologies">
+        <h3>Technologies:</h3>
+        <ul>
+          <li class="technology-item" *ngFor="let tech of project.technologies">
+            {{ tech.name }}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-container" *ngIf="isCreateProject">
+    <form class="create-form" [formGroup]="formHelper.form" (ngSubmit)="createOwnProject()">
+      <h2>Create New Project</h2>
+
+      <div class="form-group">
+        <label for="name">Project Name:</label>
+        <input id="name" formControlName="name" placeholder="Enter project name" />
+        <div class="error-message" *ngIf="formHelper.form.get('name')?.invalid && formHelper.form.get('name')?.touched">
+          Name is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Project Description:</label>
+        <textarea id="description" formControlName="description" placeholder="Enter project description"></textarea>
+        <div class="error-message"
+             *ngIf="formHelper.form.get('description')?.invalid && formHelper.form.get('description')?.touched">
+          Description is required.
+        </div>
+      </div>
+
+      <div class="form-group technologies-group" formArrayName="technologies">
+        <label>Technologies:</label>
+        <div class="technology-item" *ngFor="let technology of technologies.controls; let i = index">
+          <input [formControlName]="i" placeholder="Enter technology" />
+          <button class="remove-button" type="button" (click)="removeTechnology(i)">Remove</button>
+        </div>
+        <button class="add-button" type="button" (click)="addTechnology()">Add Technology</button>
+      </div>
+
+      <div class="form-actions">
+        <button class="submit-button" type="submit" [disabled]="formHelper.form.invalid">
+          Submit
+        </button>
+        <button class="cancel-button" type="button" (click)="createNewProject()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

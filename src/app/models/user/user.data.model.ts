@@ -24,12 +24,6 @@ export class UserDataModel {
     youtube: string | null;
     business_email: string | null;
   };
-  friends: any[]; // Масив друзів (можливо, потрібно створити окрему модель)
-  hobbies: string[];
-  education: any[]; // Масив освітніх досягнень
-  certificates: any[]; // Масив сертифікатів
-  work_experience: any[]; // Масив робочого досвіду
-  reactions: any[]; // Масив реакцій
   id: number;
   username: string;
 }

@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { UserDataModel } from '../../../models/user/user.data.model';
 import { UserProfileService } from '../../../services/user.profile.service';
 import { ToastrService } from 'ngx-toastr';
+import { FormHelper } from '../../../helpers/form-helper';
 
 @Component({
   selector: 'app-user-profile-data',
@@ -10,7 +11,7 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./user-profile-data.component.scss']
 })
 export class UserProfileDataComponent implements OnInit {
-  public profileForm: FormGroup;
+  public formHelper: FormHelper;
   public isEditMode = false;
   private updatedAvatarFile: File | null = null;
 
@@ -18,32 +19,20 @@ export class UserProfileDataComponent implements OnInit {
     private fb: FormBuilder,
     private userProfileService: UserProfileService,
     private toastrServie: ToastrService
-  ) {}
+  ) {
+    this.formHelper = new FormHelper(this.fb);
+  }
 
   ngOnInit() {
-    this.initializeForm();
+    this.formHelper.createUpdateUserProfileDataForm();
 
     this.userProfileService.userProfileData.subscribe((value) => {
       if (value) {
-        // Заповнюємо форму отриманими даними
-        this.profileForm.patchValue({
+        this.formHelper.form.patchValue({
           ...value,
           business_email: value.socials?.business_email || '' // Завантажуємо business_email
         });
       }
-    });
-  }
-
-  initializeForm() {
-    this.profileForm = this.fb.group({
-      username: ['', [Validators.required, Validators.maxLength(50)]],
-      avatar: [''],
-      gender: [''],
-      birthday: [''],
-      phone_number: [''],
-      country: [''],
-      time_zones: [''],
-      business_email: ['', [Validators.email]] // Коректно додаємо поле
     });
   }
 
@@ -72,14 +61,14 @@ export class UserProfileDataComponent implements OnInit {
 
     const reader = new FileReader();
     reader.onload = () => {
-      this.profileForm.patchValue({ avatar: reader.result as string });
+      this.formHelper.form.patchValue({ avatar: reader.result as string });
     };
     reader.readAsDataURL(file);
   }
 
   getAvatarUrl(): string {
-    return this.profileForm.value.avatar
-      ? `/assets/${this.profileForm.value.avatar}`
+    return this.formHelper.form.value.avatar
+      ? `/assets/${this.formHelper.form.value.avatar}`
       : 'assets/images/no_profile_avatar.png';
   }
 
@@ -89,7 +78,7 @@ export class UserProfileDataComponent implements OnInit {
   }
 
   updateProfile() {
-    if (this.profileForm.invalid) return;
+    if (this.formHelper.form.invalid) return;
 
     const updatedFields = this.getChangedFields();
     const formData = new FormData();
@@ -118,7 +107,6 @@ export class UserProfileDataComponent implements OnInit {
         this.toastrServie.success('Дані профілю були успішно оновлені');
         this.isEditMode = false;
 
-        // Оновлення лише змінених полів
         this.userProfileService.userProfileData.next({
           ...this.userProfileService.userProfileData.value!,
           ...updatedFields
@@ -134,12 +122,12 @@ export class UserProfileDataComponent implements OnInit {
   getChangedFields(): Partial<UserDataModel> {
     const updatedFields: Partial<UserDataModel> = {};
 
-    Object.keys(this.profileForm.controls).forEach((key) => {
+    Object.keys(this.formHelper.form.controls).forEach((key) => {
       const originalValue =
         this.userProfileService.userProfileData.value?.[
           key as keyof UserDataModel
         ];
-      const currentValue = this.profileForm.get(key)?.value;
+      const currentValue = this.formHelper.form.get(key)?.value;
 
       if (key === 'socials') {
         const originalSocials = originalValue as UserDataModel['socials'];
@@ -154,7 +142,7 @@ export class UserProfileDataComponent implements OnInit {
             originalSocials?.[socialKey as keyof UserDataModel['socials']]
           ) {
             socials[socialKey as keyof UserDataModel['socials']] =
-              socialValue || null; // Завжди `string | null`
+              socialValue || null;
           }
         });
 

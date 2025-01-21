@@ -10,18 +10,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       let errorMsg = '';
 
-      // Перевірка типу помилки
       if (error.error instanceof ErrorEvent) {
-        // Клієнтська помилка
         errorMsg = `Client Error: ${error.error.message}`;
         toastr.error(errorMsg, 'Client Error');
       } else {
-        // Серверна помилка
         errorMsg = `Error Code: ${error.status}, Message: ${error.message}`;
         toastr.error(errorMsg, 'Server Error');
       }
 
-      console.error(errorMsg); // Логування помилки у консоль
+      console.error(errorMsg);
       return throwError(() => new Error(errorMsg)); // Повертаємо помилку
     })
   );

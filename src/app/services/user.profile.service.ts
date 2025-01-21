@@ -20,7 +20,7 @@ export class UserProfileService {
 
   public getUserData(): Observable<UserDataModel> {
     return this.httpClient
-      .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`)
+      .get<UserDataModel>(`${environment.apiUrl}/auth/user-data`)
       .pipe(
         tap((userData: UserDataModel) => {
           this.updateUserProfile(userData);

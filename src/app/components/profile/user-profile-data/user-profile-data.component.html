@@ -1,4 +1,4 @@
-<div class="profile-container" [formGroup]="profileForm">
+<div class="profile-container" [formGroup]="formHelper.form">
   <div class="profile-header">
     <div class="avatar-section">
       <img
@@ -22,7 +22,7 @@
     <div class="detail-item">
       <label>Username:</label>
       <input *ngIf="isEditMode" formControlName="username" type="text" />
-      <p *ngIf="!isEditMode">{{ profileForm.value.username }}</p>
+      <p *ngIf="!isEditMode">{{ formHelper.form.value.username }}</p>
     </div>
 
     <div class="detail-item">
@@ -32,31 +32,31 @@
         <option value="female">Female</option>
         <option value="other">Other</option>
       </select>
-      <p *ngIf="!isEditMode">{{ profileForm.value['gender'] }}</p>
+      <p *ngIf="!isEditMode">{{ formHelper.form.value['gender'] }}</p>
     </div>
 
     <div class="detail-item">
       <label>Birthday:</label>
       <input *ngIf="isEditMode" formControlName="birthday" type="date" />
-      <p *ngIf="!isEditMode">{{ profileForm.value['birthday'] }}</p>
+      <p *ngIf="!isEditMode">{{ formHelper.form.value['birthday'] }}</p>
     </div>
 
     <div class="detail-item">
       <label>Phone Number:</label>
       <input *ngIf="isEditMode" formControlName="phone_number" type="tel" />
-      <p *ngIf="!isEditMode">{{ profileForm.value['phone_number'] }}</p>
+      <p *ngIf="!isEditMode">{{ formHelper.form.value['phone_number'] }}</p>
     </div>
 
     <div class="detail-item">
       <label>Country:</label>
       <input *ngIf="isEditMode" formControlName="country" type="text" />
-      <p *ngIf="!isEditMode">{{ profileForm.value['country'] }}</p>
+      <p *ngIf="!isEditMode">{{ formHelper.form.value['country'] }}</p>
     </div>
 
     <div class="detail-item">
       <label>Time Zones:</label>
       <input *ngIf="isEditMode" formControlName="time_zones" type="text" />
-      <p *ngIf="!isEditMode">{{ profileForm.value['time_zones'] }}</p>
+      <p *ngIf="!isEditMode">{{ formHelper.form.value['time_zones'] }}</p>
     </div>
 
     <div class="detail-item">
@@ -67,7 +67,7 @@
         type="email"
         placeholder="Enter business email"
       />
-      <p *ngIf="!isEditMode">{{ profileForm.value['business_email'] }}</p>
+      <p *ngIf="!isEditMode">{{ formHelper.form.value['business_email'] }}</p>
     </div>
   </div>
 

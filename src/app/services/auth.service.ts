@@ -121,7 +121,7 @@ export class AuthService {
           });
 
           return this.httpClient
-            .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`, {
+            .get<UserDataModel>(`${environment.apiUrl}/auth/user-data`, {
               withCredentials: true
             })
             .pipe(
@@ -207,7 +207,7 @@ export class AuthService {
 
     if (!this.userService.userProfileData.value) {
       this.httpClient
-        .get<UserDataModel>(`${environment.apiUrl}/profile/user-data`, {
+        .get<UserDataModel>(`${environment.apiUrl}/auth/user-data`, {
           withCredentials: true
         })
         .subscribe({
