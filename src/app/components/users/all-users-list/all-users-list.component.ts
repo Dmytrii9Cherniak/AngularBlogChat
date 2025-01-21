@@ -24,12 +24,7 @@ export class AllUsersListComponent implements OnInit {
   ngOnInit(): void {
     this.isAuthenticated = this.authService.isAuthenticated$;
     this.allUsersList = this.usersService
-      .getAllUsers()
-      .pipe(
-        map((data) =>
-          Array.from({ length: 111 }, (_, i) => data[i % data.length])
-        )
-      );
+      .getAllUsers();
   }
 
   navigateToChat(user: DifferentUserDetailsInfoModel): void {

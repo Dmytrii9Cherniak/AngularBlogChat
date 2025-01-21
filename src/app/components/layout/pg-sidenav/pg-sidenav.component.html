@@ -6,17 +6,25 @@
     <span [routerLink]="['/profile']">{{ userProfileData.username }}</span>
   </div>
   <ul>
-    <li>
-      <span [routerLink]="['/posts']">🏠</span>
-      <span [routerLink]="['/posts']">Home</span>
+    <li [routerLink]="['/posts']">
+      <span>🏠</span>
+      <span>Home</span>
     </li>
-    <li>
-      <span [routerLink]="['/users']">📄</span>
-      <span [routerLink]="['/users']">Users</span>
+    <li [routerLink]="['/users']">
+      <span>📄</span>
+      <span>Users</span>
     </li>
-    <li>
-      <span [routerLink]="['/chat']">⚙️</span>
-      <span [routerLink]="['/chat']">Chats</span>
+    <li [routerLink]="['/chat']">
+      <span>⚙️</span>
+      <span>Chats</span>
+    </li>
+    <li [routerLink]="['/projects']">
+      <span>⚙</span>
+      <span>projects</span>
+    </li>
+    <li [routerLink]="['/notifications']">
+      <span>⚙</span>
+      <span>notifications</span>
     </li>
   </ul>
 

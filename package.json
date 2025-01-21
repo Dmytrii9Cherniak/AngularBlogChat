@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "serve:local": "ng serve --host 0.0.0.0 --port 4200 --disable-host-check",
+    "serve:local:fixed": "ng serve --host 192.168.1.118 --port 4200 --disable-host-check",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
