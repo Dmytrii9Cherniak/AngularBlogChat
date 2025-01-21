@@ -9,6 +9,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { UserProfileDataComponent } from '../../components/profile/user-profile-data/user-profile-data.component';
 import { ProjectsComponent } from '../../components/content/projects/projects.component';
 import { NotificationsComponent } from '../../components/profile/notifications/notifications.component';
+import { ModalWrapperComponent } from '../../components/layout/modal-wrapper/modal-wrapper.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { NotificationsComponent } from '../../components/profile/notifications/n
     UserDetailsInfoComponent,
     UserProfileDataComponent,
     ProjectsComponent,
-    NotificationsComponent
+    NotificationsComponent,
+    ModalWrapperComponent
   ],
   imports: [CommonModule, ContentRoutingModule, ReactiveFormsModule]
 })

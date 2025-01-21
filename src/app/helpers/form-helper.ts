@@ -105,16 +105,6 @@ export class FormHelper {
     return this.form;
   }
 
-  createProjectForm(): FormGroup {
-    this.form = this.fb.group({
-      name: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      technologies: this.fb.array([this.fb.control('', Validators.required)])
-    });
-
-    return this.form;
-  }
-
   createUpdateUserProfileDataForm(): FormGroup {
     this.form = this.fb.group({
       username: ['', [Validators.required, Validators.maxLength(50)]],

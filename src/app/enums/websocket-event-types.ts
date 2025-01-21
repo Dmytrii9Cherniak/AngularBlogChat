@@ -18,5 +18,19 @@ export enum WebsocketEventType {
   MESSAGE_PINNED = 'pin_chat_message',
   MESSAGE_PINNED_RESPONSE = 'message_pinned',
   FORWARD_MESSAGE = 'forward_chat_message',
-  FORWARD_MESSAGE_RESPONSE = 'forward_message'
+  FORWARD_MESSAGE_RESPONSE = 'forward_message',
+
+  INVITE_TO_PROJECT = 'invite',
+  REQUEST_TO_PROJECT = 'request',
+
+  INVITE_TO_PROJECT_IS_ACCEPTED = 'invite_accepted',
+  INVITE_TO_PROJECT_IS_DECLINED = 'invite_declined',
+
+  REQUEST_TO_PROJECT_IS_ACCEPTED = 'request_accepted',
+  REQUEST_TO_PROJECT_IS_DECLINED = 'request_declined',
+
+  REQUEST_TO_FRIEND = 'friend_request',
+
+  REQUEST_TO_FRIEND_IS_ACCEPTED = 'friend_request_accepted',
+  REQUEST_TO_FRIEND_IS_DECLINED = 'friend_request_declined'
 }

@@ -1,69 +1,119 @@
 <div class="project-list-container">
   <div class="create-section">
-    <button class="create-button" (click)="createNewProject()" *ngIf="!isCreateProject && (isAuthenticated | async)">
+    <button
+      class="create-button"
+      (click)="openModal('create-project-modal')"
+      *ngIf="(isAuthenticated$ | async)"
+    >
       Create New Project
     </button>
   </div>
 
-  <div *ngIf="!projects && !isCreateProject" class="loading-message">
-    Loading projects, please wait...
-  </div>
-
-  <div *ngIf="projects && projects.length === 0 && !isCreateProject" class="no-projects-message">
-    No projects available. Please create a new project.
-  </div>
-
-  <div class="project-list" *ngIf="projects && projects.length > 0 && !isCreateProject">
+  <div *ngIf="projects && projects.length > 0" class="project-list">
     <div class="project-card" *ngFor="let project of projects">
       <h2 class="project-name">{{ project.name }}</h2>
       <p class="project-description">{{ project.description }}</p>
       <div class="technologies">
         <h3>Technologies:</h3>
         <ul>
-          <li class="technology-item" *ngFor="let tech of project.technologies">
-            {{ tech.name }}
+          <li *ngFor="let tech of project.technologies">
+            {{ tech }}
           </li>
         </ul>
+      </div>
+      <div class="project-actions">
+        <button class="action-button update-project" (click)="openUpdateProjectModal(project)">
+          Update
+        </button>
+        <button class="action-button delete-project" (click)="openDeleteModal(project)">
+          Delete
+        </button>
       </div>
     </div>
   </div>
 
-  <div class="form-container" *ngIf="isCreateProject">
-    <form class="create-form" [formGroup]="formHelper.form" (ngSubmit)="createOwnProject()">
+  <app-modal-wrapper
+    [isModalShow]="isModalVisible('create-project-modal')"
+    (modalVisibleChange)="closeModal('create-project-modal')"
+  >
+    <ng-template #modalHeader>
       <h2>Create New Project</h2>
-
-      <div class="form-group">
-        <label for="name">Project Name:</label>
-        <input id="name" formControlName="name" placeholder="Enter project name" />
-        <div class="error-message" *ngIf="formHelper.form.get('name')?.invalid && formHelper.form.get('name')?.touched">
-          Name is required.
+    </ng-template>
+    <ng-template #modalBody>
+      <form [formGroup]="createProjectForm" (ngSubmit)="createOwnProject()">
+        <div class="form-group">
+          <label for="name">Project Name</label>
+          <input id="name" formControlName="name" placeholder="Enter project name" />
         </div>
-      </div>
-
-      <div class="form-group">
-        <label for="description">Project Description:</label>
-        <textarea id="description" formControlName="description" placeholder="Enter project description"></textarea>
-        <div class="error-message"
-             *ngIf="formHelper.form.get('description')?.invalid && formHelper.form.get('description')?.touched">
-          Description is required.
+        <div class="form-group">
+          <label>Project Description</label>
+          <textarea formControlName="description" placeholder="Enter project description"></textarea>
         </div>
-      </div>
-
-      <div class="form-group technologies-group" formArrayName="technologies">
-        <label>Technologies:</label>
-        <div class="technology-item" *ngFor="let technology of technologies.controls; let i = index">
-          <input [formControlName]="i" placeholder="Enter technology" />
-          <button class="remove-button" type="button" (click)="removeTechnology(i)">Remove</button>
+        <div formArrayName="technologies" class="form-group">
+          <label>Technologies</label>
+          <div *ngFor="let tech of createTechnologies.controls; let i = index" [formGroupName]="i" class="technology-item">
+            <input formControlName="name" placeholder="Technology Name" />
+            <button type="button" (click)="removeTechnology(createTechnologies, i)" class="remove-button">Remove</button>
+          </div>
+          <button type="button" (click)="addTechnology(createTechnologies)" class="add-technology">Add Technology</button>
         </div>
-        <button class="add-button" type="button" (click)="addTechnology()">Add Technology</button>
-      </div>
+      </form>
+    </ng-template>
+    <ng-template #modalFooter>
+      <button class="cancel-button" type="button" (click)="closeModal('create-project-modal')">Cancel</button>
+      <button class="confirm-button" type="submit" [disabled]="createProjectForm.invalid" (click)="createOwnProject()">Create</button>
+    </ng-template>
+  </app-modal-wrapper>
 
-      <div class="form-actions">
-        <button class="submit-button" type="submit" [disabled]="formHelper.form.invalid">
-          Submit
-        </button>
-        <button class="cancel-button" type="button" (click)="createNewProject()">Cancel</button>
-      </div>
-    </form>
-  </div>
+  <!-- Update Project Modal -->
+  <app-modal-wrapper
+    [isModalShow]="isModalVisible('update-project-modal')"
+    (modalVisibleChange)="closeModal('update-project-modal')"
+  >
+    <ng-template #modalHeader>
+      <h2>Update Project: {{ selectedProject?.name }}</h2>
+    </ng-template>
+    <ng-template #modalBody>
+      <form [formGroup]="updateProjectForm">
+        <div class="form-group">
+          <label for="name">Project Name</label>
+          <input formControlName="name" placeholder="Enter project name" />
+        </div>
+        <div class="form-group">
+          <label>Project Description</label>
+          <textarea formControlName="description" placeholder="Enter project description"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Technologies</label>
+          <div formArrayName="technologies">
+            <div *ngFor="let tech of updateTechnologies.controls; let i = index" [formGroupName]="i" class="technology-item">
+              <input formControlName="name" placeholder="Technology Name" />
+              <button type="button" (click)="removeTechnologyFromUpdateForm(i)" class="remove-button">Remove</button>
+            </div>
+          </div>
+          <button type="button" (click)="addTechnologyToUpdateForm()" class="add-technology">Add Technology</button>
+        </div>
+      </form>
+    </ng-template>
+    <ng-template #modalFooter>
+      <button class="cancel-button" (click)="closeModal('update-project-modal')">Cancel</button>
+      <button class="confirm-button" (click)="updateProject()">Update</button>
+    </ng-template>
+  </app-modal-wrapper>
+
+  <app-modal-wrapper
+    [isModalShow]="isModalVisible('confirm-delete-project')"
+    (modalVisibleChange)="closeModal('confirm-delete-project')"
+  >
+    <ng-template #modalHeader>
+      <h2>Confirm Deletion</h2>
+    </ng-template>
+    <ng-template #modalBody>
+      <p>Are you sure you want to delete the project "{{ selectedProject?.name }}"?</p>
+    </ng-template>
+    <ng-template #modalFooter>
+      <button class="cancel-button" (click)="closeModal('confirm-delete-project')">Cancel</button>
+      <button class="delete-button" (click)="confirmDelete()">Delete</button>
+    </ng-template>
+  </app-modal-wrapper>
 </div>
