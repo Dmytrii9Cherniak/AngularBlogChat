@@ -1,6 +1,6 @@
 import { Technology } from './technology.model';
 
-export class Project {
+export class CreateProjectModel {
   constructor(
     public name: string,
     public description: string,

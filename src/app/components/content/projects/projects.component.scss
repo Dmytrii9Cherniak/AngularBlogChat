@@ -1,8 +1,9 @@
 .project-list-container {
-  padding: 20px;
-  background: linear-gradient(145deg, #eef2f3, #d9e6e9);
-  border-radius: 16px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  background: linear-gradient(135deg, #e0f7fa, #e1f5fe);
+  border-radius: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  font-family: 'Arial', sans-serif;
 
   .create-section {
     text-align: center;
@@ -10,207 +11,395 @@
 
     .create-button {
       display: inline-block;
-      background: #1abc9c;
+      background: #00796b;
       color: #fff;
       border: none;
-      border-radius: 8px;
-      padding: 0.8rem 1.5rem;
-      font-size: 1.2rem;
+      border-radius: 50px;
+      padding: 1rem 2.5rem;
+      font-size: 1.5rem;
       font-weight: bold;
       cursor: pointer;
-      transition: background 0.3s, transform 0.2s;
+      transition: all 0.3s ease-in-out;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 
       &:hover {
-        background: #16a085;
-        transform: scale(1.05);
+        background: #004d40;
+        transform: scale(1.1);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
       }
     }
   }
 
   .project-list {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
-    margin: 2rem 0;
 
     .project-card {
-      background: linear-gradient(145deg, #ffffff, #f1f1f1);
-      border: 1px solid #ccc;
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-      transition: transform 0.3s, box-shadow 0.3s;
+      background: linear-gradient(135deg, #ffffff, #f3f9fe);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
 
       &:hover {
         transform: translateY(-10px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
       }
 
       .project-name {
-        font-size: 2rem;
-        color: #2c3e50;
+        font-size: 1.8rem;
+        color: #1565c0;
         font-weight: bold;
-        margin-bottom: 1rem;
+        margin-bottom: 15px;
+        text-align: center;
       }
 
       .project-description {
         font-size: 1.2rem;
-        color: #7f8c8d;
-        line-height: 1.8;
-        margin-bottom: 1.5rem;
+        color: #37474f;
+        line-height: 1.6;
+        margin-bottom: 15px;
+        text-align: justify;
       }
 
       .technologies {
-        margin-top: 1.5rem;
-
         h3 {
-          font-size: 1.5rem;
-          color: #34495e;
-          margin-bottom: 0.8rem;
+          font-size: 1.3rem;
+          color: #1a237e;
+          margin-bottom: 10px;
         }
 
         .technology-item {
-          font-size: 1.1rem;
-          color: #2c3e50;
-          margin-left: 1.8rem;
-          list-style-type: disc;
+          font-size: 1rem;
+          color: #424242;
+          margin-left: 15px;
+          list-style-type: circle;
+        }
+      }
+
+      .project-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+
+        .action-button {
+          background: #5c6bc0;
+          color: #fff;
+          border: none;
+          border-radius: 50px;
+          padding: 0.8rem 1.5rem;
+          font-size: 1rem;
+          font-weight: bold;
+          cursor: pointer;
+          transition: all 0.3s ease-in-out;
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
+          &:hover {
+            transform: scale(1.1);
+          }
+
+          &.send-request {
+            background: #4caf50;
+          }
+
+          &.invite-people {
+            background: #ffa000;
+          }
+
+          &.update-project {
+            background: #0288d1;
+          }
+
+          &.delete-project {
+            background: #e53935;
+          }
         }
       }
     }
   }
 
   .form-container {
-    background: linear-gradient(145deg, #ffffff, #f9f9f9);
-    border: 1px solid #ddd;
-    border-radius: 16px;
-    padding: 2.5rem;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
 
-    .create-form {
-      h2 {
-        text-align: center;
-        font-size: 1.8rem;
-        color: #2c3e50;
-        margin-bottom: 2rem;
+    h2 {
+      text-align: center;
+      font-size: 1.8rem;
+      color: #37474f;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+
+      label {
+        font-size: 1.2rem;
+        color: #546e7a;
+        margin-bottom: 10px;
+        display: block;
       }
 
-      .form-group {
-        margin-bottom: 2rem;
+      input,
+      textarea {
+        width: 100%;
+        padding: 15px;
+        font-size: 1rem;
+        border: 1px solid #cfd8dc;
+        border-radius: 10px;
+        transition: border-color 0.3s ease;
 
-        label {
-          font-size: 1.2rem;
-          color: #34495e;
-          margin-bottom: 0.8rem;
-          display: block;
+        &:focus {
+          border-color: #42a5f5;
+          outline: none;
+          box-shadow: 0 0 5px rgba(66, 165, 245, 0.5);
+        }
+      }
+
+      .error-message {
+        color: #e53935;
+        font-size: 0.9rem;
+        margin-top: 5px;
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+
+      .submit-button {
+        background: #00796b;
+        color: #fff;
+        border: none;
+        border-radius: 50px;
+        padding: 1rem 2rem;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+
+        &:hover {
+          background: #004d40;
+          transform: scale(1.05);
         }
 
-        input,
-        textarea {
-          width: 100%;
-          padding: 1rem;
-          font-size: 1.1rem;
-          border: 1px solid #ccc;
-          border-radius: 8px;
-          box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        &[disabled] {
+          background: #cfd8dc;
+          cursor: not-allowed;
+        }
+      }
 
-          &:focus {
+      .cancel-button {
+        background: #e53935;
+        color: #fff;
+        border: none;
+        border-radius: 50px;
+        padding: 1rem 2rem;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+
+        &:hover {
+          background: #b71c1c;
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+
+
+  ::ng-deep app-modal-wrapper {
+    .modal-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background-color: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      padding: 24px;
+      max-width: 600px;
+      margin: auto;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .modal-header {
+      h2 {
+        font-size: 1.8rem;
+        color: #333333;
+        font-weight: bold;
+        margin: 0;
+        text-align: center;
+      }
+    }
+
+    .modal-body {
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+
+          label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #555555;
+          }
+
+          input,
+          textarea {
+            padding: 12px;
+            font-size: 1rem;
+            border: 1px solid #cccccc;
+            border-radius: 8px;
             outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.4);
+            transition: border-color 0.3s, box-shadow 0.3s;
+
+            &:focus {
+              border-color: #3f8cff;
+              box-shadow: 0 0 8px rgba(63, 140, 255, 0.5);
+            }
+          }
+
+          textarea {
+            resize: none;
+            min-height: 100px;
           }
         }
+      }
 
-        .error-message {
-          color: #e74c3c;
-          font-size: 1rem;
-          margin-top: 0.5rem;
-        }
+      .error-message {
+        color: #ff4d4f;
+        font-size: 0.9rem;
+        margin-top: 4px;
       }
 
       .technologies-group {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 8px;
 
         .technology-item {
           display: flex;
           align-items: center;
-          gap: 0.8rem;
+          gap: 8px;
 
           input {
             flex: 1;
           }
 
-          .remove-button {
-            background: #e74c3c;
-            color: #fff;
+          button {
+            background-color: #ff4d4f;
+            color: white;
             border: none;
-            border-radius: 8px;
-            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            padding: 8px 12px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
 
             &:hover {
-              background: #c0392b;
+              background-color: #d93025;
             }
           }
         }
 
-        .add-button {
-          background: #2ecc71;
-          color: #fff;
+        .add-technology {
+          background-color: #3f8cff;
+          color: white;
           border: none;
-          border-radius: 8px;
-          padding: 0.8rem 1.8rem;
+          border-radius: 6px;
+          padding: 8px 12px;
+          font-size: 0.9rem;
           cursor: pointer;
+          align-self: flex-start;
+          transition: background-color 0.3s ease;
 
           &:hover {
-            background: #27ae60;
+            background-color: #336bcc;
           }
         }
       }
+    }
 
-      .form-actions {
-        display: flex;
-        justify-content: space-between;
-        gap: 1rem;
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 20px;
 
-        .submit-button {
-          background: #2980b9;
-          color: #fff;
-          border: none;
-          border-radius: 8px;
-          padding: 1rem 2rem;
-          font-size: 1.2rem;
-          font-weight: bold;
-          cursor: pointer;
-          transition: background 0.3s;
+      button {
+        padding: 10px 16px;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &.cancel-button {
+          background-color: #e0e0e0;
+          color: #333333;
 
           &:hover {
-            background: #1f618d;
-          }
-
-          &[disabled] {
-            background: #bdc3c7;
-            cursor: not-allowed;
+            background-color: #cccccc;
           }
         }
 
-        .cancel-button {
-          background: #e74c3c;
-          color: #fff;
-          border: none;
-          border-radius: 8px;
-          padding: 1rem 2rem;
-          font-size: 1.2rem;
-          font-weight: bold;
-          cursor: pointer;
-          transition: background 0.3s;
+        &.confirm-button {
+          background-color: #3f8cff;
+          color: white;
 
           &:hover {
-            background: #c0392b;
+            background-color: #336bcc;
+          }
+        }
+
+        &.delete-button {
+          background-color: #ff4d4f;
+          color: white;
+
+          &:hover {
+            background-color: #d93025;
           }
         }
       }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    &.create-modal .modal-container {
+      border-left: 4px solid #3f8cff;
+    }
+
+    &.update-modal .modal-container {
+      border-left: 4px solid #ffc107;
+    }
+
+    &.delete-modal .modal-container {
+      border-left: 4px solid #ff4d4f;
     }
   }
 }
