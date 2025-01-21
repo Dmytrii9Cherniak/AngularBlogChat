@@ -11,10 +11,7 @@ import { MainLayoutComponent } from '../../components/layout/main-layout/main-la
     PageContainerComponent,
     MainLayoutComponent
   ],
-  imports: [
-    CommonModule,
-    RouterModule,
-  ],
+  imports: [CommonModule, RouterModule],
   exports: [MainLayoutComponent]
 })
 export class LayoutModule {}

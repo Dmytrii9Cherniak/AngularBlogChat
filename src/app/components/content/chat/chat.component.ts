@@ -394,8 +394,7 @@ export class ChatComponent implements OnInit, OnDestroy {
           reply_from_user: Number(incomingMessage.sender_id)
         });
       }
-    }
-    else {
+    } else {
       this.toastrService.info(
         `Нове повідомлення від ${incomingMessage.username}: "${incomingMessage.message}"`,
         'Нове повідомлення'

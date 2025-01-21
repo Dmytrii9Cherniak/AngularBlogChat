@@ -7,7 +7,6 @@ import { NotificationsService } from '../../../services/notifications.service';
   styleUrl: './notifications.component.scss'
 })
 export class NotificationsComponent implements OnInit {
-
   constructor(private notificationService: NotificationsService) {}
 
   ngOnInit() {
@@ -15,6 +14,6 @@ export class NotificationsComponent implements OnInit {
       next: (value) => {
         console.log(value);
       }
-    })
+    });
   }
 }

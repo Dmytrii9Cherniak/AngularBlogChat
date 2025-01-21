@@ -48,7 +48,7 @@ export class ChatService {
   requestChatMessages(
     chatId: number
   ): Observable<{ messages: MessageChatModel[] }> {
-    console.log(`📨 Відправка запиту на повідомлення чату з chatId:`, chatId);
+    console.log('📨 Відправка запиту на повідомлення чату з chatId:', chatId);
 
     this.wsService.sendMessage({
       type: WebsocketEventType.GET_CHAT_MESSAGES,
