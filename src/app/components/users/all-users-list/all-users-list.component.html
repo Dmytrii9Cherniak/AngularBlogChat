@@ -1,5 +1,5 @@
 <div class="user-list-container">
-  <ng-container *ngIf="(allUsersList | async) as users; else loading">
+  <ng-container *ngIf="allUsersList | async as users; else loading">
     <ng-container *ngIf="users.length > 0; else noUsers">
       <div class="user-grid">
         <div *ngFor="let user of users" class="user-card">
@@ -7,8 +7,13 @@
             <span class="user-id">ID: {{ user.id }}</span>
             <span class="user-nickname">Nickname: {{ user.nickname }}</span>
             <span class="user-username">Username: {{ user.username }}</span>
-            <button (click)="navigateToUserInfo(user)"> Інформація </button>
-            <button *ngIf="(isAuthenticated | async)" (click)="navigateToChat(user)"> Написати </button>
+            <button (click)="navigateToUserInfo(user)">Інформація</button>
+            <button
+              *ngIf="isAuthenticated | async"
+              (click)="navigateToChat(user)"
+            >
+              Написати
+            </button>
           </div>
         </div>
       </div>
@@ -16,14 +21,10 @@
   </ng-container>
 
   <ng-template #loading>
-    <div class="loading">
-      Loading users...
-    </div>
+    <div class="loading">Loading users...</div>
   </ng-template>
 
   <ng-template #noUsers>
-    <div class="no-users">
-      No users available.
-    </div>
+    <div class="no-users">No users available.</div>
   </ng-template>
 </div>

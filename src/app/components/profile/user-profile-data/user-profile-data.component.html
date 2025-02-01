@@ -1,11 +1,7 @@
 <div class="profile-container" [formGroup]="formHelper.form">
   <div class="profile-header">
     <div class="avatar-section">
-      <img
-        [src]="getAvatarUrl()"
-        alt="Avatar"
-        (error)="onImageError($event)"
-      />
+      <img [src]="getAvatarUrl()" alt="Avatar" (error)="onImageError($event)" />
       <label *ngIf="isEditMode" for="avatarInput" class="change-avatar-button">
         Change Avatar
       </label>

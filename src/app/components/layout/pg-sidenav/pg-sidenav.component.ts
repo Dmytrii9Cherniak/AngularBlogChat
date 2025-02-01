@@ -1,8 +1,14 @@
-import { Component, ElementRef, OnInit, HostListener } from '@angular/core';
-import { SidenavService } from '../../../services/sidenav.service';
-import { Observable } from 'rxjs';
+import {
+  Component,
+  HostListener,
+  HostBinding,
+  Input,
+  Output,
+  EventEmitter
+} from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 import { UserProfileService } from '../../../services/user.profile.service';
+import { Observable } from 'rxjs';
 import { UserDataModel } from '../../../models/user/user.data.model';
 
 @Component({
@@ -10,63 +16,57 @@ import { UserDataModel } from '../../../models/user/user.data.model';
   templateUrl: './pg-sidenav.component.html',
   styleUrls: ['./pg-sidenav.component.scss']
 })
-export class PgSidenavComponent implements OnInit {
-  public isSidenavOpen: Observable<boolean>;
-  public width: number = window.innerWidth;
+export class PgSidenavComponent {
   public isAuthenticated: Observable<boolean>;
   public userProfileData: UserDataModel | null;
+  public width: number = window.innerWidth;
+
+  @Input() isFullyExpanded = false;
+  @Output() toggleSidebarEvent = new EventEmitter<boolean>();
+
+  @HostBinding('class.open') get isOpen() {
+    return this.isFullyExpanded;
+  }
 
   constructor(
-    private sidenavService: SidenavService,
-    private el: ElementRef,
     private authService: AuthService,
     private userProfileService: UserProfileService
   ) {}
 
   ngOnInit() {
-    this.setInitialState();
-    this.isSidenavOpen = this.sidenavService.isOpen$;
-
     this.isAuthenticated = this.authService.isAuthenticated$;
     this.userProfileService.userProfileData.subscribe((value) => {
       this.userProfileData = value;
     });
   }
 
-  setInitialState() {
-    if (window.innerWidth > 768) {
-      this.sidenavService.closeSidenav(this.el.nativeElement);
-    } else {
-      this.sidenavService.closeSidenav(this.el.nativeElement);
-    }
-  }
-
-  toggleSidenav() {
-    this.sidenavService.toggleSidenav(this.el.nativeElement);
-  }
-
-  closeSidenav() {
-    this.sidenavService.closeSidenav(this.el.nativeElement);
-  }
-
   @HostListener('mouseenter')
   onMouseEnter() {
-    if (window.innerWidth > 768) {
-      this.sidenavService.openSidenav(this.el.nativeElement);
+    if (this.width >= 768) {
+      this.isFullyExpanded = true;
+      this.toggleSidebarEvent.emit(this.isFullyExpanded);
     }
   }
 
   @HostListener('mouseleave')
   onMouseLeave() {
-    if (window.innerWidth > 768) {
-      this.sidenavService.closeSidenav(this.el.nativeElement);
+    if (this.width >= 768 && this.width === window.innerWidth) {
+      this.isFullyExpanded = false;
+      this.toggleSidebarEvent.emit(this.isFullyExpanded);
     }
   }
 
-  @HostListener('window:resize', ['$event.target.innerWidth'])
-  onResize(width: number) {
-    this.setInitialState();
-    this.width = width;
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.width = event.target.innerWidth;
+    if (this.width < 768) {
+      this.isFullyExpanded = false;
+    }
+  }
+
+  closeSidebar() {
+    this.isFullyExpanded = false;
+    this.toggleSidebarEvent.emit(this.isFullyExpanded);
   }
 
   getAvatarUrl(): string {
@@ -80,7 +80,7 @@ export class PgSidenavComponent implements OnInit {
     imgElement.src = 'assets/images/no_profile_avatar.png';
   }
 
-  public logout(): void {
+  logout() {
     this.authService.logout();
   }
 }

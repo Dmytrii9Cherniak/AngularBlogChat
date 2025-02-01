@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "prebuild": "npm run format && npm run lint:fix",
+    "start": "npm run prebuild && ng serve",
     "serve:local": "ng serve --host 0.0.0.0 --port 4200 --disable-host-check",
     "serve:local:fixed": "ng serve --host 192.168.1.118 --port 4200 --disable-host-check",
     "build": "ng build",
@@ -25,6 +26,8 @@
     "@angular/platform-browser-dynamic": "^18.2.10",
     "@angular/router": "^18.2.10",
     "angular-code-input": "^2.0.0",
+    "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
     "ngx-toastr": "^19.0.0",
     "primeicons": "^7.0.0",
     "rxjs": "~7.8.0",

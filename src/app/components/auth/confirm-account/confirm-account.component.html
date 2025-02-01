@@ -9,7 +9,6 @@
       (codeCompleted)="onCodeCompleted($event)"
       [codeLength]="6"
       (codeChanged)="confirmCodeChanged($event)"
-
       class="custom-code-input"
     ></code-input>
 
@@ -17,13 +16,26 @@
       <span *ngIf="timeLeft">Time left: {{ timeLeft }}</span>
     </div>
 
-    <div *ngIf="formHelper.formSubmitted && formHelper.getClientErrorMessage('code')" class="error-message">
+    <div
+      *ngIf="
+        formHelper.formSubmitted && formHelper.getClientErrorMessage('code')
+      "
+      class="error-message"
+    >
       {{ formHelper.getClientErrorMessage('code') }}
     </div>
-    <div *ngIf="!formHelper.getClientErrorMessage('code') && getServerErrorMessage('code')" class="error-message">
+    <div
+      *ngIf="
+        !formHelper.getClientErrorMessage('code') &&
+        getServerErrorMessage('code')
+      "
+      class="error-message"
+    >
       {{ getServerErrorMessage('code') }}
     </div>
 
-    <button class="form-button confirm" (click)="confirmMyAccount()">Confirm</button>
+    <button class="form-button confirm" (click)="confirmMyAccount()">
+      Confirm
+    </button>
   </form>
 </div>

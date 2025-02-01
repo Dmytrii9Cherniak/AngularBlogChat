@@ -3,11 +3,13 @@
     <button
       class="create-button"
       (click)="openModal('create-project-modal')"
-      *ngIf="(isAuthenticated$ | async)"
+      *ngIf="isAuthenticated$ | async"
     >
       Create New Project
     </button>
   </div>
+
+  <button class="btn btn-primary">Клікни мене</button>
 
   <div *ngIf="projects && projects.length > 0" class="project-list">
     <div class="project-card" *ngFor="let project of projects">
@@ -22,10 +24,16 @@
         </ul>
       </div>
       <div class="project-actions">
-        <button class="action-button update-project" (click)="openUpdateProjectModal(project)">
+        <button
+          class="action-button update-project"
+          (click)="openUpdateProjectModal(project)"
+        >
           Update
         </button>
-        <button class="action-button delete-project" (click)="openDeleteModal(project)">
+        <button
+          class="action-button delete-project"
+          (click)="openDeleteModal(project)"
+        >
           Delete
         </button>
       </div>
@@ -43,25 +51,61 @@
       <form [formGroup]="createProjectForm" (ngSubmit)="createOwnProject()">
         <div class="form-group">
           <label for="name">Project Name</label>
-          <input id="name" formControlName="name" placeholder="Enter project name" />
+          <input
+            id="name"
+            formControlName="name"
+            placeholder="Enter project name"
+          />
         </div>
         <div class="form-group">
           <label>Project Description</label>
-          <textarea formControlName="description" placeholder="Enter project description"></textarea>
+          <textarea
+            formControlName="description"
+            placeholder="Enter project description"
+          ></textarea>
         </div>
         <div formArrayName="technologies" class="form-group">
           <label>Technologies</label>
-          <div *ngFor="let tech of createTechnologies.controls; let i = index" [formGroupName]="i" class="technology-item">
+          <div
+            *ngFor="let tech of createTechnologies.controls; let i = index"
+            [formGroupName]="i"
+            class="technology-item"
+          >
             <input formControlName="name" placeholder="Technology Name" />
-            <button type="button" (click)="removeTechnology(createTechnologies, i)" class="remove-button">Remove</button>
+            <button
+              type="button"
+              (click)="removeTechnology(createTechnologies, i)"
+              class="remove-button"
+            >
+              Remove
+            </button>
           </div>
-          <button type="button" (click)="addTechnology(createTechnologies)" class="add-technology">Add Technology</button>
+          <button
+            type="button"
+            (click)="addTechnology(createTechnologies)"
+            class="add-technology"
+          >
+            Add Technology
+          </button>
         </div>
       </form>
     </ng-template>
     <ng-template #modalFooter>
-      <button class="cancel-button" type="button" (click)="closeModal('create-project-modal')">Cancel</button>
-      <button class="confirm-button" type="submit" [disabled]="createProjectForm.invalid" (click)="createOwnProject()">Create</button>
+      <button
+        class="cancel-button"
+        type="button"
+        (click)="closeModal('create-project-modal')"
+      >
+        Cancel
+      </button>
+      <button
+        class="confirm-button"
+        type="submit"
+        [disabled]="createProjectForm.invalid"
+        (click)="createOwnProject()"
+      >
+        Create
+      </button>
     </ng-template>
   </app-modal-wrapper>
 
@@ -81,22 +125,46 @@
         </div>
         <div class="form-group">
           <label>Project Description</label>
-          <textarea formControlName="description" placeholder="Enter project description"></textarea>
+          <textarea
+            formControlName="description"
+            placeholder="Enter project description"
+          ></textarea>
         </div>
         <div class="form-group">
           <label>Technologies</label>
           <div formArrayName="technologies">
-            <div *ngFor="let tech of updateTechnologies.controls; let i = index" [formGroupName]="i" class="technology-item">
+            <div
+              *ngFor="let tech of updateTechnologies.controls; let i = index"
+              [formGroupName]="i"
+              class="technology-item"
+            >
               <input formControlName="name" placeholder="Technology Name" />
-              <button type="button" (click)="removeTechnologyFromUpdateForm(i)" class="remove-button">Remove</button>
+              <button
+                type="button"
+                (click)="removeTechnologyFromUpdateForm(i)"
+                class="remove-button"
+              >
+                Remove
+              </button>
             </div>
           </div>
-          <button type="button" (click)="addTechnologyToUpdateForm()" class="add-technology">Add Technology</button>
+          <button
+            type="button"
+            (click)="addTechnologyToUpdateForm()"
+            class="add-technology"
+          >
+            Add Technology
+          </button>
         </div>
       </form>
     </ng-template>
     <ng-template #modalFooter>
-      <button class="cancel-button" (click)="closeModal('update-project-modal')">Cancel</button>
+      <button
+        class="cancel-button"
+        (click)="closeModal('update-project-modal')"
+      >
+        Cancel
+      </button>
       <button class="confirm-button" (click)="updateProject()">Update</button>
     </ng-template>
   </app-modal-wrapper>
@@ -109,10 +177,19 @@
       <h2>Confirm Deletion</h2>
     </ng-template>
     <ng-template #modalBody>
-      <p>Are you sure you want to delete the project "{{ selectedProject?.name }}"?</p>
+      <p>
+        Are you sure you want to delete the project "{{
+          selectedProject?.name
+        }}"?
+      </p>
     </ng-template>
     <ng-template #modalFooter>
-      <button class="cancel-button" (click)="closeModal('confirm-delete-project')">Cancel</button>
+      <button
+        class="cancel-button"
+        (click)="closeModal('confirm-delete-project')"
+      >
+        Cancel
+      </button>
       <button class="delete-button" (click)="confirmDelete()">Delete</button>
     </ng-template>
   </app-modal-wrapper>

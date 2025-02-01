@@ -1,14 +1,24 @@
 <div class="main-layout">
-  <!-- Sidebar -->
-  <app-pg-sidenav class="sidebar"></app-pg-sidenav>
-
-  <!-- Content -->
+  <app-pg-sidenav
+    class="sidebar"
+    [isFullyExpanded]="isFullyExpanded"
+    (toggleSidebarEvent)="isFullyExpanded = $event"
+  ></app-pg-sidenav>
   <div class="content-container">
-    <!-- Header -->
     <header *ngIf="width < 768">
-      <svg width="25" height="25" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="none" (click)="toggleSidenav()">
-        <path fill="#000000" fill-rule="evenodd"
-              d="M19 4a1 1 0 01-1 1H2a1 1 0 010-2h16a1 1 0 011 1zm0 6a1 1 0 01-1 1H2a1 1 0 110-2h16a1 1 0 011 1zm-1 7a1 1 0 100-2H2a1 1 0 100 2h16z" />
+      <svg
+        width="25"
+        height="25"
+        viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        (click)="toggleSidebar()"
+      >
+        <path
+          fill="#000000"
+          fill-rule="evenodd"
+          d="M19 4a1 1 0 01-1 1H2a1 1 0 010-2h16a1 1 0 011 1zm0 6a1 1 0 01-1 1H2a1 1 0 110-2h16a1 1 0 011 1zm-1 7a1 1 0 100-2H2a1 1 0 100 2h16z"
+        />
       </svg>
     </header>
     <router-outlet></router-outlet>

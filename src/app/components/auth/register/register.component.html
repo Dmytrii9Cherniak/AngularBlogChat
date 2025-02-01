@@ -7,42 +7,96 @@
 
     <div class="inputs">
       <div class="input_block">
-        <input type="text" placeholder="Create your nickname" formControlName="nickname" (input)="onInput('nickname')" />
-        <div *ngIf="formHelper.formSubmitted && getClientErrorMessage('nickname')" class="error-message">
+        <input
+          type="text"
+          placeholder="Create your nickname"
+          formControlName="nickname"
+          (input)="onInput('nickname')"
+        />
+        <div
+          *ngIf="formHelper.formSubmitted && getClientErrorMessage('nickname')"
+          class="error-message"
+        >
           {{ getClientErrorMessage('nickname') }}
         </div>
-        <div *ngIf="!getClientErrorMessage('nickname') && getServerErrorMessage('nickname')" class="error-message">
+        <div
+          *ngIf="
+            !getClientErrorMessage('nickname') &&
+            getServerErrorMessage('nickname')
+          "
+          class="error-message"
+        >
           {{ getServerErrorMessage('nickname') }}
         </div>
       </div>
 
       <div class="input_block">
-        <input type="text" placeholder="Type your name and surname" formControlName="username" (input)="onInput('username')" />
-        <div *ngIf="formHelper.formSubmitted && getClientErrorMessage('username')" class="error-message">
+        <input
+          type="text"
+          placeholder="Type your name and surname"
+          formControlName="username"
+          (input)="onInput('username')"
+        />
+        <div
+          *ngIf="formHelper.formSubmitted && getClientErrorMessage('username')"
+          class="error-message"
+        >
           {{ getClientErrorMessage('username') }}
         </div>
       </div>
 
       <div class="input_block">
-        <input type="text" placeholder="Type your email" formControlName="email" (input)="onInput('email')" />
-        <div *ngIf="formHelper.formSubmitted && getClientErrorMessage('email')" class="error-message">
+        <input
+          type="text"
+          placeholder="Type your email"
+          formControlName="email"
+          (input)="onInput('email')"
+        />
+        <div
+          *ngIf="formHelper.formSubmitted && getClientErrorMessage('email')"
+          class="error-message"
+        >
           {{ getClientErrorMessage('email') }}
         </div>
-        <div *ngIf="!getClientErrorMessage('email') && getServerErrorMessage('email')" class="error-message">
+        <div
+          *ngIf="
+            !getClientErrorMessage('email') && getServerErrorMessage('email')
+          "
+          class="error-message"
+        >
           {{ getServerErrorMessage('email') }}
         </div>
       </div>
 
       <div class="input_block">
-        <input type="password" placeholder="Type your password" formControlName="password" (input)="onInput('password')" />
-        <div *ngIf="formHelper.formSubmitted && getClientErrorMessage('password')" class="error-message">
+        <input
+          type="password"
+          placeholder="Type your password"
+          formControlName="password"
+          (input)="onInput('password')"
+        />
+        <div
+          *ngIf="formHelper.formSubmitted && getClientErrorMessage('password')"
+          class="error-message"
+        >
           {{ getClientErrorMessage('password') }}
         </div>
       </div>
 
       <div class="input_block">
-        <input type="password" placeholder="Confirm your password" formControlName="confirm_password" (input)="onInput('confirm_password')" />
-        <div *ngIf="formHelper.formSubmitted && getClientErrorMessage('confirm_password')" class="error-message">
+        <input
+          type="password"
+          placeholder="Confirm your password"
+          formControlName="confirm_password"
+          (input)="onInput('confirm_password')"
+        />
+        <div
+          *ngIf="
+            formHelper.formSubmitted &&
+            getClientErrorMessage('confirm_password')
+          "
+          class="error-message"
+        >
           {{ getClientErrorMessage('confirm_password') }}
         </div>
       </div>
@@ -50,6 +104,9 @@
 
     <button class="form-button register" type="submit">Register</button>
 
-    <h3 class="to_join_us">Or login <a routerLink="/auth/login">here</a> if you already have an account</h3>
+    <h3 class="to_join_us">
+      Or login <a routerLink="/auth/login">here</a> if you already have an
+      account
+    </h3>
   </form>
 </div>
