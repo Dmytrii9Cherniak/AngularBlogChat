@@ -24,14 +24,7 @@ export class ProjectsService {
     );
   }
 
-  updateExistingProject(
-    projectId: number,
-    body: {
-      name: string;
-      description: string;
-      technologies: { name: string; description: string }[];
-    }
-  ) {
+  updateExistingProject(projectId: number, body: CreateProjectModel) {
     return this.httpClient.patch(
       `${environment.apiUrl}/profile/update-project/${projectId}`,
       body

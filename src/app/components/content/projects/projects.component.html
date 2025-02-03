@@ -26,7 +26,9 @@
               </li>
             </ul>
             <div class="d-flex justify-content-between mt-3">
-              <button class="btn btn-warning btn-sm shadow-sm" *ngIf="project.creator?.id === userProfileData?.id || userProfileData?.role === 'ADMIN'">
+              <button class="btn btn-warning btn-sm shadow-sm"
+                      *ngIf="project.creator?.id === userProfileData?.id || userProfileData?.role === 'ADMIN'"
+                      (click)="openEditModal(project)">
                 ✏️ Update
               </button>
               <button class="btn btn-danger btn-sm shadow-sm"
@@ -109,6 +111,52 @@
         <div class="modal-footer">
           <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button class="btn btn-danger" (click)="deleteExistingProject(selectedProject?.id!)">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="updateProjectModal" tabindex="-1" aria-labelledby="updateProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Update Project</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="projectForm">
+            <div class="mb-3">
+              <label class="form-label">Project Name</label>
+              <input class="form-control" formControlName="name" placeholder="Enter project name" />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" formControlName="description" placeholder="Enter project description"></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Technologies</label>
+              <div formArrayName="technologies">
+                <div *ngFor="let tech of technologies.controls; let i = index" class="input-group mb-2" [formGroupName]="i">
+                  <input class="form-control" formControlName="name" placeholder="Technology Name" />
+                  <button type="button" class="btn btn-outline-danger" (click)="removeTechnology(i)" *ngIf="i > 0">
+                    Remove
+                  </button>
+                </div>
+              </div>
+              <button type="button" class="btn btn-outline-success w-100" (click)="addTechnology()">
+                + Add Technology
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" (click)="updateExistingProject()" [disabled]="projectForm.invalid">
+            Update
+          </button>
         </div>
       </div>
     </div>

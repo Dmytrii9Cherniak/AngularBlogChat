@@ -6,9 +6,9 @@ import { UserDataModel } from '../../../models/user/user.data.model';
 import { UserProfileService } from '../../../services/user.profile.service';
 import { Project } from '../../../models/project/different.project.list.model';
 import { ToastrService } from 'ngx-toastr';
-import { Modal } from 'bootstrap';
 import { CreateProjectModel } from '../../../models/project/create.project.model';
 import { Observable } from 'rxjs';
+import { Modal } from 'bootstrap';
 
 @Component({
   selector: 'app-projects',
@@ -24,6 +24,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   projectForm!: FormGroup;
   private createModal!: Modal | null;
   private deleteModal!: Modal | null;
+  private updateModal!: Modal | null;
 
   constructor(
     private projectsService: ProjectsService,
@@ -119,6 +120,64 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   openDeleteModal(project: Project): void {
     this.selectedProject = project;
     this.deleteModal?.show();
+  }
+
+  openEditModal(project: Project): void {
+    this.selectedProject = project;
+
+    this.projectForm.patchValue({
+      name: project.name,
+      description: project.description,
+      technologies: project.technologies.map((tech) => ({ name: tech.name }))
+    });
+
+    const modalElement = document.getElementById('updateProjectModal');
+    if (modalElement) {
+      this.updateModal =
+        Modal.getInstance(modalElement) || new Modal(modalElement);
+      this.updateModal.show();
+    }
+  }
+
+  updateExistingProject(): void {
+    if (!this.selectedProject) return;
+
+    const updatedProject = new CreateProjectModel(
+      this.projectForm.value.name,
+      this.projectForm.value.description,
+      this.projectForm.value.technologies.map(
+        (tech: { name: string }) => tech.name
+      )
+    );
+
+    this.projectsService
+      .updateExistingProject(this.selectedProject.id, updatedProject)
+      .subscribe({
+        next: () => {
+          this.toastrService.success('Project updated successfully');
+
+          this.projects = this.projects.map((project) =>
+            project.id === this.selectedProject?.id
+              ? {
+                ...project,
+                name: updatedProject.name,
+                description: updatedProject.description,
+                technologies: updatedProject.technologies.map(
+                  (techName, index) => ({
+                    id: index + 1,
+                    name: techName,
+                    description: `Technology: ${techName}`
+                  })
+                )
+              }
+              : project
+          );
+
+          // Закриваємо модальне вікно
+          this.updateModal?.hide();
+        },
+        error: () => this.toastrService.error('Failed to update project')
+      });
   }
 
   private loadProjects(): void {

@@ -402,4 +402,47 @@
       border-left: 4px solid #ff4d4f;
     }
   }
+
+
+  .modal-content {
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-header {
+    background: #f3f9fe;
+    border-bottom: 2px solid #007bff;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .modal-body {
+    padding: 20px;
+    background: #ffffff;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .btn-primary {
+    background-color: #007bff;
+    border: none;
+    transition: 0.3s ease;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+
+  .btn-danger {
+    background-color: #e53935;
+    border: none;
+    transition: 0.3s ease;
+
+    &:hover {
+      background-color: #b71c1c;
+    }
+  }
 }
