@@ -82,3 +82,34 @@
     Save Changes
   </button>
 </div>
+
+<div class="profile-container">
+
+  <div class="blacklist-section">
+    <h3>Чорний список</h3>
+
+    <div *ngIf="blackListUsers && blackListUsers.length > 0; else noUsers">
+      <div *ngFor="let user of blackListUsers" class="blacklist-user">
+        <div class="user-info">
+          <img
+            src="assets/images/no_profile_avatar.png"
+            class="user-avatar"
+            alt="User Avatar"
+          />
+          <div class="user-details">
+            <span class="nickname">{{ user.blocked_user.nickname }}</span>
+            <span class="username">{{ user.blocked_user.username }}</span>
+          </div>
+        </div>
+        <button class="unblock-button" (click)="unblockUser(user.blocked_user.id)">
+          Розблокувати
+        </button>
+      </div>
+    </div>
+
+    <ng-template #noUsers>
+      <p class="no-users">Список порожній.</p>
+    </ng-template>
+  </div>
+</div>
+

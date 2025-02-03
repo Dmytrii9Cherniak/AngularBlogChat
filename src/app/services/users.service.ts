@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UsersListModel } from '../models/user/users.list.model';
 import { DifferentUserDetailsInfoModel } from '../models/user/different.user.details.info.model';
+import { BlacklistUsersListModel } from '../models/blacklist/blacklist.users.list';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -25,13 +26,19 @@ export class UsersService {
     );
   }
 
+  getMyBlackUsersList(): Observable<BlacklistUsersListModel[]> {
+    return this.httpClient.get<BlacklistUsersListModel[]>(
+      `${environment.apiUrl}/users/blacklist/list`
+    );
+  }
+
   blockOrUnblockCertainUser(blockedUserId: number) {
     const body = {
       expires_at: new Date(new Date().setDate(new Date().getDate() + 31))
     };
 
     return this.httpClient.post(
-      `${environment.apiUrl}/users/block/${blockedUserId}`,
+      `${environment.apiUrl}/users/blacklist/add/${blockedUserId}`,
       body
     );
   }

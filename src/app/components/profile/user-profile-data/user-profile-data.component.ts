@@ -4,6 +4,8 @@ import { UserDataModel } from '../../../models/user/user.data.model';
 import { UserProfileService } from '../../../services/user.profile.service';
 import { ToastrService } from 'ngx-toastr';
 import { FormHelper } from '../../../helpers/form-helper';
+import { UsersService } from '../../../services/users.service';
+import { BlacklistUsersListModel } from '../../../models/blacklist/blacklist.users.list';
 
 @Component({
   selector: 'app-user-profile-data',
@@ -15,10 +17,13 @@ export class UserProfileDataComponent implements OnInit {
   public isEditMode = false;
   private updatedAvatarFile: File | null = null;
 
+  public blackListUsers: BlacklistUsersListModel[] = [];
+
   constructor(
     private fb: FormBuilder,
     private userProfileService: UserProfileService,
-    private toastrServie: ToastrService
+    private toastrServie: ToastrService,
+    private usersService: UsersService
   ) {
     this.formHelper = new FormHelper(this.fb);
   }
@@ -32,6 +37,12 @@ export class UserProfileDataComponent implements OnInit {
           ...value,
           business_email: value.socials?.business_email || '' // Завантажуємо business_email
         });
+      }
+    });
+
+    this.usersService.getMyBlackUsersList().subscribe({
+      next: (value) => {
+        this.blackListUsers = value;
       }
     });
   }
@@ -155,5 +166,15 @@ export class UserProfileDataComponent implements OnInit {
     });
 
     return updatedFields;
+  }
+
+  unblockUser(id: number): void {
+    this.usersService.blockOrUnblockCertainUser(id).subscribe({
+      next: (value) => {
+        this.blackListUsers = this.blackListUsers.filter(
+          (el) => el.blocked_user.id !== id
+        );
+      }
+    });
   }
 }
