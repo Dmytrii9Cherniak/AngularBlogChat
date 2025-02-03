@@ -1,47 +1,83 @@
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  background-color: #1e1e2f;
-  color: #ffffff;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
-  width: 60px;
-  transition: width 0.3s ease-in-out;
+.main-layout {
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
 
-  .nav-link {
-    color: white;
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    text-decoration: none;
-    transition: background-color 0.3s ease-in-out;
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background-color: #1e1e2f;
+    color: #ffffff;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    width: 60px;
+    transition: width 0.3s ease-in-out;
+    overflow-y: auto;
 
-    span {
-      opacity: 0;
-      transition: opacity 0.3s ease-in-out;
+    .nav-link {
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      text-decoration: none;
+      transition: background-color 0.3s ease-in-out;
+
+      span {
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+      }
+
+      &:hover {
+        background: #495057;
+      }
     }
 
-    &:hover {
-      background: #495057;
+    &.open {
+      width: 250px;
+
+      .nav-link span {
+        opacity: 1;
+      }
     }
   }
 
-  &.open {
-    width: 250px;
+  .content-container {
+    flex: 1;
+    padding-left: 60px;
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-y: auto;
 
-    .nav-link span {
-      opacity: 1;
+    header {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      background: #f8f9fa;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-content {
+      flex-grow: 1;
+      padding: 20px;
     }
   }
 
   @media (max-width: 768px) {
-    width: 250px;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease-in-out;
+    .sidebar {
+      width: 250px;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-in-out;
 
-    &.open {
-      transform: translateX(0);
+      &.open {
+        transform: translateX(0);
+      }
+    }
+
+    .content-container {
+      padding-left: 0;
     }
   }
 }

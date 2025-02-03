@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { UsersService } from '../../../services/users.service';
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
 import { UsersListModel } from '../../../models/user/users.list.model';
 import { DifferentUserDetailsInfoModel } from '../../../models/user/different.user.details.info.model';
+import { UserProfileService } from '../../../services/user.profile.service';
 
 @Component({
   selector: 'app-all-users-list',
@@ -18,7 +19,8 @@ export class AllUsersListComponent implements OnInit {
   constructor(
     private usersService: UsersService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private userProfileService: UserProfileService
   ) {}
 
   ngOnInit(): void {
@@ -34,5 +36,37 @@ export class AllUsersListComponent implements OnInit {
 
   navigateToUserInfo(user: DifferentUserDetailsInfoModel): void {
     this.router.navigate(['/users', user.id]);
+  }
+
+  addUserToMyFriends(userId: number): void {
+    this.userProfileService.addNewFriend(userId).subscribe({
+      next: (value) => {
+        console.log(value);
+      }
+    });
+  }
+
+  removeUserFromMyFriends(userId: number): void {
+    this.userProfileService.removeUserFromMyFriends(userId).subscribe({
+      next: (value) => {
+        console.log(value);
+      }
+    });
+  }
+
+  cancelFriendRequest(offerCode: string) {
+    this.userProfileService.cancelFriendRequest(offerCode).subscribe({
+      next: (value) => {
+        console.log(value);
+      }
+    });
+  }
+
+  blockUser(userId: number) {
+    this.usersService.blockOrUnblockCertainUser(userId).subscribe({
+      next: (value) => {
+        console.log(value);
+      }
+    });
   }
 }

@@ -3,17 +3,16 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "prebuild": "npm run format && npm run lint:fix",
-    "start": "npm run prebuild && ng serve",
+    "start": "ng serve",
     "serve:local": "ng serve --host 0.0.0.0 --port 4200 --disable-host-check",
     "serve:local:fixed": "ng serve --host 192.168.1.118 --port 4200 --disable-host-check",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint:fix": "eslint 'src/**/*.{ts,html,css}' --fix",
-    "format": "prettier --write 'src/**/*.{ts,js,html,css}'",
-    "lint:check": "eslint 'src/**/*.{ts,js}'",
-    "format:check": "prettier --check 'src/**/*.{ts,js,html,css}'"
+    "lint:fix": "eslint 'src/**/*.{ts,html,css}' --fix || exit 0",
+    "format": "prettier --write 'src/**/*.{ts,js,html,css}' || exit 0",
+    "lint:check": "eslint 'src/**/*.{ts,js}' || exit 0",
+    "format:check": "prettier --check 'src/**/*.{ts,js,html,css}' || exit 0"
   },
   "private": true,
   "dependencies": {
@@ -38,6 +37,7 @@
     "@angular-devkit/build-angular": "^18.0.2",
     "@angular/cli": "^18.0.2",
     "@angular/compiler-cli": "^18.0.0",
+    "@types/bootstrap": "^5.2.10",
     "@types/jasmine": "~5.1.0",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.12.2",

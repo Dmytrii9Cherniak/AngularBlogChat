@@ -9,7 +9,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { UserProfileDataComponent } from '../../components/profile/user-profile-data/user-profile-data.component';
 import { ProjectsComponent } from '../../components/content/projects/projects.component';
 import { NotificationsComponent } from '../../components/profile/notifications/notifications.component';
-import { ModalWrapperComponent } from '../../components/layout/modal-wrapper/modal-wrapper.component';
+import { FriendsListDataComponent } from '../../components/profile/friends-list-data/friends-list-data.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +19,7 @@ import { ModalWrapperComponent } from '../../components/layout/modal-wrapper/mod
     UserProfileDataComponent,
     ProjectsComponent,
     NotificationsComponent,
-    ModalWrapperComponent
+    FriendsListDataComponent
   ],
   imports: [CommonModule, ContentRoutingModule, ReactiveFormsModule]
 })

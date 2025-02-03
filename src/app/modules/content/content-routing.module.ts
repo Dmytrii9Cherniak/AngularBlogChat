@@ -7,6 +7,7 @@ import { UserProfileDataComponent } from '../../components/profile/user-profile-
 import { ProjectsComponent } from '../../components/content/projects/projects.component';
 import { authGuard } from '../../guards/auth.guard';
 import { NotificationsComponent } from '../../components/profile/notifications/notifications.component';
+import { FriendsListDataComponent } from '../../components/profile/friends-list-data/friends-list-data.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'projects', pathMatch: 'full' },
@@ -21,6 +22,11 @@ const routes: Routes = [
   {
     path: 'notifications',
     component: NotificationsComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'friends',
+    component: FriendsListDataComponent,
     canActivate: [authGuard]
   },
   { path: 'projects', component: ProjectsComponent }

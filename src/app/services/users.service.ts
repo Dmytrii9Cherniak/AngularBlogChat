@@ -24,4 +24,15 @@ export class UsersService {
       `${environment.apiUrl}/users/data/${userId}`
     );
   }
+
+  blockOrUnblockCertainUser(blockedUserId: number) {
+    const body = {
+      expires_at: new Date(new Date().setDate(new Date().getDate() + 31))
+    };
+
+    return this.httpClient.post(
+      `${environment.apiUrl}/users/block/${blockedUserId}`,
+      body
+    );
+  }
 }

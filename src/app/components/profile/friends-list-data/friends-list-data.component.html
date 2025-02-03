@@ -1,0 +1,91 @@
+<div class="friends-container">
+  <div *ngIf="isLoading" class="spinner-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Завантаження...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <div class="tabs">
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'friends'"
+        (click)="setActiveTab('friends')"
+      >
+        Друзі ({{ friendsData.friends.length }})
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'received_requests'"
+        (click)="setActiveTab('received_requests')"
+      >
+        Отримані запити ({{ friendsData.received_requests.length }})
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'sent_requests'"
+        (click)="setActiveTab('sent_requests')"
+      >
+        Надіслані запити ({{ friendsData.sent_requests.length }})
+      </button>
+    </div>
+
+    <div *ngIf="activeTab === 'friends'" class="cards-container">
+      <ng-container *ngIf="friendsData.friends.length > 0; else noData">
+        <div class="friend-card" *ngFor="let friend of friendsData.friends">
+          <img
+            [src]="friend.avatar || 'assets/default-avatar.png'"
+            class="avatar"
+            alt="Аватар"
+          />
+          <h5>{{ friend.nickname }}</h5>
+          <p>{{ friend.username }}</p>
+          <button class="remove-btn" (click)="removeUserFromMyFriends(friend.id)">Видалити з друзів</button>
+        </div>
+      </ng-container>
+    </div>
+
+    <div *ngIf="activeTab === 'received_requests'" class="cards-container">
+      <ng-container *ngIf="friendsData.received_requests.length > 0; else noData">
+        <div class="friend-card" *ngFor="let friend of friendsData.received_requests">
+          <img
+            [src]="friend.avatar || 'assets/default-avatar.png'"
+            class="avatar"
+            alt="Аватар"
+          />
+          <h5>{{ friend.nickname }}</h5>
+          <p>{{ friend.username }}</p>
+          <div class="btn-group">
+            <button class="accept-btn" (click)="acceptOrDeclineFriendRequest(friend.offer_code, 'accepted')">
+              Прийняти
+            </button>
+            <button class="decline-btn" (click)="acceptOrDeclineFriendRequest(friend.offer_code, 'declined')">
+              Відхилити
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <div *ngIf="activeTab === 'sent_requests'" class="cards-container">
+      <ng-container *ngIf="friendsData.sent_requests.length > 0; else noData">
+        <div class="friend-card" *ngFor="let friend of friendsData.sent_requests">
+          <img
+            [src]="friend.avatar || 'assets/default-avatar.png'"
+            class="avatar"
+            alt="Аватар"
+          />
+          <h5>{{ friend.nickname }}</h5>
+          <p>{{ friend.username }}</p>
+          <button class="cancel-btn" (click)="cancelFriendRequest(friend.offer_code)">
+            Скасувати запит
+          </button>
+        </div>
+      </ng-container>
+    </div>
+
+    <ng-template #noData>
+      <div class="no-data">Немає записів</div>
+    </ng-template>
+  </div>
+</div>

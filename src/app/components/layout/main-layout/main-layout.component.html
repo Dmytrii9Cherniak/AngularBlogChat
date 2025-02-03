@@ -4,6 +4,7 @@
     [isFullyExpanded]="isFullyExpanded"
     (toggleSidebarEvent)="isFullyExpanded = $event"
   ></app-pg-sidenav>
+
   <div class="content-container">
     <header *ngIf="width < 768">
       <svg
@@ -21,6 +22,9 @@
         />
       </svg>
     </header>
-    <router-outlet></router-outlet>
+
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
   </div>
 </div>

@@ -1,4 +1,4 @@
-export class CreateProjectModel {
+export class NewProjectModel {
   constructor(
     public name: string,
     public description: string,

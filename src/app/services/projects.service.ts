@@ -17,7 +17,7 @@ export class ProjectsService {
     );
   }
 
-  createNewProject(body: CreateProjectModel): Observable<any> {
+  createNewProject(body: CreateProjectModel) {
     return this.httpClient.post(
       `${environment.apiUrl}/profile/create-project`,
       body
@@ -31,14 +31,14 @@ export class ProjectsService {
       description: string;
       technologies: { name: string; description: string }[];
     }
-  ): Observable<any> {
+  ) {
     return this.httpClient.patch(
       `${environment.apiUrl}/profile/update-project/${projectId}`,
       body
     );
   }
 
-  deleteExistingProject(id: number): Observable<any> {
+  deleteExistingProject(id: number) {
     return this.httpClient.delete(
       `${environment.apiUrl}/profile/delete-project/${id}`
     );
