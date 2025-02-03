@@ -67,10 +67,6 @@ export class ChatComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.wsService.onMessage().subscribe((value) => {
-      console.log(value, 'value');
-    });
-
     this.listenForChatMessages();
   }
 
@@ -138,14 +134,6 @@ export class ChatComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('📤 Надсилаємо повідомлення:', {
-      participants: [this.currentUserId, recipientId],
-      sender: this.currentUserId,
-      username: this.username,
-      message: message,
-      chat_id: this.selectedChatId
-    });
-
     this.chatService.sendChatMessage(
       [this.currentUserId, recipientId],
       this.currentUserId,
@@ -205,6 +193,13 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     this.chatService.deleteChatMessage(messageId, this.selectedChatId);
     this.messages = this.messages.filter((msg) => msg.message_id !== messageId);
+    if (!this.messages.length) {
+      this.chats = this.chats.pipe(
+        map((chatList) =>
+          chatList.filter((chat) => chat.chat_id !== this.selectedChatId)
+        )
+      );
+    }
   }
 
   deleteChat(chatId: number): void {
@@ -495,7 +490,6 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.username,
         parseInt(toChatId, 10)
       );
-      console.log(messageId);
       this.toastrService.info('Повідомлення переслано.', 'Пересилання');
     }
   }

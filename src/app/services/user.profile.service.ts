@@ -55,11 +55,8 @@ export class UserProfileService {
   }
 
   removeUserFromMyFriends(friend_id: number) {
-    return this.httpClient.post(
-      `${environment.apiUrl}/profile/friends/remove/${friend_id}`,
-      {
-        status: 'accepted'
-      }
+    return this.httpClient.delete(
+      `${environment.apiUrl}/profile/friends/remove/${friend_id}`
     );
   }
 
