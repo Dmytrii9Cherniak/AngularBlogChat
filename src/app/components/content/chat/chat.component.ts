@@ -29,6 +29,9 @@ export class ChatComponent implements OnInit, OnDestroy {
   hoveredDifferentChatId: number | null = null;
   formHelper: FormHelper;
 
+  pinnedMessages: MessageChatModel[] = [];
+  currentPinnedIndex: number = 0;
+
   constructor(
     private route: ActivatedRoute,
     private fb: FormBuilder,
@@ -99,22 +102,30 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.chatService
       .requestChatMessages(chatId)
       .pipe(
-        map((response) => {
-          return (
+        map(
+          (response) =>
             response?.messages?.sort(
               (a, b) =>
                 new Date(a.timestamp).getTime() -
                 new Date(b.timestamp).getTime()
             ) || []
-          );
-        })
+        )
       )
       .subscribe({
         next: (sortedMessages) => {
           this.messages = sortedMessages;
-          console.log(this.messages, '123');
+          this.updatePinnedMessages();
         }
       });
+  }
+
+  updatePinnedMessages(): void {
+    this.pinnedMessages = this.messages.filter((msg) => msg.is_pinned);
+    if (this.pinnedMessages.length === 0) {
+      this.currentPinnedIndex = 0;
+    } else if (this.currentPinnedIndex >= this.pinnedMessages.length) {
+      this.currentPinnedIndex = 0;
+    }
   }
 
   sendMessage(): void {
@@ -299,20 +310,12 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   handlePinnedMessage(message: IncomingMessageModel): void {
-    if (!message.message_id || !message.pin_owner_username) return;
+    if (!message.message_id) return;
 
-    const pinnedMessage = this.messages.find(
-      (msg) => msg.message_id === message.message_id
-    );
-
-    if (pinnedMessage) {
-      pinnedMessage.is_pinned = true;
-      this.toastrService.success(
-        `Повідомлення закріплено користувачем ${message.pin_owner_username}`,
-        'Закріплення повідомлення'
-      );
-    } else {
-      console.warn('Закріплене повідомлення не знайдено.');
+    const msg = this.messages.find((m) => m.message_id === message.message_id);
+    if (msg) {
+      msg.is_pinned = !msg.is_pinned;
+      this.updatePinnedMessages();
     }
   }
 
@@ -431,11 +434,13 @@ export class ChatComponent implements OnInit, OnDestroy {
     );
   }
 
-  private clearChatState(): void {
+  clearChatState(): void {
     this.selectedChatId = null;
     this.messages = [];
     this.username = '';
     this.recipientUserId = null;
+    this.pinnedMessages = [];
+    this.currentPinnedIndex = 0;
   }
 
   handleChatDeleted(message: any): void {
@@ -469,14 +474,45 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   pinMessage(messageId: number): void {
-    this.chatService.pinMessage(messageId, this.currentUserId, this.username);
     const message = this.messages.find((msg) => msg.message_id === messageId);
+
     if (message) {
-      message.is_pinned = true;
+      this.chatService.pinMessage(messageId, this.currentUserId, this.username);
+
+      message.is_pinned = !message.is_pinned;
+
+      this.updatePinnedMessages();
+
       this.toastrService.success(
-        'Повідомлення успішно закріплено.',
-        'Закріплено'
+        message.is_pinned
+          ? 'Повідомлення закріплено'
+          : 'Повідомлення відкріплено',
+        'Закріплення'
       );
+    }
+  }
+
+  scrollToMessage(messageId: number): void {
+    setTimeout(() => {
+      const element = document.getElementById(`message-${messageId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  }
+
+  nextPinnedMessage(): void {
+    if (this.pinnedMessages.length > 1) {
+      this.currentPinnedIndex =
+        (this.currentPinnedIndex + 1) % this.pinnedMessages.length;
+    }
+  }
+
+  previousPinnedMessage(): void {
+    if (this.pinnedMessages.length > 1) {
+      this.currentPinnedIndex =
+        (this.currentPinnedIndex - 1 + this.pinnedMessages.length) %
+        this.pinnedMessages.length;
     }
   }
 

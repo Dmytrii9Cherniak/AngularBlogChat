@@ -36,9 +36,18 @@
       </div>
     </div>
 
+    <div *ngIf="pinnedMessages.length > 0" class="pinned-messages-container">
+      <button class="pinned-message" (click)="scrollToMessage(pinnedMessages[currentPinnedIndex].message_id)">
+        {{ pinnedMessages[currentPinnedIndex].message | slice: 0:30 }}...
+      </button>
+
+      <button *ngIf="pinnedMessages.length > 1" class="nav-btn prev-btn" (click)="previousPinnedMessage()">❮</button>
+      <button *ngIf="pinnedMessages.length > 1" class="nav-btn next-btn" (click)="nextPinnedMessage()">❯</button>
+    </div>
+
     <div class="chat-messages">
       <div
-        *ngFor="let message of messages; let i = index"
+        *ngFor="let message of messages; let i = index" [attr.id]="'message-' + message.message_id"
         class="message-bubble"
         [ngClass]="{
           'message-sent': message.user_id === currentUserId,
