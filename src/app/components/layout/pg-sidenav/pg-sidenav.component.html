@@ -1,57 +1,27 @@
-<nav class="sidebar">
-  <button
-    class="btn btn-danger close-btn"
-    (click)="closeSidebar()"
-    *ngIf="width < 768"
-  >
-    Закрити
+<nav class="sidebar" [class.open]="isFullyExpanded">
+  <button class="toggle-btn" (click)="closeSidebar()">
+    <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <path fill="#ffffff" d="M19 4a1 1 0 01-1 1H2a1 1 0 010-2h16a1 1 0 011 1zm0 6a1 1 0 01-1 1H2a1 1 0 110-2h16a1 1 0 011 1zm-1 7a1 1 0 100-2H2a1 1 0 100 2h16z" />
+    </svg>
   </button>
 
-  <div
-    class="user-info d-flex align-items-center"
-    *ngIf="userProfileData && (isAuthenticated | async)"
-  >
-    <img
-      [src]="getAvatarUrl()"
-      alt="Avatar"
-      (error)="onImageError($event)"
-      class="avatar img-fluid rounded-circle"
-    />
-    <span [routerLink]="['/profile']" class="username">{{
-      userProfileData.username
-    }}</span>
+  <div class="user-profile" *ngIf="userProfileData && (isAuthenticated | async)">
+    <img [src]="getAvatarUrl()" alt="Avatar" class="avatar" (error)="onImageError($event)" />
+    <span [routerLink]="['/profile']" class="username">{{ userProfileData.username }}</span>
   </div>
 
-  <ul class="nav flex-column">
-    <li class="nav-item">
-      <a class="nav-link" [routerLink]="['/posts']"> 🏠 <span>Home</span> </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" [routerLink]="['/users']"> 📄 <span>Users</span> </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" [routerLink]="['/chat']"> ⚙️ <span>Chats</span> </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" [routerLink]="['/projects']">
-        ⚙ <span>Projects</span>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" [routerLink]="['/notifications']">
-        ⚙ <span>Notifications</span>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" [routerLink]="['/friends']">
-        ⚙ <span>Friends</span>
-      </a>
-    </li>
+  <ul class="nav-links">
+    <li><a routerLink="/posts"><i class="icon-home"></i> <span>Home</span></a></li>
+    <li><a routerLink="/users"><i class="icon-users"></i> <span>Users</span></a></li>
+    <li><a routerLink="/chat"><i class="icon-chat"></i> <span>Chats</span></a></li>
+    <li><a routerLink="/projects"><i class="icon-projects"></i> <span>Projects</span></a></li>
+    <li><a routerLink="/notifications"><i class="icon-bell"></i> <span>Notifications</span></a></li>
+    <li><a routerLink="/friends"><i class="icon-friends"></i> <span>Friends</span></a></li>
   </ul>
 
   <div class="auth-buttons" *ngIf="!(isAuthenticated | async)">
-    <button [routerLink]="['/auth/login']">Login</button>
-    <button [routerLink]="['/auth/register']">Register</button>
+    <button routerLink="/auth/login">Login</button>
+    <button routerLink="/auth/register">Register</button>
   </div>
 
   <div class="logout-button" *ngIf="isAuthenticated | async">
