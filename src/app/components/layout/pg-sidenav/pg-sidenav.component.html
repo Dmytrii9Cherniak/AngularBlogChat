@@ -1,30 +1,70 @@
 <nav class="sidebar" [class.open]="isFullyExpanded">
-  <button class="toggle-btn" (click)="closeSidebar()">
-    <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="none">
-      <path fill="#ffffff" d="M19 4a1 1 0 01-1 1H2a1 1 0 010-2h16a1 1 0 011 1zm0 6a1 1 0 01-1 1H2a1 1 0 110-2h16a1 1 0 011 1zm-1 7a1 1 0 100-2H2a1 1 0 100 2h16z" />
-    </svg>
+  <button class="toggle-btn" (click)="closeSidebar()" *ngIf="width < 728">
+    <i class="bi bi-list"></i>
   </button>
 
   <div class="user-profile" *ngIf="userProfileData && (isAuthenticated | async)">
-    <img [src]="getAvatarUrl()" alt="Avatar" class="avatar" (error)="onImageError($event)" />
-    <span [routerLink]="['/profile']" class="username">{{ userProfileData.username }}</span>
+    <img [src]="getAvatarUrl()" alt="User Avatar" class="avatar" (error)="onImageError($event)" />
+    <span class="username" *ngIf="isFullyExpanded" [routerLink]="['/profile']">
+      {{ userProfileData.username }}
+    </span>
   </div>
 
   <ul class="nav-links">
-    <li><a routerLink="/posts"><i class="icon-home"></i> <span>Home</span></a></li>
-    <li><a routerLink="/users"><i class="icon-users"></i> <span>Users</span></a></li>
-    <li><a routerLink="/chat"><i class="icon-chat"></i> <span>Chats</span></a></li>
-    <li><a routerLink="/projects"><i class="icon-projects"></i> <span>Projects</span></a></li>
-    <li><a routerLink="/notifications"><i class="icon-bell"></i> <span>Notifications</span></a></li>
-    <li><a routerLink="/friends"><i class="icon-friends"></i> <span>Friends</span></a></li>
+    <li>
+      <a routerLink="/posts" (click)="closeSidebar()">
+        <i class="bi bi-house-door"></i>
+        <span *ngIf="isFullyExpanded">Home</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/users" (click)="closeSidebar()">
+        <i class="bi bi-people"></i>
+        <span *ngIf="isFullyExpanded">Users</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/chat" (click)="closeSidebar()">
+        <i class="bi bi-chat-dots"></i>
+        <span *ngIf="isFullyExpanded">Chats</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/projects" (click)="closeSidebar()">
+        <i class="bi bi-kanban"></i>
+        <span *ngIf="isFullyExpanded">Projects</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/notifications" (click)="closeSidebar()">
+        <i class="bi bi-bell"></i>
+        <span *ngIf="isFullyExpanded">Notifications</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/friends" (click)="closeSidebar()">
+        <i class="bi bi-person-heart"></i>
+        <span *ngIf="isFullyExpanded">Friends</span>
+      </a>
+    </li>
+
   </ul>
 
   <div class="auth-buttons" *ngIf="!(isAuthenticated | async)">
-    <button routerLink="/auth/login">Login</button>
-    <button routerLink="/auth/register">Register</button>
+    <button routerLink="/auth/login" class="btn btn-primary" (click)="closeSidebar()">
+      <i class="bi bi-box-arrow-in-right"></i>
+      <span *ngIf="isFullyExpanded">Login</span>
+    </button>
+    <button routerLink="/auth/register" class="btn btn-secondary" (click)="closeSidebar()">
+      <i class="bi bi-person-plus"></i>
+      <span *ngIf="isFullyExpanded">Register</span>
+    </button>
   </div>
 
   <div class="logout-button" *ngIf="isAuthenticated | async">
-    <button (click)="logout()">Logout</button>
+    <button (click)="logout()" class="btn btn-danger">
+      <i class="bi bi-box-arrow-right"></i>
+      <span *ngIf="isFullyExpanded">Logout</span>
+    </button>
   </div>
 </nav>
