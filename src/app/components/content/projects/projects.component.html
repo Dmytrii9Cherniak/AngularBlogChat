@@ -5,8 +5,7 @@
       class="btn btn-primary btn-lg px-4 rounded-pill shadow-lg"
       data-bs-toggle="modal"
       data-bs-target="#createProjectModal"
-      *ngIf="isAuthenticated$ | async"
-    >
+      *ngIf="isAuthenticated$ | async">
       ➕ Create Project
     </button>
   </div>
@@ -17,7 +16,9 @@
         <div class="project-container">
           <div class="project-content">
             <h3 class="fw-bold text-primary">{{ project.name }}</h3>
-            <h6 class="text-muted">👤 Creator: <span class="fw-bold">{{ project.creator.nickname }}</span></h6>
+            <h6 class="text-muted">👤 Creator:
+              <span class="fw-bold">{{ project.creator.nickname }}</span>
+            </h6>
             <p class="text-dark">{{ project.description }}</p>
 
             <h5 class="fw-bold text-secondary mt-3">🛠 Technologies:</h5>
@@ -30,9 +31,10 @@
             <h5 class="fw-bold text-secondary mt-3">👥 Users:</h5>
             <ul class="custom-list">
               <li *ngFor="let user of project.users" class="custom-list-item">
-                <div>
-                  <input type="checkbox" [(ngModel)]="selectedUsers[user.id]" class="form-check-input me-2"
-                         *ngIf="project.creator?.id === userProfileData?.id" />
+                <div class="d-flex align-items-center">
+                  <input type="checkbox" [(ngModel)]="selectedUsers[user.id]"
+                         class="form-check-input me-2"
+                         *ngIf="project.creator?.id !== user.id && userProfileData?.id === project.creator?.id" />
                   <span class="fw-bold text-dark">{{ user.nickname }}</span>
                 </div>
               </li>
@@ -45,7 +47,8 @@
               🗑 Delete Selected Users
             </button>
 
-            <div class="d-flex justify-content-between mt-3">
+            <!-- ОНОВЛЕНІ КНОПКИ -->
+            <div class="d-flex flex-wrap justify-content-between gap-2 mt-3">
               <button class="btn btn-warning btn-sm rounded-3 shadow-sm"
                       *ngIf="(project.creator?.id === userProfileData?.id || userProfileData?.role === 'ADMIN') && (isAuthenticated$ | async)"
                       (click)="openEditModal(project)">
@@ -54,17 +57,17 @@
               <button class="btn btn-info btn-sm rounded-3 shadow-sm"
                       *ngIf="(project.creator?.id === userProfileData?.id || userProfileData?.role === 'ADMIN') && (isAuthenticated$ | async)"
                       (click)="openInviteModal(project)">
-                👥 Invite member
+                👥 Invite
               </button>
               <button class="btn btn-danger btn-sm rounded-3 shadow-sm"
                       *ngIf="(project.creator?.id === userProfileData?.id || userProfileData?.role === 'ADMIN') && (isAuthenticated$ | async)"
                       (click)="openDeleteModal(project)">
                 🗑 Delete
               </button>
-              <button class="btn btn-danger btn-sm rounded-3 shadow-sm"
+              <button class="btn btn-outline-danger btn-sm rounded-3 shadow-sm"
                       *ngIf="canLeaveProject(project) && (isAuthenticated$ | async)"
                       (click)="openConfirmLeaveProjectModal(project)">
-                🚪 Покинути проект
+                🚪 Leave
               </button>
             </div>
           </div>
@@ -74,10 +77,11 @@
   </div>
 
   <ng-template #noProjects>
-    <div class="alert alert-warning text-center fw-bold p-3 rounded shadow-sm">😕 No projects available.</div>
+    <div class="alert alert-warning text-center fw-bold p-3 rounded shadow-sm">
+      😕 No projects available.
+    </div>
   </ng-template>
 </div>
-
 
 <div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel"
      aria-hidden="true">

@@ -253,7 +253,6 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   canLeaveProject(project: Project): boolean {
     return !!(
       this.userProfileData &&
-      project.creator?.id !== this.userProfileData.id &&
       project.users.some((user) => user.id === this.userProfileData!.id)
     );
   }

@@ -1,56 +1,33 @@
-<div class="container mt-4">
-  <div *ngIf="allUsersList | async as users; else loading" class="text-center">
+<div class="container mt-4 user-list-container">
+  <div *ngIf="allUsersList | async as users; else loading">
     <ng-container *ngIf="users.length > 0; else noUsers">
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-        <div *ngFor="let user of users" class="col">
-          <div class="card shadow-sm border-0">
-            <div class="card-body text-center">
-              <img
-                [src]="'assets/default-avatar.png'"
-                class="rounded-circle img-thumbnail mb-2"
-                alt="Avatar"
-                width="80"
-                height="80"
-              />
-              <h5 class="card-title">{{ user.nickname }}</h5>
-              <p class="text-muted">{{ user.username }}</p>
-              <div class="d-grid gap-2">
-                <button class="btn btn-outline-primary" (click)="navigateToUserInfo(user)">
-                  ℹ️ Інформація
-                </button>
-                <button *ngIf="isAuthenticated | async" class="btn btn-outline-success" (click)="navigateToChat(user)">
-                  💬 Написати
-                </button>
-                <button
-                  *ngIf="(isAuthenticated | async) && user.friend_info === null"
-                  class="btn btn-outline-info"
-                  (click)="addUserToMyFriends(user.id)"
-                >
-                  ➕ Додати в друзі
-                </button>
-                <button
-                  *ngIf="(isAuthenticated | async) && user.friend_info?.status === 'accepted'"
-                  class="btn btn-outline-danger"
-                  (click)="removeUserFromMyFriends(user.id)"
-                >
-                  ❌ Видалити із друзів
-                </button>
-                <button
-                  *ngIf="(isAuthenticated | async) && user.friend_info?.status === 'pending' && user.friend_info?.offer_code"
-                  (click)="cancelFriendRequest(user.friend_info?.offer_code!)"
-                >
-                  🔄 Скасувати запит
-                </button>
-
-                <button
-                  *ngIf="(isAuthenticated | async)"
-                  (click)="blockUser(user.id!)"
-                >
-                  Заблокувати користувача
-                </button>
-
-              </div>
-            </div>
+      <div class="user-list">
+        <div *ngFor="let user of users" class="user-card">
+          <div class="user-avatar">
+            <img [src]="'assets/default-avatar.png'" alt="Avatar" />
+          </div>
+          <div class="user-details">
+            <h3 class="user-nickname">{{ user.nickname }}</h3>
+            <p class="user-username">{{ user.username }}</p>
+          </div>
+          <div class="user-actions">
+            <button class="btn btn-sm btn-primary" (click)="navigateToUserInfo(user)">ℹ️ Профіль</button>
+            <button *ngIf="isAuthenticated | async" class="btn btn-sm btn-secondary" (click)="navigateToChat(user)">💬 Чат</button>
+            <button *ngIf="(isAuthenticated | async) && user.friend_info === null"
+                    class="btn btn-sm btn-success" (click)="addUserToMyFriends(user.id)">
+              ➕ Додати
+            </button>
+            <button *ngIf="(isAuthenticated | async) && user.friend_info?.status === 'accepted'"
+                    class="btn btn-sm btn-danger" (click)="removeUserFromMyFriends(user.id)">
+              ❌ Видалити
+            </button>
+            <button *ngIf="(isAuthenticated | async) && user.friend_info?.status === 'pending' && user.friend_info?.offer_code"
+                    class="btn btn-sm btn-warning" (click)="cancelFriendRequest(user.friend_info?.offer_code!)">
+              🔄 Очікує
+            </button>
+            <button *ngIf="(isAuthenticated | async)" class="btn btn-sm btn-dark" (click)="blockUser(user.id!)">
+              ⛔ Блокувати
+            </button>
           </div>
         </div>
       </div>
@@ -58,15 +35,14 @@
   </div>
 
   <ng-template #loading>
-    <div class="text-center mt-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Завантаження...</span>
-      </div>
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Завантаження...</p>
     </div>
   </ng-template>
 
   <ng-template #noUsers>
-    <div class="alert-warning text-center mt-4">
+    <div class="alert alert-warning text-center mt-4">
       ❗️ Немає користувачів
     </div>
   </ng-template>
