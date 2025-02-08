@@ -31,6 +31,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   private createModal!: Modal | null;
   private deleteModal!: Modal | null;
   private updateModal!: Modal | null;
+  private confirmLeaveProject!: Modal | null;
 
   constructor(
     private projectsService: ProjectsService,
@@ -127,6 +128,11 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     this.inviteModal = inviteModalElement
       ? new Modal(inviteModalElement)
       : null;
+
+    const confirmLeaveModal = document.getElementById(
+      'confirmLeaveProjectModal'
+    );
+    this.inviteModal = confirmLeaveModal ? new Modal(confirmLeaveModal) : null;
   }
 
   openDeleteModal(project: Project): void {
@@ -278,5 +284,51 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
         },
         error: (err) => console.error('Error deleting users:', err)
       });
+  }
+
+  leaveCertainProject(): void {
+    if (!this.selectedProject || !this.selectedProject.id) return;
+
+    this.projectsService
+      .leaveCertainProject(this.selectedProject.id)
+      .subscribe({
+        next: () => {
+          this.toastrService.success('You have left the project successfully');
+
+          // Видаляємо користувача з проєкту в UI
+          this.projects = this.projects.map((project) =>
+            project.id === this.selectedProject?.id
+              ? {
+                ...project,
+                users: project.users.filter(
+                  (user) => user.id !== this.userProfileData?.id
+                )
+              }
+              : project
+          );
+
+          this.confirmLeaveProject?.hide();
+        },
+        error: () => this.toastrService.error('Failed to leave the project')
+      });
+  }
+
+  openConfirmLeaveProjectModal(project: Project): void {
+    this.selectedProject = project;
+
+    const modalElement = document.getElementById('confirmLeaveProjectModal');
+    if (modalElement) {
+      this.confirmLeaveProject =
+        Modal.getInstance(modalElement) || new Modal(modalElement);
+      this.confirmLeaveProject.show();
+    }
+  }
+
+  canLeaveProject(project: Project): boolean {
+    return !!(
+      this.userProfileData &&
+      project.creator?.id !== this.userProfileData.id &&
+      project.users.some((user) => user.id === this.userProfileData!.id)
+    );
   }
 }

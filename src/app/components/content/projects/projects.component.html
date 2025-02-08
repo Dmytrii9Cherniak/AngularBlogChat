@@ -31,7 +31,8 @@
             <ul class="custom-list">
               <li *ngFor="let user of project.users" class="custom-list-item">
                 <div>
-                  <input type="checkbox" [(ngModel)]="selectedUsers[user.id]" class="form-check-input me-2" *ngIf="project.creator?.id !== userProfileData?.id"/>
+                  <input type="checkbox" [(ngModel)]="selectedUsers[user.id]" class="form-check-input me-2"
+                         *ngIf="project.creator?.id !== userProfileData?.id" />
                   <span class="fw-bold text-dark">{{ user.nickname }}</span>
                 </div>
               </li>
@@ -60,6 +61,11 @@
                       (click)="openDeleteModal(project)">
                 🗑 Delete
               </button>
+              <button class="btn btn-danger btn-sm rounded-3 shadow-sm"
+                      *ngIf="canLeaveProject(project) && (isAuthenticated$ | async)"
+                      (click)="openConfirmLeaveProjectModal(project)">
+                🚪 Покинути проект
+              </button>
             </div>
           </div>
         </div>
@@ -73,149 +79,178 @@
 </div>
 
 
-
-<div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title">Create New Project</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form [formGroup]="projectForm">
-            <div class="mb-3">
-              <label class="form-label">Project Name</label>
-              <input class="form-control" formControlName="name" placeholder="Enter project name" />
-              <div *ngIf="projectForm.get('name')?.invalid && projectForm.get('name')?.touched" class="text-danger">
-                Project name is required.
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Description</label>
-              <textarea class="form-control" formControlName="description" placeholder="Enter project description"></textarea>
-              <div *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched" class="text-danger">
-                Description is required.
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Technologies</label>
-              <div formArrayName="technologies">
-                <div *ngFor="let tech of technologies.controls; let i = index" class="input-group mb-2" [formGroupName]="i">
-                  <input class="form-control" formControlName="name" placeholder="Technology Name" />
-                  <button type="button" class="btn btn-outline-danger" (click)="removeTechnology(i)" *ngIf="i > 0">
-                    Remove
-                  </button>
-                </div>
-              </div>
-              <button type="button" class="btn btn-outline-success w-100" (click)="addTechnology()">
-                + Add Technology
-              </button>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" (click)="createOwnProject()" [disabled]="projectForm.invalid" data-bs-dismiss="modal">
-            Create
-          </button>
-        </div>
+<div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Create New Project</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Confirm Deletion</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          Are you sure you want to delete "{{ selectedProject?.name }}"?
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button class="btn btn-danger" (click)="deleteExistingProject(selectedProject?.id!)">Delete</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <div class="modal fade" id="updateProjectModal" tabindex="-1" aria-labelledby="updateProjectModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title">Update Project</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form [formGroup]="projectForm">
-            <div class="mb-3">
-              <label class="form-label">Project Name</label>
-              <input class="form-control" formControlName="name" placeholder="Enter project name" />
+      <div class="modal-body">
+        <form [formGroup]="projectForm">
+          <div class="mb-3">
+            <label class="form-label">Project Name</label>
+            <input class="form-control" formControlName="name" placeholder="Enter project name" />
+            <div *ngIf="projectForm.get('name')?.invalid && projectForm.get('name')?.touched" class="text-danger">
+              Project name is required.
             </div>
-
-            <div class="mb-3">
-              <label class="form-label">Description</label>
-              <textarea class="form-control" formControlName="description" placeholder="Enter project description"></textarea>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Technologies</label>
-              <div formArrayName="technologies">
-                <div *ngFor="let tech of technologies.controls; let i = index" class="input-group mb-2" [formGroupName]="i">
-                  <input class="form-control" formControlName="name" placeholder="Technology Name" />
-                  <button type="button" class="btn btn-outline-danger" (click)="removeTechnology(i)" *ngIf="i > 0">
-                    Remove
-                  </button>
-                </div>
-              </div>
-              <button type="button" class="btn btn-outline-success w-100" (click)="addTechnology()">
-                + Add Technology
-              </button>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" (click)="updateExistingProject()" [disabled]="projectForm.invalid">
-            Update
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <div class="modal fade" id="inviteProjectModal" tabindex="-1" aria-labelledby="inviteProjectModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title">Invite Members to "{{ selectedProject?.name }}"</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div *ngIf="allUsersList && allUsersList.length > 0; else noUsers">
-            <ul class="list-group">
-              <li class="list-group-item d-flex justify-content-between align-items-center"
-                  *ngFor="let user of allUsersList">
-                <span>{{ user.nickname }}</span>
-                <button class="btn btn-sm btn-primary" (click)="inviteUser(user)" [disabled]="invitedUsers.includes(user)">
-                  Invite
-                </button>
-              </li>
-            </ul>
           </div>
-          <ng-template #noUsers>
-            <div class="alert alert-warning text-center">No users available for invitation.</div>
-          </ng-template>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" formControlName="description"
+                      placeholder="Enter project description"></textarea>
+            <div *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched"
+                 class="text-danger">
+              Description is required.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Technologies</label>
+            <div formArrayName="technologies">
+              <div *ngFor="let tech of technologies.controls; let i = index" class="input-group mb-2"
+                   [formGroupName]="i">
+                <input class="form-control" formControlName="name" placeholder="Technology Name" />
+                <button type="button" class="btn btn-outline-danger" (click)="removeTechnology(i)" *ngIf="i > 0">
+                  Remove
+                </button>
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline-success w-100" (click)="addTechnology()">
+              + Add Technology
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="createOwnProject()" [disabled]="projectForm.invalid"
+                data-bs-dismiss="modal">
+          Create
+        </button>
       </div>
     </div>
   </div>
+</div>
+
+<div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete "{{ selectedProject?.name }}"?
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger" (click)="deleteExistingProject(selectedProject?.id!)">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="updateProjectModal" tabindex="-1" aria-labelledby="updateProjectModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Update Project</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="projectForm">
+          <div class="mb-3">
+            <label class="form-label">Project Name</label>
+            <input class="form-control" formControlName="name" placeholder="Enter project name" />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" formControlName="description"
+                      placeholder="Enter project description"></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Technologies</label>
+            <div formArrayName="technologies">
+              <div *ngFor="let tech of technologies.controls; let i = index" class="input-group mb-2"
+                   [formGroupName]="i">
+                <input class="form-control" formControlName="name" placeholder="Technology Name" />
+                <button type="button" class="btn btn-outline-danger" (click)="removeTechnology(i)" *ngIf="i > 0">
+                  Remove
+                </button>
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline-success w-100" (click)="addTechnology()">
+              + Add Technology
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" (click)="updateExistingProject()" [disabled]="projectForm.invalid">
+          Update
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="inviteProjectModal" tabindex="-1" aria-labelledby="inviteProjectModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Invite Members to "{{ selectedProject?.name }}"</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="allUsersList && allUsersList.length > 0; else noUsers">
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center"
+                *ngFor="let user of allUsersList">
+              <span>{{ user.nickname }}</span>
+              <button class="btn btn-sm btn-primary" (click)="inviteUser(user)"
+                      [disabled]="invitedUsers.includes(user)">
+                Invite
+              </button>
+            </li>
+          </ul>
+        </div>
+        <ng-template #noUsers>
+          <div class="alert alert-warning text-center">No users available for invitation.</div>
+        </ng-template>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="confirmLeaveProjectModal" tabindex="-1" aria-labelledby="confirmLeaveProjectModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Leaving Project</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to leave "{{ selectedProject?.name }}"?
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger" (click)="leaveCertainProject()">Leave Project</button>
+      </div>
+    </div>
+  </div>
+</div>
