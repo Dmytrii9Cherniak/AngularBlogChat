@@ -2,114 +2,51 @@
   <div class="profile-header">
     <div class="avatar-section">
       <img [src]="getAvatarUrl()" alt="Avatar" (error)="onImageError($event)" />
-      <label *ngIf="isEditMode" for="avatarInput" class="change-avatar-button">
-        Change Avatar
-      </label>
-      <input
-        id="avatarInput"
-        type="file"
-        (change)="onAvatarChange($event)"
-        *ngIf="isEditMode"
-      />
-    </div>
-  </div>
-
-  <div class="profile-info">
-    <div class="detail-item">
-      <label>Username:</label>
-      <input *ngIf="isEditMode" formControlName="username" type="text" />
-      <p *ngIf="!isEditMode">{{ formHelper.form.value.username }}</p>
-    </div>
-
-    <div class="detail-item">
-      <label>Gender:</label>
-      <select *ngIf="isEditMode" formControlName="gender">
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-        <option value="other">Other</option>
-      </select>
-      <p *ngIf="!isEditMode">{{ formHelper.form.value['gender'] }}</p>
-    </div>
-
-    <div class="detail-item">
-      <label>Birthday:</label>
-      <input *ngIf="isEditMode" formControlName="birthday" type="date" />
-      <p *ngIf="!isEditMode">{{ formHelper.form.value['birthday'] }}</p>
-    </div>
-
-    <div class="detail-item">
-      <label>Phone Number:</label>
-      <input *ngIf="isEditMode" formControlName="phone_number" type="tel" />
-      <p *ngIf="!isEditMode">{{ formHelper.form.value['phone_number'] }}</p>
-    </div>
-
-    <div class="detail-item">
-      <label>Country:</label>
-      <input *ngIf="isEditMode" formControlName="country" type="text" />
-      <p *ngIf="!isEditMode">{{ formHelper.form.value['country'] }}</p>
-    </div>
-
-    <div class="detail-item">
-      <label>Time Zones:</label>
-      <input *ngIf="isEditMode" formControlName="time_zones" type="text" />
-      <p *ngIf="!isEditMode">{{ formHelper.form.value['time_zones'] }}</p>
-    </div>
-
-    <div class="detail-item">
-      <label>Business Email:</label>
-      <input
-        *ngIf="isEditMode"
-        formControlName="business_email"
-        type="email"
-        placeholder="Enter business email"
-      />
-      <p *ngIf="!isEditMode">{{ formHelper.form.value['business_email'] }}</p>
-    </div>
-  </div>
-
-  <button
-    *ngIf="!isEditMode"
-    class="edit-profile-button"
-    (click)="toggleEditMode()"
-  >
-    Edit Profile
-  </button>
-  <button
-    *ngIf="isEditMode"
-    class="save-profile-button"
-    (click)="updateProfile()"
-  >
-    Save Changes
-  </button>
-</div>
-
-<div class="profile-container">
-
-  <div class="blacklist-section">
-    <h3>Чорний список</h3>
-
-    <div *ngIf="blackListUsers && blackListUsers.length > 0; else noUsers">
-      <div *ngFor="let user of blackListUsers" class="blacklist-user">
-        <div class="user-info">
-          <img
-            src="assets/images/no_profile_avatar.png"
-            class="user-avatar"
-            alt="User Avatar"
-          />
-          <div class="user-details">
-            <span class="nickname">{{ user.blocked_user.nickname }}</span>
-            <span class="username">{{ user.blocked_user.username }}</span>
-          </div>
-        </div>
-        <button class="unblock-button" (click)="unblockUser(user.blocked_user.id)">
-          Розблокувати
-        </button>
+      <div *ngIf="isEditMode" class="avatar-actions">
+        <label for="avatarInput" class="change-avatar-button">Change Avatar</label>
+        <input id="avatarInput" type="file" (change)="onAvatarChange($event)" />
       </div>
     </div>
+  </div>
 
+  <div class="profile-details">
+    <div class="detail-item" *ngFor="let field of getProfileFields()">
+      <label>{{ field | titlecase }}:</label>
+      <p *ngIf="!isEditMode">{{ personalProfileData[field] || 'N/A' }}</p>
+      <input *ngIf="isEditMode" [formControlName]="field" type="text" />
+    </div>
+  </div>
+
+  <div class="social-section">
+    <h3>Social Links</h3>
+    <div class="social-links">
+      <div class="detail-item" *ngFor="let key of getSocialKeys()">
+        <label>{{ key | titlecase }}:</label>
+        <p *ngIf="!isEditMode">{{ personalProfileData.socials[key] || 'N/A' }}</p>
+        <input *ngIf="isEditMode" [formControlName]="'socials.' + key" type="text" />
+      </div>
+    </div>
+  </div>
+
+  <div class="blacklist-section">
+    <h3>Blocked Users</h3>
+    <div *ngIf="blackListUsers.length; else noUsers">
+      <div *ngFor="let user of blackListUsers" class="blacklist-user">
+        <img src="assets/images/no_profile_avatar.png" class="user-avatar" alt="User Avatar" />
+        <div class="user-details">
+          <span class="nickname">{{ user.blocked_user.nickname }}</span>
+          <span class="username">{{ user.blocked_user.username }}</span>
+        </div>
+        <button class="unblock-button" (click)="unblockUser(user.blocked_user.id)">Unblock</button>
+      </div>
+    </div>
     <ng-template #noUsers>
-      <p class="no-users">Список порожній.</p>
+      <p class="no-users">No blocked users.</p>
     </ng-template>
   </div>
-</div>
 
+  <div class="profile-edit-section">
+    <button *ngIf="!isEditMode" class="edit-profile-button" (click)="toggleEditMode()">Edit Profile</button>
+    <button *ngIf="isEditMode" class="save-profile-button" (click)="updateProfile()">Save Changes</button>
+  </div>
+</div>

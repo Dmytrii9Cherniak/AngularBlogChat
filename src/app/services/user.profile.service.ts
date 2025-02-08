@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { UserDataModel } from '../models/user/user.data.model';
 import { FriendsResponseModel } from '../models/user/friends.response.model';
+import { PersonalUserInfo } from '../models/profile/full_personal_user_profile_data';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -17,6 +18,12 @@ export class UserProfileService {
 
   public updateUserProfile(userData: UserDataModel): void {
     this.userProfileData.next(userData);
+  }
+
+  public getFullMyProfileData(): Observable<PersonalUserInfo> {
+    return this.httpClient.get<PersonalUserInfo>(
+      `${environment.apiUrl}/profile/`
+    );
   }
 
   public getUserData(): Observable<UserDataModel> {

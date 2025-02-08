@@ -1,6 +1,5 @@
 <nav class="sidebar" [class.open]="isFullyExpanded">
 
-  <!-- Закріплений верхній блок -->
   <div class="sidebar-header">
     <button class="toggle-btn" (click)="closeSidebar()" *ngIf="width < 728">
       <i class="bi bi-list"></i>
@@ -14,7 +13,6 @@
     </div>
   </div>
 
-  <!-- Прокручуваний список меню -->
   <div class="nav-container">
     <ul class="nav-links">
       <li>
@@ -53,12 +51,6 @@
           <span *ngIf="isFullyExpanded">Friends</span>
         </a>
       </li>
-      <li>
-        <a routerLink="/friends" (click)="closeSidebar()">
-          <i class="bi bi-person-heart"></i>
-          <span *ngIf="isFullyExpanded">Friends</span>
-        </a>
-      </li>
     </ul>
   </div>
 
@@ -81,5 +73,4 @@
       </button>
     </div>
   </div>
-
 </nav>

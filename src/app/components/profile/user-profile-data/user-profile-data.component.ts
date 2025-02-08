@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { FormHelper } from '../../../helpers/form-helper';
 import { UsersService } from '../../../services/users.service';
 import { BlacklistUsersListModel } from '../../../models/blacklist/blacklist.users.list';
+import { PersonalUserInfo } from '../../../models/profile/full_personal_user_profile_data';
 
 @Component({
   selector: 'app-user-profile-data',
@@ -16,6 +17,8 @@ export class UserProfileDataComponent implements OnInit {
   public formHelper: FormHelper;
   public isEditMode = false;
   private updatedAvatarFile: File | null = null;
+
+  public personalProfileData: PersonalUserInfo;
 
   public blackListUsers: BlacklistUsersListModel[] = [];
 
@@ -43,6 +46,13 @@ export class UserProfileDataComponent implements OnInit {
     this.usersService.getMyBlackUsersList().subscribe({
       next: (value) => {
         this.blackListUsers = value;
+      }
+    });
+
+    this.userProfileService.getFullMyProfileData().subscribe({
+      next: (value) => {
+        this.personalProfileData = value;
+        console.log(this.personalProfileData);
       }
     });
   }
@@ -170,11 +180,30 @@ export class UserProfileDataComponent implements OnInit {
 
   unblockUser(id: number): void {
     this.usersService.blockOrUnblockCertainUser(id).subscribe({
-      next: (value) => {
+      next: () => {
         this.blackListUsers = this.blackListUsers.filter(
           (el) => el.blocked_user.id !== id
         );
       }
     });
+  }
+
+  getProfileFields(): (keyof PersonalUserInfo)[] {
+    return Object.keys(this.personalProfileData || {}).filter(
+      (key) =>
+        key !== 'socials' &&
+        key !== 'friends' &&
+        key !== 'projects' &&
+        typeof this.personalProfileData[key as keyof PersonalUserInfo] !==
+          'object'
+    ) as (keyof PersonalUserInfo)[];
+  }
+
+  getSocialKeys(): (keyof PersonalUserInfo['socials'])[] {
+    return this.personalProfileData?.socials
+      ? (Object.keys(
+        this.personalProfileData.socials
+      ) as (keyof PersonalUserInfo['socials'])[])
+      : [];
   }
 }
