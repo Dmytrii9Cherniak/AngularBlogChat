@@ -5,7 +5,7 @@ import { ContentRoutingModule } from './content-routing.module';
 import { ChatComponent } from '../../components/content/chat/chat.component';
 import { AllUsersListComponent } from '../../components/users/all-users-list/all-users-list.component';
 import { UserDetailsInfoComponent } from '../../components/users/user-details-info/user-details-info.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UserProfileDataComponent } from '../../components/profile/user-profile-data/user-profile-data.component';
 import { ProjectsComponent } from '../../components/content/projects/projects.component';
 import { NotificationsComponent } from '../../components/profile/notifications/notifications.component';
@@ -21,6 +21,11 @@ import { FriendsListDataComponent } from '../../components/profile/friends-list-
     NotificationsComponent,
     FriendsListDataComponent
   ],
-  imports: [CommonModule, ContentRoutingModule, ReactiveFormsModule]
+  imports: [
+    CommonModule,
+    ContentRoutingModule,
+    ReactiveFormsModule,
+    FormsModule
+  ]
 })
 export class ContentModule {}

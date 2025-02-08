@@ -142,3 +142,8 @@ html, body {
     height: calc(100vh - 55px);
   }
 }
+
+.card {
+  z-index: auto !important;
+}
+

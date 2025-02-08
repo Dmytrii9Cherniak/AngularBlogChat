@@ -1,40 +1,64 @@
-<div class="container">
+<div class="container py-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="text-primary">Projects</h1>
+    <h1 class="text-gradient">🚀 Projects</h1>
     <button
-      class="btn btn-success btn-lg shadow-sm"
+      class="btn btn-primary btn-lg px-4 rounded-pill shadow-lg"
       data-bs-toggle="modal"
       data-bs-target="#createProjectModal"
       *ngIf="isAuthenticated$ | async"
     >
-      Create Project
+      ➕ Create Project
     </button>
   </div>
 
   <div *ngIf="projects && projects.length > 0; else noProjects">
     <div class="row g-4">
       <div class="col-md-6 col-lg-4" *ngFor="let project of projects">
-        <div class="card project-card shadow-lg border-0">
-          <div class="card-body">
-            <h3 class="card-title text-primary">{{ project.name }}</h3>
-            <h3 class="card-title text-primary"> Creator: {{ project.creator.nickname }} </h3>
-            <p class="text-muted">{{ project.description }}</p>
-            <h5 class="text-dark">Technologies:</h5>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item text-secondary" *ngFor="let tech of project.technologies">
+        <div class="project-container">
+          <div class="project-content">
+            <h3 class="fw-bold text-primary">{{ project.name }}</h3>
+            <h6 class="text-muted">👤 Creator: <span class="fw-bold">{{ project.creator.nickname }}</span></h6>
+            <p class="text-dark">{{ project.description }}</p>
+
+            <h5 class="fw-bold text-secondary mt-3">🛠 Technologies:</h5>
+            <div class="d-flex flex-wrap gap-2">
+              <span class="badge bg-info text-white p-2" *ngFor="let tech of project.technologies">
                 {{ tech.name }}
+              </span>
+            </div>
+
+            <h5 class="fw-bold text-secondary mt-3">👥 Users:</h5>
+            <ul class="custom-list">
+              <li *ngFor="let user of project.users" class="custom-list-item">
+                <div>
+                  <input type="checkbox" [(ngModel)]="selectedUsers[user.id]" class="form-check-input me-2" *ngIf="project.creator?.id !== userProfileData?.id"/>
+                  <span class="fw-bold text-dark">{{ user.nickname }}</span>
+                </div>
               </li>
             </ul>
+
+            <button
+              class="btn btn-danger btn-sm w-100 mt-3 fw-bold shadow-sm"
+              (click)="deleteSelectedUsersFromProject(project.id)"
+              *ngIf="project.creator?.id === userProfileData?.id">
+              🗑 Delete Selected Users
+            </button>
+
             <div class="d-flex justify-content-between mt-3">
-              <button class="btn btn-warning btn-sm shadow-sm"
-                      *ngIf="project.creator?.id === userProfileData?.id || userProfileData?.role === 'ADMIN'"
+              <button class="btn btn-warning btn-sm rounded-3 shadow-sm"
+                      *ngIf="(project.creator?.id === userProfileData?.id || userProfileData?.role === 'ADMIN') && (isAuthenticated$ | async)"
                       (click)="openEditModal(project)">
                 ✏️ Update
               </button>
-              <button class="btn btn-danger btn-sm shadow-sm"
-                      *ngIf="project.creator?.id === userProfileData?.id || userProfileData?.role === 'ADMIN'"
+              <button class="btn btn-info btn-sm rounded-3 shadow-sm"
+                      *ngIf="(project.creator?.id === userProfileData?.id || userProfileData?.role === 'ADMIN') && (isAuthenticated$ | async)"
+                      (click)="openInviteModal(project)">
+                👥 Invite member
+              </button>
+              <button class="btn btn-danger btn-sm rounded-3 shadow-sm"
+                      *ngIf="(project.creator?.id === userProfileData?.id || userProfileData?.role === 'ADMIN') && (isAuthenticated$ | async)"
                       (click)="openDeleteModal(project)">
-                🗑️ Delete
+                🗑 Delete
               </button>
             </div>
           </div>
@@ -44,10 +68,13 @@
   </div>
 
   <ng-template #noProjects>
-    <div class="alert-warning text-center mt-4">No projects available.</div>
+    <div class="alert alert-warning text-center fw-bold p-3 rounded shadow-sm">😕 No projects available.</div>
   </ng-template>
+</div>
 
-  <div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel" aria-hidden="true">
+
+
+<div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -161,4 +188,34 @@
       </div>
     </div>
   </div>
-</div>
+
+
+  <div class="modal fade" id="inviteProjectModal" tabindex="-1" aria-labelledby="inviteProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Invite Members to "{{ selectedProject?.name }}"</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="allUsersList && allUsersList.length > 0; else noUsers">
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between align-items-center"
+                  *ngFor="let user of allUsersList">
+                <span>{{ user.nickname }}</span>
+                <button class="btn btn-sm btn-primary" (click)="inviteUser(user)" [disabled]="invitedUsers.includes(user)">
+                  Invite
+                </button>
+              </li>
+            </ul>
+          </div>
+          <ng-template #noUsers>
+            <div class="alert alert-warning text-center">No users available for invitation.</div>
+          </ng-template>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>

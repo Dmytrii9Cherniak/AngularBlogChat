@@ -9,6 +9,9 @@ import { ToastrService } from 'ngx-toastr';
 import { CreateProjectModel } from '../../../models/project/create.project.model';
 import { Observable } from 'rxjs';
 import { Modal } from 'bootstrap';
+import { UsersService } from '../../../services/users.service';
+import { UsersListModel } from '../../../models/user/users.list.model';
+import { CreateProjectInvite } from '../../../models/project/create.project.invite';
 
 @Component({
   selector: 'app-projects',
@@ -20,6 +23,9 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   public selectedProject: Project | null = null;
   public isAuthenticated$: Observable<boolean>;
   public userProfileData: UserDataModel | null = null;
+  public allUsersList: UsersListModel[];
+  private inviteModal!: Modal | null;
+  public invitedUsers: UsersListModel[] = [];
 
   projectForm!: FormGroup;
   private createModal!: Modal | null;
@@ -31,6 +37,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     private authService: AuthService,
     private userProfileService: UserProfileService,
     private toastrService: ToastrService,
+    private usersService: UsersService,
     private fb: FormBuilder
   ) {}
 
@@ -115,11 +122,49 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     this.deleteModal = deleteModalElement
       ? new Modal(deleteModalElement)
       : null;
+
+    const inviteModalElement = document.getElementById('inviteProjectModal');
+    this.inviteModal = inviteModalElement
+      ? new Modal(inviteModalElement)
+      : null;
   }
 
   openDeleteModal(project: Project): void {
     this.selectedProject = project;
     this.deleteModal?.show();
+  }
+
+  openInviteModal(project: Project): void {
+    this.selectedProject = project;
+    this.usersService.getAllUsers().subscribe({
+      next: (users) => {
+        this.allUsersList = users;
+        this.inviteModal?.show();
+      },
+      error: () => this.toastrService.error('Failed to load users.')
+    });
+  }
+
+  inviteUser(user: UsersListModel): void {
+    if (!this.selectedProject) return;
+
+    const inviteProjectBody = new CreateProjectInvite(
+      user.id,
+      new Date(new Date().setDate(new Date().getDate() + 30))
+        .toISOString()
+        .split('T')[0], // Поточна дата + 30 днів
+      `Invitation to join project: ${this.selectedProject.name}`
+    );
+
+    this.projectsService
+      .createProjectInvite(this.selectedProject.id, inviteProjectBody)
+      .subscribe({
+        next: () => {
+          this.invitedUsers.push(user);
+          this.toastrService.success(`${user.nickname} has been invited!`);
+        },
+        error: () => this.toastrService.error('Failed to invite user.')
+      });
   }
 
   openEditModal(project: Project): void {
@@ -204,5 +249,34 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       },
       error: () => this.toastrService.error('Failed to delete project')
     });
+  }
+
+  selectedUsers: { [key: number]: boolean } = {};
+
+  deleteSelectedUsersFromProject(projectId: number) {
+    const selectedUserIds = Object.keys(this.selectedUsers)
+      .filter((userId) => this.selectedUsers[+userId]) // Відбираємо тільки вибрані чекбокси
+      .map((userId) => +userId); // Перетворюємо в числа
+
+    if (selectedUserIds.length === 0) {
+      console.warn('No users selected for deletion.');
+      return;
+    }
+
+    this.projectsService
+      .deleteProjectMembers(projectId, selectedUserIds)
+      .subscribe({
+        next: () => {
+          const project = this.projects.find((p) => p.id === projectId);
+          if (project) {
+            project.users = project.users.filter(
+              (user) => !selectedUserIds.includes(user.id)
+            );
+          }
+
+          this.selectedUsers = {};
+        },
+        error: (err) => console.error('Error deleting users:', err)
+      });
   }
 }

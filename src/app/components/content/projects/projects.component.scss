@@ -1,448 +1,246 @@
-.project-list-container {
+// Глобальні стилі для контейнера
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 40px;
-  background: linear-gradient(135deg, #e0f7fa, #e1f5fe);
-  border-radius: 25px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  font-family: 'Arial', sans-serif;
+}
 
-  .create-section {
-    text-align: center;
-    margin-bottom: 30px;
+// Заголовки та кнопки
+.text-gradient {
+  background: linear-gradient(45deg, #007bff, #6610f2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: bold;
+  font-size: 2rem;
+}
 
-    .create-button {
-      display: inline-block;
-      background: #00796b;
-      color: #fff;
-      border: none;
-      border-radius: 50px;
-      padding: 1rem 2.5rem;
-      font-size: 1.5rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease-in-out;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+.btn-primary {
+  background: linear-gradient(45deg, #007bff, #6610f2);
+  border: none;
+  padding: 10px 20px;
+  transition: all 0.3s ease-in-out;
 
-      &:hover {
-        background: #004d40;
-        transform: scale(1.1);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-      }
-    }
+  &:hover {
+    background: linear-gradient(45deg, #6610f2, #007bff);
+    transform: scale(1.05);
   }
+}
 
-  .project-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
+// Список проектів
+.project-container {
+  background: linear-gradient(135deg, #f8f9fa, #e3f2fd);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 
-    .project-card {
-      background: linear-gradient(135deg, #ffffff, #f3f9fe);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-      &:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-      }
-
-      .project-name {
-        font-size: 1.8rem;
-        color: #1565c0;
-        font-weight: bold;
-        margin-bottom: 15px;
-        text-align: center;
-      }
-
-      .project-description {
-        font-size: 1.2rem;
-        color: #37474f;
-        line-height: 1.6;
-        margin-bottom: 15px;
-        text-align: justify;
-      }
-
-      .technologies {
-        h3 {
-          font-size: 1.3rem;
-          color: #1a237e;
-          margin-bottom: 10px;
-        }
-
-        .technology-item {
-          font-size: 1rem;
-          color: #424242;
-          margin-left: 15px;
-          list-style-type: circle;
-        }
-      }
-
-      .project-actions {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 20px;
-
-        .action-button {
-          background: #5c6bc0;
-          color: #fff;
-          border: none;
-          border-radius: 50px;
-          padding: 0.8rem 1.5rem;
-          font-size: 1rem;
-          font-weight: bold;
-          cursor: pointer;
-          transition: all 0.3s ease-in-out;
-          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-
-          &:hover {
-            transform: scale(1.1);
-          }
-
-          &.send-request {
-            background: #4caf50;
-          }
-
-          &.invite-people {
-            background: #ffa000;
-          }
-
-          &.update-project {
-            background: #0288d1;
-          }
-
-          &.delete-project {
-            background: #e53935;
-          }
-        }
-      }
-    }
-  }
-
-  .form-container {
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    margin-top: 30px;
-
-    h2 {
-      text-align: center;
-      font-size: 1.8rem;
-      color: #37474f;
-      margin-bottom: 20px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-
-      label {
-        font-size: 1.2rem;
-        color: #546e7a;
-        margin-bottom: 10px;
-        display: block;
-      }
-
-      input,
-      textarea {
-        width: 100%;
-        padding: 15px;
-        font-size: 1rem;
-        border: 1px solid #cfd8dc;
-        border-radius: 10px;
-        transition: border-color 0.3s ease;
-
-        &:focus {
-          border-color: #42a5f5;
-          outline: none;
-          box-shadow: 0 0 5px rgba(66, 165, 245, 0.5);
-        }
-      }
-
-      .error-message {
-        color: #e53935;
-        font-size: 0.9rem;
-        margin-top: 5px;
-      }
-    }
-
-    .form-actions {
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-
-      .submit-button {
-        background: #00796b;
-        color: #fff;
-        border: none;
-        border-radius: 50px;
-        padding: 1rem 2rem;
-        font-size: 1.2rem;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease-in-out;
-
-        &:hover {
-          background: #004d40;
-          transform: scale(1.05);
-        }
-
-        &[disabled] {
-          background: #cfd8dc;
-          cursor: not-allowed;
-        }
-      }
-
-      .cancel-button {
-        background: #e53935;
-        color: #fff;
-        border: none;
-        border-radius: 50px;
-        padding: 1rem 2rem;
-        font-size: 1.2rem;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease-in-out;
-
-        &:hover {
-          background: #b71c1c;
-          transform: scale(1.05);
-        }
-      }
-    }
-  }
-
-
-  ::ng-deep app-modal-wrapper {
-    .modal-container {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background-color: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      padding: 24px;
-      max-width: 600px;
-      margin: auto;
-      animation: fadeIn 0.3s ease-in-out;
-    }
-
-    .modal-header {
-      h2 {
-        font-size: 1.8rem;
-        color: #333333;
-        font-weight: bold;
-        margin: 0;
-        text-align: center;
-      }
-    }
-
-    .modal-body {
-      margin: 20px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-
-      form {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-
-        .form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-
-          label {
-            font-size: 1rem;
-            font-weight: 500;
-            color: #555555;
-          }
-
-          input,
-          textarea {
-            padding: 12px;
-            font-size: 1rem;
-            border: 1px solid #cccccc;
-            border-radius: 8px;
-            outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s;
-
-            &:focus {
-              border-color: #3f8cff;
-              box-shadow: 0 0 8px rgba(63, 140, 255, 0.5);
-            }
-          }
-
-          textarea {
-            resize: none;
-            min-height: 100px;
-          }
-        }
-      }
-
-      .error-message {
-        color: #ff4d4f;
-        font-size: 0.9rem;
-        margin-top: 4px;
-      }
-
-      .technologies-group {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-
-        .technology-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-
-          input {
-            flex: 1;
-          }
-
-          button {
-            background-color: #ff4d4f;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-
-            &:hover {
-              background-color: #d93025;
-            }
-          }
-        }
-
-        .add-technology {
-          background-color: #3f8cff;
-          color: white;
-          border: none;
-          border-radius: 6px;
-          padding: 8px 12px;
-          font-size: 0.9rem;
-          cursor: pointer;
-          align-self: flex-start;
-          transition: background-color 0.3s ease;
-
-          &:hover {
-            background-color: #336bcc;
-          }
-        }
-      }
-    }
-
-    .modal-footer {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 20px;
-
-      button {
-        padding: 10px 16px;
-        font-size: 1rem;
-        border-radius: 8px;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-
-        &.cancel-button {
-          background-color: #e0e0e0;
-          color: #333333;
-
-          &:hover {
-            background-color: #cccccc;
-          }
-        }
-
-        &.confirm-button {
-          background-color: #3f8cff;
-          color: white;
-
-          &:hover {
-            background-color: #336bcc;
-          }
-        }
-
-        &.delete-button {
-          background-color: #ff4d4f;
-          color: white;
-
-          &:hover {
-            background-color: #d93025;
-          }
-        }
-      }
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    &.create-modal .modal-container {
-      border-left: 4px solid #3f8cff;
-    }
-
-    &.update-modal .modal-container {
-      border-left: 4px solid #ffc107;
-    }
-
-    &.delete-modal .modal-container {
-      border-left: 4px solid #ff4d4f;
-    }
-  }
-
-
-  .modal-content {
-    border-radius: 12px;
+  &:hover {
+    transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   }
 
-  .modal-header {
-    background: #f3f9fe;
-    border-bottom: 2px solid #007bff;
-    text-align: center;
-    font-weight: bold;
-  }
-
-  .modal-body {
+  .project-content {
+    flex-grow: 1;
     padding: 20px;
-    background: #ffffff;
   }
 
-  .modal-footer {
-    display: flex;
-    justify-content: space-between;
+  h3 {
+    font-size: 1.5rem;
+    color: #343a40;
   }
 
-  .btn-primary {
-    background-color: #007bff;
-    border: none;
-    transition: 0.3s ease;
+  h6 {
+    color: #6c757d;
+    font-size: 1rem;
+  }
 
-    &:hover {
-      background-color: #0056b3;
+  p {
+    font-size: 1rem;
+    color: #495057;
+  }
+
+  .badge {
+    font-size: 0.85rem;
+    font-weight: bold;
+    padding: 8px;
+  }
+}
+
+// Кастомний список користувачів
+.custom-list {
+  list-style: none;
+  padding: 10px;
+  margin: 0;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.custom-list-item {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+// Кнопки дій у проектах
+.project-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+
+  .btn {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+
+    &.btn-warning {
+      background: #ffc107;
+      color: #212529;
+
+      &:hover {
+        background: #ffb300;
+      }
+    }
+
+    &.btn-info {
+      background: #17a2b8;
+      color: white;
+
+      &:hover {
+        background: #138496;
+      }
+    }
+
+    &.btn-danger {
+      background: #dc3545;
+      color: white;
+
+      &:hover {
+        background: #c82333;
+      }
     }
   }
+}
 
-  .btn-danger {
-    background-color: #e53935;
-    border: none;
-    transition: 0.3s ease;
+// Модальні вікна
+.modal-content {
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
 
-    &:hover {
-      background-color: #b71c1c;
-    }
+.modal-header {
+  background: #007bff;
+  color: white;
+  border-bottom: none;
+  text-align: center;
+  font-weight: bold;
+}
+
+.modal-body {
+  padding: 20px;
+  background: #ffffff;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+// Кнопки в модалках
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: white;
+
+  &:hover {
+    color: #f8f9fa;
+  }
+}
+
+// Кнопка у модалці "Create Project"
+.btn-primary {
+  background-color: #007bff;
+  border: none;
+  transition: 0.3s ease;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+}
+
+// Алерти
+.alert {
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.alert-warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+// Форма для створення проекту
+.form-label {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #343a40;
+}
+
+.form-control {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  transition: border-color 0.3s ease-in-out;
+
+  &:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+}
+
+// Список технологій у формі
+.technology-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .badge {
+    background: #17a2b8;
+    color: white;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 5px;
+  }
+}
+
+// Кнопка додавання технологій
+.add-technology-btn {
+  background: #28a745;
+  color: white;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    background: #218838;
   }
 }
