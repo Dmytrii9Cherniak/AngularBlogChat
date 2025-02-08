@@ -27,7 +27,7 @@ export class ProjectsService {
 
   updateExistingProject(projectId: number, body: CreateProjectModel) {
     return this.httpClient.patch(
-      `${environment.apiUrl}/profile/projects/${projectId}`,
+      `${environment.apiUrl}/profile/projects/update/${projectId}`,
       body
     );
   }

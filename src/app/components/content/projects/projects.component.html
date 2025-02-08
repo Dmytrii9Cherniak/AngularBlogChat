@@ -32,7 +32,7 @@
               <li *ngFor="let user of project.users" class="custom-list-item">
                 <div>
                   <input type="checkbox" [(ngModel)]="selectedUsers[user.id]" class="form-check-input me-2"
-                         *ngIf="project.creator?.id !== userProfileData?.id" />
+                         *ngIf="project.creator?.id === userProfileData?.id" />
                   <span class="fw-bold text-dark">{{ user.nickname }}</span>
                 </div>
               </li>

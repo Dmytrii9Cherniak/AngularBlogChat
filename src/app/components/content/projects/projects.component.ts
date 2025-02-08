@@ -23,15 +23,19 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   public selectedProject: Project | null = null;
   public isAuthenticated$: Observable<boolean>;
   public userProfileData: UserDataModel | null = null;
-  public allUsersList: UsersListModel[];
-  private inviteModal!: Modal | null;
+  public allUsersList: UsersListModel[] = [];
   public invitedUsers: UsersListModel[] = [];
+  public selectedUsers: { [key: number]: boolean } = {};
 
   projectForm!: FormGroup;
-  private createModal!: Modal | null;
-  private deleteModal!: Modal | null;
-  private updateModal!: Modal | null;
-  private confirmLeaveProject!: Modal | null;
+
+  private modals: { [key: string]: Modal | null } = {
+    create: null,
+    delete: null,
+    update: null,
+    invite: null,
+    confirmLeave: null
+  };
 
   constructor(
     private projectsService: ProjectsService,
@@ -43,18 +47,19 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
+    this.initForm();
+    this.loadProjects();
+    this.isAuthenticated$ = this.authService.isAuthenticated$;
+    this.userProfileService.userProfileData.subscribe({
+      next: (value) => (this.userProfileData = value)
+    });
+  }
+
+  private initForm(): void {
     this.projectForm = this.fb.group({
       name: ['', Validators.required],
       description: ['', Validators.required],
       technologies: this.fb.array([this.createTechnologyFormControl()])
-    });
-
-    this.loadProjects();
-    this.isAuthenticated$ = this.authService.isAuthenticated$;
-    this.userProfileService.userProfileData.subscribe({
-      next: (value) => {
-        this.userProfileData = value;
-      }
     });
   }
 
@@ -73,9 +78,27 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   }
 
   removeTechnology(index: number): void {
-    if (index > 0) {
-      this.technologies.removeAt(index);
-    }
+    if (index > 0) this.technologies.removeAt(index);
+  }
+
+  ngAfterViewInit(): void {
+    ['create', 'delete', 'update', 'invite', 'confirmLeave'].forEach(
+      (modalName) => {
+        const modalElement = document.getElementById(
+          `${modalName}ProjectModal`
+        );
+        this.modals[modalName] = modalElement ? new Modal(modalElement) : null;
+      }
+    );
+  }
+
+  openModal(modalName: string, project?: Project): void {
+    if (project) this.selectedProject = project;
+    this.modals[modalName]?.show();
+  }
+
+  closeModal(modalName: string): void {
+    this.modals[modalName]?.hide();
   }
 
   createOwnProject(): void {
@@ -85,109 +108,20 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     }
 
     const formValue = this.projectForm.value;
-
-    const technologiesArray: string[] = formValue.technologies.map(
-      (tech: { name: string }) => tech.name
-    );
-
     const newProject = new CreateProjectModel(
       formValue.name,
       formValue.description,
-      technologiesArray
+      formValue.technologies.map((tech: { name: string }) => tech.name)
     );
 
     this.projectsService.createNewProject(newProject).subscribe({
       next: (response) => {
-        const createdProject: Project = response as Project;
-        this.projects.unshift(createdProject);
+        this.projects.unshift(response as Project);
         this.toastrService.success('Project created successfully');
-
-        const modalElement = document.getElementById('createProjectModal');
-        if (modalElement) {
-          const modalInstance =
-            Modal.getInstance(modalElement) || new Modal(modalElement);
-          modalInstance.hide();
-        }
+        this.closeModal('create');
       },
       error: () => this.toastrService.error('Error creating project')
     });
-  }
-
-  ngAfterViewInit(): void {
-    const createModalElement = document.getElementById('createProjectModal');
-    this.createModal = createModalElement
-      ? new Modal(createModalElement)
-      : null;
-
-    const deleteModalElement = document.getElementById('deleteProjectModal');
-    this.deleteModal = deleteModalElement
-      ? new Modal(deleteModalElement)
-      : null;
-
-    const inviteModalElement = document.getElementById('inviteProjectModal');
-    this.inviteModal = inviteModalElement
-      ? new Modal(inviteModalElement)
-      : null;
-
-    const confirmLeaveModal = document.getElementById(
-      'confirmLeaveProjectModal'
-    );
-    this.inviteModal = confirmLeaveModal ? new Modal(confirmLeaveModal) : null;
-  }
-
-  openDeleteModal(project: Project): void {
-    this.selectedProject = project;
-    this.deleteModal?.show();
-  }
-
-  openInviteModal(project: Project): void {
-    this.selectedProject = project;
-    this.usersService.getAllUsers().subscribe({
-      next: (users) => {
-        this.allUsersList = users;
-        this.inviteModal?.show();
-      },
-      error: () => this.toastrService.error('Failed to load users.')
-    });
-  }
-
-  inviteUser(user: UsersListModel): void {
-    if (!this.selectedProject) return;
-
-    const inviteProjectBody = new CreateProjectInvite(
-      user.id,
-      new Date(new Date().setDate(new Date().getDate() + 30))
-        .toISOString()
-        .split('T')[0], // Поточна дата + 30 днів
-      `Invitation to join project: ${this.selectedProject.name}`
-    );
-
-    this.projectsService
-      .createProjectInvite(this.selectedProject.id, inviteProjectBody)
-      .subscribe({
-        next: () => {
-          this.invitedUsers.push(user);
-          this.toastrService.success(`${user.nickname} has been invited!`);
-        },
-        error: () => this.toastrService.error('Failed to invite user.')
-      });
-  }
-
-  openEditModal(project: Project): void {
-    this.selectedProject = project;
-
-    this.projectForm.patchValue({
-      name: project.name,
-      description: project.description,
-      technologies: project.technologies.map((tech) => ({ name: tech.name }))
-    });
-
-    const modalElement = document.getElementById('updateProjectModal');
-    if (modalElement) {
-      this.updateModal =
-        Modal.getInstance(modalElement) || new Modal(modalElement);
-      this.updateModal.show();
-    }
   }
 
   updateExistingProject(): void {
@@ -205,30 +139,39 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       .updateExistingProject(this.selectedProject.id, updatedProject)
       .subscribe({
         next: () => {
-          this.toastrService.success('Project updated successfully');
-
           this.projects = this.projects.map((project) =>
             project.id === this.selectedProject?.id
               ? {
                 ...project,
-                name: updatedProject.name,
-                description: updatedProject.description,
+                ...updatedProject,
                 technologies: updatedProject.technologies.map(
-                  (techName, index) => ({
+                  (name, index) => ({
                     id: index + 1,
-                    name: techName,
-                    description: `Technology: ${techName}`
+                    name,
+                    description: `Technology: ${name}`
                   })
                 )
               }
               : project
           );
-
-          // Закриваємо модальне вікно
-          this.updateModal?.hide();
+          this.toastrService.success('Project updated successfully');
+          this.closeModal('update');
         },
         error: () => this.toastrService.error('Failed to update project')
       });
+  }
+
+  deleteExistingProject(id?: number): void {
+    if (!id) return;
+
+    this.projectsService.deleteExistingProject(id).subscribe({
+      next: () => {
+        this.projects = this.projects.filter((project) => project.id !== id);
+        this.toastrService.success('Project deleted successfully');
+        this.closeModal('delete');
+      },
+      error: () => this.toastrService.error('Failed to delete project')
+    });
   }
 
   private loadProjects(): void {
@@ -238,36 +181,12 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  deleteExistingProject(id?: number): void {
-    if (!id) return;
-
-    this.projectsService.deleteExistingProject(id).subscribe({
-      next: () => {
-        this.toastrService.success('Project deleted successfully');
-        this.projects = this.projects.filter((project) => project.id !== id);
-
-        const modalElement = document.getElementById('deleteProjectModal');
-        if (modalElement) {
-          const modalInstance =
-            Modal.getInstance(modalElement) || new Modal(modalElement);
-          modalInstance.hide();
-        }
-      },
-      error: () => this.toastrService.error('Failed to delete project')
-    });
-  }
-
-  selectedUsers: { [key: number]: boolean } = {};
-
-  deleteSelectedUsersFromProject(projectId: number) {
+  deleteSelectedUsersFromProject(projectId: number): void {
     const selectedUserIds = Object.keys(this.selectedUsers)
-      .filter((userId) => this.selectedUsers[+userId]) // Відбираємо тільки вибрані чекбокси
-      .map((userId) => +userId); // Перетворюємо в числа
+      .filter((userId) => this.selectedUsers[+userId])
+      .map((userId) => +userId);
 
-    if (selectedUserIds.length === 0) {
-      console.warn('No users selected for deletion.');
-      return;
-    }
+    if (selectedUserIds.length === 0) return;
 
     this.projectsService
       .deleteProjectMembers(projectId, selectedUserIds)
@@ -279,23 +198,41 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
               (user) => !selectedUserIds.includes(user.id)
             );
           }
-
           this.selectedUsers = {};
         },
-        error: (err) => console.error('Error deleting users:', err)
+        error: () => this.toastrService.error('Error deleting users')
+      });
+  }
+
+  inviteUser(user: UsersListModel): void {
+    if (!this.selectedProject) return;
+
+    const inviteProjectBody = new CreateProjectInvite(
+      user.id,
+      new Date(new Date().setDate(new Date().getDate() + 30))
+        .toISOString()
+        .split('T')[0],
+      `Invitation to join project: ${this.selectedProject.name}`
+    );
+
+    this.projectsService
+      .createProjectInvite(this.selectedProject.id, inviteProjectBody)
+      .subscribe({
+        next: () => {
+          this.invitedUsers.push(user);
+          this.toastrService.success(`${user.nickname} has been invited!`);
+        },
+        error: () => this.toastrService.error('Failed to invite user')
       });
   }
 
   leaveCertainProject(): void {
-    if (!this.selectedProject || !this.selectedProject.id) return;
+    if (!this.selectedProject?.id) return;
 
     this.projectsService
       .leaveCertainProject(this.selectedProject.id)
       .subscribe({
         next: () => {
-          this.toastrService.success('You have left the project successfully');
-
-          // Видаляємо користувача з проєкту в UI
           this.projects = this.projects.map((project) =>
             project.id === this.selectedProject?.id
               ? {
@@ -306,22 +243,11 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
               }
               : project
           );
-
-          this.confirmLeaveProject?.hide();
+          this.toastrService.success('You have left the project successfully');
+          this.closeModal('confirmLeave');
         },
         error: () => this.toastrService.error('Failed to leave the project')
       });
-  }
-
-  openConfirmLeaveProjectModal(project: Project): void {
-    this.selectedProject = project;
-
-    const modalElement = document.getElementById('confirmLeaveProjectModal');
-    if (modalElement) {
-      this.confirmLeaveProject =
-        Modal.getInstance(modalElement) || new Modal(modalElement);
-      this.confirmLeaveProject.show();
-    }
   }
 
   canLeaveProject(project: Project): boolean {
@@ -330,5 +256,38 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
       project.creator?.id !== this.userProfileData.id &&
       project.users.some((user) => user.id === this.userProfileData!.id)
     );
+  }
+
+  openConfirmLeaveProjectModal(project: Project): void {
+    this.selectedProject = project;
+    this.modals['confirmLeave']?.show();
+  }
+
+  openDeleteModal(project: Project): void {
+    this.selectedProject = project;
+    this.modals['delete']?.show();
+  }
+
+  openEditModal(project: Project): void {
+    this.selectedProject = project;
+
+    this.projectForm.patchValue({
+      name: project.name,
+      description: project.description,
+      technologies: project.technologies.map((tech) => ({ name: tech.name }))
+    });
+
+    this.modals['update']?.show();
+  }
+
+  openInviteModal(project: Project): void {
+    this.selectedProject = project;
+    this.usersService.getAllUsers().subscribe({
+      next: (users) => {
+        this.allUsersList = users;
+        this.modals['invite']?.show();
+      },
+      error: () => this.toastrService.error('Failed to load users.')
+    });
   }
 }
