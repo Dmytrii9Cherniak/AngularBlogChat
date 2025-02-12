@@ -5,6 +5,7 @@ import { tap } from 'rxjs/operators';
 import { UserDataModel } from '../models/user/user.data.model';
 import { FriendsResponseModel } from '../models/user/friends.response.model';
 import { PersonalUserInfo } from '../models/profile/full_personal_user_profile_data';
+import { ChangePasswordModel } from '../models/profile/change.password.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -81,6 +82,13 @@ export class UserProfileService {
     return this.httpClient.post(
       `${environment.apiUrl}/profile/friends/response/${offer_code}`,
       userFriendChoice
+    );
+  }
+
+  changeUserPassword(body: ChangePasswordModel) {
+    return this.httpClient.put(
+      `${environment.apiUrl}/auth/password/change`,
+      body
     );
   }
 }

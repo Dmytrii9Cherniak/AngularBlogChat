@@ -1,52 +1,80 @@
-<div class="profile-container" [formGroup]="formHelper.form">
-  <div class="profile-header">
-    <div class="avatar-section">
-      <img [src]="getAvatarUrl()" alt="Avatar" (error)="onImageError($event)" />
-      <div *ngIf="isEditMode" class="avatar-actions">
-        <label for="avatarInput" class="change-avatar-button">Change Avatar</label>
-        <input id="avatarInput" type="file" (change)="onAvatarChange($event)" />
+<div class="profile-container">
+  <div class="tabs-container">
+    <div
+      class="tab-item"
+      *ngFor="let tab of [
+        { name: 'basicInfo', icon: '🏠', title: 'Основна інформація' },
+        { name: 'aboutMe', icon: '📖', title: 'Про себе' },
+        { name: 'security', icon: '🔒', title: 'Безпека' }
+      ]"
+      [ngClass]="{'active-tab': activeTab === tab.name}"
+      (click)="setActiveTab(tab.name)">
+      <span class="tab-icon">{{ tab.icon }}</span>
+      <span class="tab-title">{{ tab.title }}</span>
+    </div>
+  </div>
+
+  <div class="tab-pane security-tab" *ngIf="activeTab === 'security'" [ngClass]="{'show': activeTab === 'security'}">
+    <h3 class="tab-title">🔒 Безпека</h3>
+
+    <!-- Форма зміни пароля -->
+    <form [formGroup]="newPasswordForm" class="security-form">
+      <h3 class="section-title">🔑 Змінити пароль</h3>
+
+      <div class="form-group">
+        <label>Старий пароль</label>
+        <input formControlName="current_password" type="password" class="form-control" placeholder="Введіть старий пароль" (input)="changePasswordServerError = null"/>
       </div>
-    </div>
-  </div>
 
-  <div class="profile-details">
-    <div class="detail-item" *ngFor="let field of getProfileFields()">
-      <label>{{ field | titlecase }}:</label>
-      <p *ngIf="!isEditMode">{{ personalProfileData[field] || 'N/A' }}</p>
-      <input *ngIf="isEditMode" [formControlName]="field" type="text" />
-    </div>
-  </div>
+      <div class="form-group">
+        <label>Новий пароль</label>
+        <input formControlName="new_password" type="password" class="form-control" placeholder="Введіть новий пароль"/>
 
-  <div class="social-section">
-    <h3>Social Links</h3>
-    <div class="social-links">
-      <div class="detail-item" *ngFor="let key of getSocialKeys()">
-        <label>{{ key | titlecase }}:</label>
-        <p *ngIf="!isEditMode">{{ personalProfileData.socials[key] || 'N/A' }}</p>
-        <input *ngIf="isEditMode" [formControlName]="'socials.' + key" type="text" />
+        <p class="error-text" *ngIf="newPasswordForm.controls['new_password'].hasError('required') && newPasswordForm.controls['new_password'].touched">
+          Поле не може бути пустим
+        </p>
+        <p class="error-text" *ngIf="newPasswordForm.controls['new_password'].hasError('pattern') && newPasswordForm.controls['new_password'].touched">
+          Пароль має містити мінімум 8 символів, одну цифру і один спеціальний символ
+        </p>
       </div>
-    </div>
-  </div>
 
-  <div class="blacklist-section">
-    <h3>Blocked Users</h3>
-    <div *ngIf="blackListUsers.length; else noUsers">
-      <div *ngFor="let user of blackListUsers" class="blacklist-user">
-        <img src="assets/images/no_profile_avatar.png" class="user-avatar" alt="User Avatar" />
-        <div class="user-details">
-          <span class="nickname">{{ user.blocked_user.nickname }}</span>
-          <span class="username">{{ user.blocked_user.username }}</span>
+      <div class="form-group">
+        <label>Повторіть новий пароль</label>
+        <input formControlName="confirm_password" type="password" class="form-control" placeholder="Повторіть новий пароль"/>
+
+        <p class="error-text" *ngIf="newPasswordForm.errors?.['passwordMismatch'] && newPasswordForm.controls['confirm_password'].touched">
+          Паролі не співпадають!
+        </p>
+      </div>
+
+      <p class="server-error" *ngIf="changePasswordServerError">{{ changePasswordServerError }}</p>
+
+      <button type="button" class="btn btn-primary change-password-btn" (click)="changeProfilePassword()" [disabled]="newPasswordForm.invalid">
+        🔄 Оновити пароль
+      </button>
+    </form>
+
+    <div class="blacklist-section">
+      <h3 class="section-title">🚫 Чорний список</h3>
+
+      <ng-container *ngIf="blackListUsers.length > 0; else noUsers">
+        <div class="blacklist-container">
+          <div *ngFor="let user of blackListUsers" class="blacklist-user">
+            <img src="assets/images/no_profile_avatar.png" class="user-avatar" alt="User Avatar" />
+            <div class="user-details">
+              <span class="nickname">{{ user.blocked_user.nickname }}</span>
+              <span class="username">{{ user.blocked_user.username }}</span>
+            </div>
+            <button class="unblock-button" (click)="unblockUser(user.blocked_user.id)">🚀 Розблокувати</button>
+          </div>
         </div>
-        <button class="unblock-button" (click)="unblockUser(user.blocked_user.id)">Unblock</button>
-      </div>
-    </div>
-    <ng-template #noUsers>
-      <p class="no-users">No blocked users.</p>
-    </ng-template>
-  </div>
+      </ng-container>
 
-  <div class="profile-edit-section">
-    <button *ngIf="!isEditMode" class="edit-profile-button" (click)="toggleEditMode()">Edit Profile</button>
-    <button *ngIf="isEditMode" class="save-profile-button" (click)="updateProfile()">Save Changes</button>
+      <ng-template #noUsers>
+        <div class="no-blacklist-message">
+          <p>🕊️ У вашому чорному списку поки немає заблокованих користувачів.</p>
+        </div>
+      </ng-template>
+    </div>
   </div>
 </div>

@@ -1,181 +1,67 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
-import { UserDataModel } from '../../../models/user/user.data.model';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserProfileService } from '../../../services/user.profile.service';
+import { ChangePasswordModel } from '../../../models/profile/change.password.model';
 import { ToastrService } from 'ngx-toastr';
-import { FormHelper } from '../../../helpers/form-helper';
-import { UsersService } from '../../../services/users.service';
 import { BlacklistUsersListModel } from '../../../models/blacklist/blacklist.users.list';
-import { PersonalUserInfo } from '../../../models/profile/full_personal_user_profile_data';
+import { passwordMatchValidator } from '../../../validators/password.match.validator';
+import { UsersService } from '../../../services/users.service';
 
 @Component({
-  selector: 'app-user-profile-data',
+  selector: 'app-user-profile',
   templateUrl: './user-profile-data.component.html',
   styleUrls: ['./user-profile-data.component.scss']
 })
 export class UserProfileDataComponent implements OnInit {
-  public formHelper: FormHelper;
-  public isEditMode = false;
-  private updatedAvatarFile: File | null = null;
-
-  public personalProfileData: PersonalUserInfo;
-
+  activeTab: string = 'basicInfo';
+  profileForm: FormGroup;
+  newPasswordForm: FormGroup;
+  changePasswordServerError: string | null = null;
   public blackListUsers: BlacklistUsersListModel[] = [];
+
+  passwordPattern: RegExp =
+    /^(?=.*[!@#$%^&*()_+}{":;'?/>.<,`~])(?=.*\d)[^\s]{8,}$/;
 
   constructor(
     private fb: FormBuilder,
     private userProfileService: UserProfileService,
-    private toastrServie: ToastrService,
+    private toastrService: ToastrService,
     private usersService: UsersService
   ) {
-    this.formHelper = new FormHelper(this.fb);
+    this.profileForm = this.fb.group({
+      username: ['User123'],
+      nickname: ['User1'],
+      email: ['user@example.com'],
+      phone: ['+380971234567'],
+      aboutMe: ['Я Angular розробник'],
+      country: ['Україна'],
+      timeZone: ['UTC+02:00'],
+      twoFactor: ['disabled']
+    });
   }
 
-  ngOnInit() {
-    this.formHelper.createUpdateUserProfileDataForm();
-
-    this.userProfileService.userProfileData.subscribe((value) => {
-      if (value) {
-        this.formHelper.form.patchValue({
-          ...value,
-          business_email: value.socials?.business_email || '' // Завантажуємо business_email
-        });
-      }
-    });
+  ngOnInit(): void {
+    this.newPasswordForm = this.fb.group(
+      {
+        current_password: ['', Validators.required],
+        new_password: [
+          '',
+          [Validators.required, Validators.pattern(this.passwordPattern)]
+        ],
+        confirm_password: ['', Validators.required]
+      },
+      { validators: passwordMatchValidator() } // Кастомний валідатор для перевірки збігу паролів
+    );
 
     this.usersService.getMyBlackUsersList().subscribe({
       next: (value) => {
         this.blackListUsers = value;
       }
     });
-
-    this.userProfileService.getFullMyProfileData().subscribe({
-      next: (value) => {
-        this.personalProfileData = value;
-        console.log(this.personalProfileData);
-      }
-    });
   }
 
-  toggleEditMode() {
-    this.isEditMode = !this.isEditMode;
-  }
-
-  onAvatarChange(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
-
-    const validExtensions = ['image/png', 'image/jpeg', 'image/webp'];
-    if (!validExtensions.includes(file.type)) {
-      this.toastrServie.info(
-        'Невалидний тип фото. Лише PNG, JPG та WEBP дозволені формати.'
-      );
-      return;
-    }
-
-    if (file.size > 1 * 1024 * 1024) {
-      this.toastrServie.info('Максимальний розмір фото - 1 мб');
-      return;
-    }
-
-    this.updatedAvatarFile = file;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.formHelper.form.patchValue({ avatar: reader.result as string });
-    };
-    reader.readAsDataURL(file);
-  }
-
-  getAvatarUrl(): string {
-    return this.formHelper.form.value.avatar
-      ? `/assets/${this.formHelper.form.value.avatar}`
-      : 'assets/images/no_profile_avatar.png';
-  }
-
-  onImageError(event: Event) {
-    const imgElement = event.target as HTMLImageElement;
-    imgElement.src = 'assets/images/no_profile_avatar.png';
-  }
-
-  updateProfile() {
-    if (this.formHelper.form.invalid) return;
-
-    const updatedFields = this.getChangedFields();
-    const formData = new FormData();
-
-    Object.keys(updatedFields).forEach((key) => {
-      if (key === 'socials') {
-        const socials = updatedFields[key] as UserDataModel['socials'];
-        Object.keys(socials).forEach((socialKey) => {
-          const key = socialKey as keyof UserDataModel['socials'];
-          formData.append(`socials.${key}`, socials[key] || '');
-        });
-      } else {
-        formData.append(
-          key,
-          updatedFields[key as keyof UserDataModel] as string
-        );
-      }
-    });
-
-    if (this.updatedAvatarFile) {
-      formData.append('avatar', this.updatedAvatarFile);
-    }
-
-    this.userProfileService.updatePersonalUserProfileData(formData).subscribe({
-      next: () => {
-        this.toastrServie.success('Дані профілю були успішно оновлені');
-        this.isEditMode = false;
-
-        this.userProfileService.userProfileData.next({
-          ...this.userProfileService.userProfileData.value!,
-          ...updatedFields
-        });
-      },
-      error: (err) => {
-        this.toastrServie.error('Помилка при оновлені даних');
-        console.error(err);
-      }
-    });
-  }
-
-  getChangedFields(): Partial<UserDataModel> {
-    const updatedFields: Partial<UserDataModel> = {};
-
-    Object.keys(this.formHelper.form.controls).forEach((key) => {
-      const originalValue =
-        this.userProfileService.userProfileData.value?.[
-          key as keyof UserDataModel
-        ];
-      const currentValue = this.formHelper.form.get(key)?.value;
-
-      if (key === 'socials') {
-        const originalSocials = originalValue as UserDataModel['socials'];
-        const currentSocials = currentValue as UserDataModel['socials'];
-        const socials: Partial<UserDataModel['socials']> = {};
-
-        Object.keys(currentSocials).forEach((socialKey) => {
-          const socialValue =
-            currentSocials[socialKey as keyof UserDataModel['socials']];
-          if (
-            socialValue !==
-            originalSocials?.[socialKey as keyof UserDataModel['socials']]
-          ) {
-            socials[socialKey as keyof UserDataModel['socials']] =
-              socialValue || null;
-          }
-        });
-
-        if (Object.keys(socials).length > 0) {
-          updatedFields.socials = socials as UserDataModel['socials'];
-        }
-      } else if (currentValue !== originalValue) {
-        updatedFields[key as keyof UserDataModel] = currentValue;
-      }
-    });
-
-    return updatedFields;
+  setActiveTab(tabName: string) {
+    this.activeTab = tabName;
   }
 
   unblockUser(id: number): void {
@@ -188,22 +74,30 @@ export class UserProfileDataComponent implements OnInit {
     });
   }
 
-  getProfileFields(): (keyof PersonalUserInfo)[] {
-    return Object.keys(this.personalProfileData || {}).filter(
-      (key) =>
-        key !== 'socials' &&
-        key !== 'friends' &&
-        key !== 'projects' &&
-        typeof this.personalProfileData[key as keyof PersonalUserInfo] !==
-          'object'
-    ) as (keyof PersonalUserInfo)[];
-  }
+  public changeProfilePassword() {
+    if (this.newPasswordForm.invalid) {
+      return;
+    }
 
-  getSocialKeys(): (keyof PersonalUserInfo['socials'])[] {
-    return this.personalProfileData?.socials
-      ? (Object.keys(
-        this.personalProfileData.socials
-      ) as (keyof PersonalUserInfo['socials'])[])
-      : [];
+    const body = new ChangePasswordModel(
+      this.newPasswordForm.controls['current_password'].value,
+      this.newPasswordForm.controls['new_password'].value,
+      this.newPasswordForm.controls['confirm_password'].value
+    );
+
+    this.userProfileService.changeUserPassword(body).subscribe({
+      next: () => {
+        this.toastrService.success('Password changed successfully');
+        this.changePasswordServerError = null;
+        this.newPasswordForm.reset();
+      },
+      error: (err) => {
+        if (err.error?.detail) {
+          this.changePasswordServerError = err.error.detail;
+        } else {
+          this.toastrService.error('Something went wrong');
+        }
+      }
+    });
   }
 }
