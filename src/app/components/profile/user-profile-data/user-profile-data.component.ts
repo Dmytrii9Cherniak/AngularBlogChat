@@ -28,7 +28,7 @@ export class UserProfileDataComponent implements OnInit {
   userProfile!: UserProfile;
 
   avatarPreview: string | ArrayBuffer | null = null;
-  selectedFile: File | null = null; // ✅ Змінна для файлу
+  selectedFile: File | null = null;
 
   socialsForm!: FormGroup;
   isEditMode: boolean = false;
@@ -59,7 +59,7 @@ export class UserProfileDataComponent implements OnInit {
         ],
         confirm_password: ['', Validators.required]
       },
-      { validators: passwordMatchValidator() } // Кастомний валідатор для перевірки збігу паролів
+      { validators: passwordMatchValidator() }
     );
 
     this.userProfileService.getFullMyProfileData().subscribe((user) => {
@@ -71,7 +71,6 @@ export class UserProfileDataComponent implements OnInit {
       }
     });
 
-    // Отримання чорного списку користувачів
     this.usersService.getMyBlackUsersList().subscribe((users) => {
       this.blackListUsers = users;
     });
@@ -88,27 +87,12 @@ export class UserProfileDataComponent implements OnInit {
       time_zones: [user.time_zones],
       phone_number: [user.phone_number],
       business_email: [user.business_email, [Validators.email]],
+
       technologies: this.fb.array(
-        user.technologies?.map((t) =>
-          this.createTechnologyGroup({
-            id: t.id ?? null, // ✅ Усуваємо `undefined`
-            name: t.name ?? '', // ✅ Забезпечуємо рядкове значення
-            description: t.description ?? '' // ✅ Заміна `null` на `''`
-          })
+        user.technologies?.map((tech) =>
+          this.fb.control(tech.name, Validators.required)
         ) || []
       )
-    });
-  }
-
-  private createTechnologyGroup(tech: {
-    id: number | null;
-    name: string;
-    description: string;
-  }): FormGroup {
-    return this.fb.group({
-      id: new FormControl<number | null>(tech.id),
-      name: new FormControl<string>(tech.name, Validators.required),
-      description: new FormControl<string>(tech.description)
     });
   }
 
@@ -122,8 +106,12 @@ export class UserProfileDataComponent implements OnInit {
   }
 
   addTechnology(): void {
-    const techArray = this.generalProfileForm.get('technologies') as FormArray;
-    techArray.push(this.fb.control(''));
+    this.technologies.push(
+      new FormControl<string>('', {
+        nonNullable: true,
+        validators: [Validators.required]
+      })
+    );
   }
 
   removeTechnology(index: number): void {
@@ -139,7 +127,6 @@ export class UserProfileDataComponent implements OnInit {
 
     const updatedProfile: Partial<GeneralProfileModel> = {};
 
-    // Перевіряємо які поля змінилися
     Object.keys(this.generalProfileForm.controls).forEach((key) => {
       const formControl = this.generalProfileForm.get(key);
       if (
@@ -151,7 +138,10 @@ export class UserProfileDataComponent implements OnInit {
       }
     });
 
-    // ✅ Додаємо збереження аватарки у base64
+    updatedProfile.technologies = this.technologies.value.map((tech: string) =>
+      tech.trim()
+    );
+
     if (this.avatarPreview) {
       updatedProfile.avatar = this.avatarPreview.toString();
     }
@@ -166,6 +156,10 @@ export class UserProfileDataComponent implements OnInit {
       .subscribe({
         next: () => {
           Object.assign(this.userProfile, updatedProfile);
+
+          this.userProfile.technologies =
+            updatedProfile.technologies?.map((name) => ({ name })) || [];
+
           this.userProfile$.next(this.userProfile);
           this.toastrService.success('Профіль оновлено успішно');
           this.isGeneralEditMode = false;
@@ -207,7 +201,7 @@ export class UserProfileDataComponent implements OnInit {
 
     Object.keys(this.socialsForm.value).forEach((key) => {
       if (this.socialsForm.value[key] !== this.userProfile.socials[key]) {
-        updatedSocials[key] = this.socialsForm.value[key] || null; // ✅ Усуваємо `undefined`
+        updatedSocials[key] = this.socialsForm.value[key] || null;
       }
     });
 
@@ -219,7 +213,6 @@ export class UserProfileDataComponent implements OnInit {
     this.userProfileService
       .updateUserProfileSocialsInfo(updatedSocials as Socials)
       .subscribe(() => {
-        // ✅ Оновлюємо **тільки** поле `socials` без впливу на інші дані
         Object.assign(this.userProfile.socials, updatedSocials);
         this.userProfile$.next(this.userProfile);
 
@@ -267,11 +260,11 @@ export class UserProfileDataComponent implements OnInit {
   onAvatarChange(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      this.selectedFile = file; // ✅ Зберігаємо файл
+      this.selectedFile = file;
       const reader = new FileReader();
       reader.onload = () => {
-        this.avatarPreview = reader.result; // ✅ Для прев’ю
-        this.generalProfileForm.patchValue({ avatar: reader.result }); // ✅ Записуємо в форму
+        this.avatarPreview = reader.result;
+        this.generalProfileForm.patchValue({ avatar: reader.result });
       };
       reader.readAsDataURL(file);
     }

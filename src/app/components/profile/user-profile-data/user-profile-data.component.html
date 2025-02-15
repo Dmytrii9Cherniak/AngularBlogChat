@@ -48,9 +48,8 @@
 
           <label>🚀 Технології</label>
           <div formArrayName="technologies">
-            <div *ngFor="let techControl of technologies.controls; let i = index" [formGroupName]="i">
-              <input formControlName="name" type="text" class="form-control" placeholder="Технологія">
-              <input formControlName="description" type="text" class="form-control" placeholder="Опис">
+            <div *ngFor="let techControl of technologies.controls; let i = index">
+              <input [formControl]="techControl" type="text" class="form-control" placeholder="Технологія">
               <button type="button" (click)="removeTechnology(i)">➖</button>
             </div>
           </div>
