@@ -162,14 +162,22 @@ export class UserProfileService {
       );
   }
 
-  public updateUserGeneralProfileInfo(body: Partial<UserProfile>) {
+  public updateUserGeneralProfileInfo(body: GeneralProfileModel) {
     return this.httpClient
       .patch(`${environment.apiUrl}/profile/general/update`, body)
       .pipe(
         tap(() => {
           const currentProfile = this.fullUserProfileInfo.getValue();
           if (currentProfile) {
-            this.fullUserProfileInfo.next({ ...currentProfile, ...body });
+            const updatedTechnologies =
+              body.technologies?.map((tech) => ({ name: tech })) ??
+              currentProfile.technologies;
+
+            this.fullUserProfileInfo.next({
+              ...currentProfile,
+              ...body,
+              technologies: updatedTechnologies
+            });
           }
         })
       );

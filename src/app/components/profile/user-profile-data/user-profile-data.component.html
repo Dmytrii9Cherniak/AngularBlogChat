@@ -1,5 +1,7 @@
 <div class="profile-container">
   <ng-container *ngIf="userProfile$ | async as userProfile">
+
+    <!-- 🔹 Основна інформація 🔹 -->
     <div class="profile-header">
       <img [src]="userProfile.avatar || 'assets/images/no_profile_avatar.png'" alt="User Avatar" class="avatar">
       <h2>{{ userProfile.username }}</h2>
@@ -7,23 +9,82 @@
       <p><strong>Email:</strong> {{ userProfile.email }}</p>
       <p><strong>Роль:</strong> {{ userProfile.role }}</p>
       <p><strong>Очки поведінки:</strong> {{ userProfile.behavior_points }}</p>
-      <p><strong>Стать:</strong> {{ userProfile.gender }}</p>
-      <p><strong>День народження:</strong> {{ userProfile.birthday || 'Не вказано' }}</p>
-      <p><strong>Телефон:</strong> {{ userProfile.phone_number || 'Не вказано' }}</p>
-      <p><strong>Країна:</strong> {{ userProfile.country || 'Не вказано' }}</p>
-      <p><strong>Часовий пояс:</strong> {{ userProfile.time_zones }}</p>
-      <p><strong>Статус:</strong> {{ userProfile.status }}</p>
-      <p><strong>Посада:</strong> {{ userProfile.job_title || 'Не вказано' }}</p>
-      <p><strong>Двофакторна аутентифікація:</strong> {{ userProfile.two_factor_method }}</p>
     </div>
 
     <hr>
 
-    <!-- 🔗 Соціальні мережі -->
+    <!-- 🔹 Загальна інформація 🔹 -->
+    <div class="profile-section">
+      <h3>👤 Загальна інформація</h3>
+      <ng-container *ngIf="isGeneralEditMode; else viewGeneralInfo">
+        <form [formGroup]="generalProfileForm">
+          <label>Аватар</label>
+          <input type="file" (change)="onAvatarChange($event)">
+          <img *ngIf="avatarPreview" [src]="avatarPreview" class="avatar-preview">
+
+          <label>Ім'я користувача</label>
+          <input formControlName="username" type="text" class="form-control" placeholder="Введіть ім'я">
+
+          <label>Стать</label>
+          <input formControlName="gender" type="text" class="form-control" placeholder="Введіть стать">
+
+          <label>День народження</label>
+          <input formControlName="birthday" type="date" class="form-control">
+
+          <label>Країна</label>
+          <input formControlName="country" type="text" class="form-control" placeholder="Введіть країну">
+
+          <label>Часовий пояс</label>
+          <input formControlName="time_zones" type="text" class="form-control" placeholder="Введіть часовий пояс">
+
+          <label>Телефон</label>
+          <input formControlName="phone_number" type="text" class="form-control" placeholder="Введіть номер телефону">
+
+          <label>Бізнес email</label>
+          <input formControlName="business_email" type="email" class="form-control" placeholder="Введіть email">
+
+          <label>Про себе</label>
+          <textarea formControlName="about_me" class="form-control" placeholder="Розкажіть про себе"></textarea>
+
+          <label>🚀 Технології</label>
+          <div formArrayName="technologies">
+            <div *ngFor="let techControl of technologies.controls; let i = index" [formGroupName]="i">
+              <input formControlName="name" type="text" class="form-control" placeholder="Технологія">
+              <input formControlName="description" type="text" class="form-control" placeholder="Опис">
+              <button type="button" (click)="removeTechnology(i)">➖</button>
+            </div>
+          </div>
+          <button type="button" (click)="addTechnology()">➕ Додати технологію</button>
+
+          <button type="button" (click)="saveGeneralProfile()" [disabled]="generalProfileForm.invalid">💾 Зберегти</button>
+          <button type="button" (click)="cancelGeneralEditMode()">❌ Скасувати</button>
+        </form>
+      </ng-container>
+
+      <ng-template #viewGeneralInfo>
+        <p><strong>Ім'я користувача:</strong> {{ userProfile.username }}</p>
+        <p><strong>Стать:</strong> {{ userProfile.gender }}</p>
+        <p><strong>День народження:</strong> {{ userProfile.birthday || 'Не вказано' }}</p>
+        <p><strong>Країна:</strong> {{ userProfile.country || 'Не вказано' }}</p>
+        <p><strong>Часовий пояс:</strong> {{ userProfile.time_zones || 'Не вказано' }}</p>
+        <p><strong>Телефон:</strong> {{ userProfile.phone_number || 'Не вказано' }}</p>
+        <p><strong>Бізнес email:</strong> {{ userProfile.business_email || 'Не вказано' }}</p>
+        <p><strong>Про себе:</strong> {{ userProfile.about_me || 'Не вказано' }}</p>
+        <p><strong>🚀 Технології:</strong></p>
+        <ul>
+          <li *ngFor="let tech of userProfile.technologies">
+            <strong>{{ tech.name }}</strong>: {{ tech.description || 'Опис відсутній' }}
+          </li>
+        </ul>
+        <button type="button" (click)="enterGeneralEditMode()">✏️ Редагувати</button>
+      </ng-template>
+    </div>
+
+    <hr>
+
+    <!-- 🔹 Соціальні мережі 🔹 -->
     <div class="profile-section">
       <h3>🔗 Соціальні мережі</h3>
-
-      <!-- 🔄 Режим редагування -->
       <ng-container *ngIf="isEditMode; else viewMode">
         <form [formGroup]="socialsForm">
           <ul>
@@ -32,16 +93,11 @@
               <input [formControlName]="key" type="text" [placeholder]="'Введіть ' + key">
             </li>
           </ul>
-          <button type="button" (click)="saveSocials()" [disabled]="!socialsForm.dirty || socialsForm.invalid">
-            💾 Зберегти зміни
-          </button>
-          <button type="button" (click)="cancelEditMode()">
-            ❌ Скасувати
-          </button>
+          <button type="button" (click)="saveSocials()">💾 Зберегти зміни</button>
+          <button type="button" (click)="cancelEditMode()">❌ Скасувати</button>
         </form>
       </ng-container>
 
-      <!-- 📄 Режим перегляду -->
       <ng-template #viewMode>
         <ul>
           <li *ngFor="let key of objectKeys(userProfile.socials ?? {})">
@@ -54,149 +110,60 @@
 
     <hr>
 
-    <div class="profile-section">
-      <h3>🏆 Сертифікати</h3>
-      <ul>
-        <li *ngFor="let cert of userProfile.certificates">
-          {{ cert || 'Не вказано' }}
-        </li>
-      </ul>
-    </div>
-
-    <hr>
-
+    <!-- 🔹 Освіта, сертифікати, робота 🔹 -->
     <div class="profile-section">
       <h3>🎓 Освіта</h3>
-      <ul>
-        <li *ngFor="let edu of userProfile.education">
-          {{ edu || 'Не вказано' }}
-        </li>
-      </ul>
+      <ul><li *ngFor="let edu of userProfile.education">{{ edu || 'Не вказано' }}</li></ul>
     </div>
 
-    <hr>
+    <div class="profile-section">
+      <h3>🏆 Сертифікати</h3>
+      <ul><li *ngFor="let cert of userProfile.certificates">{{ cert || 'Не вказано' }}</li></ul>
+    </div>
 
     <div class="profile-section">
       <h3>💼 Робота</h3>
       <ul>
         <li *ngFor="let job of userProfile.jobs">
-          <strong>Компанія:</strong> {{ job.company?.name || 'Не вказано' }}<br>
-          <strong>Посада:</strong> {{ job.position || 'Не вказано' }}<br>
-          <strong>Початок:</strong> {{ job.started_at || 'Не вказано' }}<br>
-          <strong>Кінець:</strong> {{ job.ended_at || 'Не вказано' }}<br>
-          <strong>Опис:</strong> {{ job.description || 'Не вказано' }}
+          <strong>Компанія:</strong> {{ job.company?.name || 'Не вказано' }}
         </li>
       </ul>
     </div>
 
     <hr>
 
-    <div class="profile-section">
-      <h3>💡 Технології</h3>
-      <ul>
-        <li *ngFor="let tech of userProfile.technologies">
-          {{ tech.name }}
-        </li>
-      </ul>
-    </div>
-
-    <hr>
-
-    <div class="profile-section">
-      <h3>👥 Друзі</h3>
-      <ul>
-        <li *ngFor="let friend of userProfile.friends">
-          <img [src]="friend.avatar" alt="Friend Avatar" class="friend-avatar">
-          {{ friend.nickname }}
-        </li>
-      </ul>
-    </div>
-
-    <hr>
-
-    <div class="profile-section">
-      <h3>🚀 Проєкти</h3>
-      <ul>
-        <li *ngFor="let project of userProfile.projects">
-          <strong>Назва:</strong> {{ project.name }}<br>
-          <strong>Опис:</strong> {{ project.description || 'Не вказано' }}<br>
-          <strong>Креатор:</strong> {{ project.creator.nickname }}
-        </li>
-      </ul>
-    </div>
-
-    <hr>
-
-    <div class="profile-section">
-      <h3>🎭 Реакції</h3>
-      <ul>
-        <li *ngFor="let reaction of userProfile.reactions">
-          {{ reaction }}
-        </li>
-      </ul>
-    </div>
-  </ng-container>
-
-  <hr>
-
-  <div class="blacklist-section">
-    <h3 class="section-title">🚫 Чорний список</h3>
-
-    <ng-container *ngIf="blackListUsers.length > 0; else noUsers">
-      <div class="blacklist-container">
+    <!-- 🔹 Чорний список 🔹 -->
+    <div class="blacklist-section">
+      <h3>🚫 Чорний список</h3>
+      <ng-container *ngIf="blackListUsers.length > 0; else noUsers">
         <div *ngFor="let user of blackListUsers" class="blacklist-user">
           <img src="assets/images/no_profile_avatar.png" class="user-avatar" alt="User Avatar" />
           <div class="user-details">
             <span class="nickname">{{ user.blocked_user.nickname }}</span>
-            <span class="username">{{ user.blocked_user.username }}</span>
           </div>
           <button class="unblock-button" (click)="unblockUser(user.blocked_user.id)">🚀 Розблокувати</button>
         </div>
-      </div>
-    </ng-container>
-
-    <ng-template #noUsers>
-      <div class="no-blacklist-message">
+      </ng-container>
+      <ng-template #noUsers>
         <p>🕊️ У вашому чорному списку поки немає заблокованих користувачів.</p>
-      </div>
-    </ng-template>
-  </div>
+      </ng-template>
+    </div>
 
-  <hr>
+    <hr>
 
-  <form [formGroup]="newPasswordForm" class="security-form">
-    <h3 class="section-title">🔑 Змінити пароль</h3>
-
-    <div class="form-group">
+    <!-- 🔹 Зміна паролю 🔹 -->
+    <form [formGroup]="newPasswordForm" class="security-form">
+      <h3>🔑 Змінити пароль</h3>
       <label>Старий пароль</label>
-      <input formControlName="current_password" type="password" class="form-control" placeholder="Введіть старий пароль" (input)="changePasswordServerError = null"/>
-    </div>
+      <input formControlName="current_password" type="password" class="form-control">
 
-    <div class="form-group">
       <label>Новий пароль</label>
-      <input formControlName="new_password" type="password" class="form-control" placeholder="Введіть новий пароль"/>
+      <input formControlName="new_password" type="password" class="form-control">
 
-      <p class="error-text" *ngIf="newPasswordForm.get('new_password')?.hasError('required') && newPasswordForm.get('new_password')?.touched">
-        Поле не може бути пустим
-      </p>
-      <p class="error-text" *ngIf="newPasswordForm.get('new_password')?.hasError('pattern') && newPasswordForm.get('new_password')?.touched">
-        Пароль має містити мінімум 8 символів, одну цифру і один спеціальний символ
-      </p>
-    </div>
-
-    <div class="form-group">
       <label>Повторіть новий пароль</label>
-      <input formControlName="confirm_password" type="password" class="form-control" placeholder="Повторіть новий пароль"/>
+      <input formControlName="confirm_password" type="password" class="form-control">
 
-      <p class="error-text" *ngIf="newPasswordForm.hasError('passwordMismatch') && newPasswordForm.get('confirm_password')?.touched">
-        Паролі не співпадають!
-      </p>
-    </div>
-
-    <p class="server-error" *ngIf="changePasswordServerError">{{ changePasswordServerError }}</p>
-
-    <button type="button" class="btn btn-primary change-password-btn" (click)="changeProfilePassword()" [disabled]="newPasswordForm.invalid">
-      🔄 Оновити пароль
-    </button>
-  </form>
+      <button type="button" (click)="changeProfilePassword()">🔄 Оновити пароль</button>
+    </form>
+  </ng-container>
 </div>
