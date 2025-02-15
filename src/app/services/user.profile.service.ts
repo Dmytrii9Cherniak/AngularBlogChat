@@ -4,9 +4,14 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { UserDataModel } from '../models/user/user.data.model';
 import { FriendsResponseModel } from '../models/user/friends.response.model';
-import { PersonalUserInfo } from '../models/profile/full_personal_user_profile_data';
 import { ChangePasswordModel } from '../models/profile/change.password.model';
+import { UserProfile } from '../models/profile/full.user.profile.data.model';
+import { Socials } from '../models/profile/socials.profile.info.model';
+import { UserEducationModel } from '../models/profile/user.education.model';
 import { environment } from '../../environments/environment';
+import { GeneralProfileModel } from '../models/profile/general.profile.model';
+import { UserCertificatesModel } from '../models/profile/user.certificate.model';
+import { Jobs } from '../models/profile/user.jobs.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +19,8 @@ import { environment } from '../../environments/environment';
 export class UserProfileService {
   public userProfileData: BehaviorSubject<UserDataModel | null> =
     new BehaviorSubject<UserDataModel | null>(null);
+  public fullUserProfileInfo: BehaviorSubject<UserProfile | null> =
+    new BehaviorSubject<UserProfile | null>(null);
 
   constructor(private httpClient: HttpClient) {}
 
@@ -21,10 +28,18 @@ export class UserProfileService {
     this.userProfileData.next(userData);
   }
 
-  public getFullMyProfileData(): Observable<PersonalUserInfo> {
-    return this.httpClient.get<PersonalUserInfo>(
-      `${environment.apiUrl}/profile/`
-    );
+  public getFullMyProfileData(): Observable<UserProfile> {
+    return this.httpClient
+      .get<UserProfile>(`${environment.apiUrl}/profile/`)
+      .pipe(
+        tap((value) => {
+          this.fullUserProfileInfo.next(value);
+        })
+      );
+  }
+
+  public get userProfile$(): Observable<UserProfile | null> {
+    return this.fullUserProfileInfo.asObservable();
   }
 
   public getUserData(): Observable<UserDataModel> {
@@ -35,13 +50,6 @@ export class UserProfileService {
           this.updateUserProfile(userData);
         })
       );
-  }
-
-  public updatePersonalUserProfileData(data: FormData) {
-    return this.httpClient.patch(
-      `${environment.apiUrl}/profile/update-general`,
-      data
-    );
   }
 
   getAllFriendsList(): Observable<FriendsResponseModel> {
@@ -85,10 +93,133 @@ export class UserProfileService {
     );
   }
 
-  changeUserPassword(body: ChangePasswordModel) {
+  // Change personal profile info endpoints
+
+  public changeUserPassword(body: ChangePasswordModel) {
     return this.httpClient.put(
       `${environment.apiUrl}/auth/password/change`,
       body
     );
+  }
+
+  public deleteUserCertificates(id: string) {
+    return this.httpClient
+      .delete(`${environment.apiUrl}/profile/certificates/delete/${id}`)
+      .pipe(
+        tap(() => {
+          const currentProfile = this.fullUserProfileInfo.getValue();
+          if (currentProfile) {
+            const updatedCertificates = currentProfile.certificates.filter(
+              (cert) => cert !== id
+            );
+            this.updateProfileField('certificates', updatedCertificates);
+          }
+        })
+      );
+  }
+
+  public createOrUpdateUserCertificates(body: UserCertificatesModel) {
+    return this.httpClient
+      .patch(`${environment.apiUrl}/profile/certificates/update`, body)
+      .pipe(
+        tap(() => {
+          const currentProfile = this.fullUserProfileInfo.getValue();
+          if (currentProfile) {
+            const updatedCertificates = [...currentProfile.certificates, body];
+            this.updateProfileField('certificates', updatedCertificates);
+          }
+        })
+      );
+  }
+
+  public deleteUserEducation(educationName: string) {
+    return this.httpClient
+      .delete(`${environment.apiUrl}/profile/education/remove/${educationName}`)
+      .pipe(
+        tap(() => {
+          const currentProfile = this.fullUserProfileInfo.getValue();
+          if (currentProfile) {
+            const updatedEducation = currentProfile.education.filter(
+              (edu) => edu !== educationName
+            );
+            this.updateProfileField('education', updatedEducation);
+          }
+        })
+      );
+  }
+
+  public createOrUpdateUserEducation(body: UserEducationModel) {
+    return this.httpClient
+      .patch(`${environment.apiUrl}/profile/education/update`, body)
+      .pipe(
+        tap(() => {
+          const currentProfile = this.fullUserProfileInfo.getValue();
+          if (currentProfile) {
+            const updatedEducation = [...currentProfile.education, body];
+            this.updateProfileField('education', updatedEducation);
+          }
+        })
+      );
+  }
+
+  public updateUserGeneralProfileInfo(body: Partial<UserProfile>) {
+    return this.httpClient
+      .patch(`${environment.apiUrl}/profile/general/update`, body)
+      .pipe(
+        tap(() => {
+          const currentProfile = this.fullUserProfileInfo.getValue();
+          if (currentProfile) {
+            this.fullUserProfileInfo.next({ ...currentProfile, ...body });
+          }
+        })
+      );
+  }
+
+  public deleteUserJobs(id: number) {
+    return this.httpClient
+      .delete(`${environment.apiUrl}/profile/jobs/remove/${id}`)
+      .pipe(
+        tap(() => {
+          const currentProfile = this.fullUserProfileInfo.getValue();
+          if (currentProfile) {
+            const updatedJobs = currentProfile.jobs.filter(
+              (job) => job.id !== id
+            );
+            this.updateProfileField('jobs', updatedJobs);
+          }
+        })
+      );
+  }
+
+  public createOrUpdateUserJobs(body: Jobs) {
+    return this.httpClient
+      .post(`${environment.apiUrl}/profile/jobs/update`, body)
+      .pipe(
+        tap(() => {
+          const currentProfile = this.fullUserProfileInfo.getValue();
+          if (currentProfile) {
+            const updatedJobs = [...currentProfile.jobs, body];
+            this.updateProfileField('jobs', updatedJobs);
+          }
+        })
+      );
+  }
+
+  public updateUserProfileSocialsInfo(body: Socials) {
+    return this.httpClient
+      .patch(`${environment.apiUrl}/profile/socials/update`, body)
+      .pipe(
+        tap(() => {
+          this.updateProfileField('socials', body);
+        })
+      );
+  }
+
+  private updateProfileField(field: keyof UserProfile, newValue: any) {
+    const currentProfile = this.fullUserProfileInfo.getValue();
+    if (!currentProfile) return;
+
+    const updatedProfile = { ...currentProfile, [field]: newValue };
+    this.fullUserProfileInfo.next(updatedProfile);
   }
 }

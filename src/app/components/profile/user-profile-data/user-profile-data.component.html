@@ -1,80 +1,202 @@
 <div class="profile-container">
-  <div class="tabs-container">
-    <div
-      class="tab-item"
-      *ngFor="let tab of [
-        { name: 'basicInfo', icon: '🏠', title: 'Основна інформація' },
-        { name: 'aboutMe', icon: '📖', title: 'Про себе' },
-        { name: 'security', icon: '🔒', title: 'Безпека' }
-      ]"
-      [ngClass]="{'active-tab': activeTab === tab.name}"
-      (click)="setActiveTab(tab.name)">
-      <span class="tab-icon">{{ tab.icon }}</span>
-      <span class="tab-title">{{ tab.title }}</span>
+  <ng-container *ngIf="userProfile$ | async as userProfile">
+    <div class="profile-header">
+      <img [src]="userProfile.avatar || 'assets/images/no_profile_avatar.png'" alt="User Avatar" class="avatar">
+      <h2>{{ userProfile.username }}</h2>
+      <p><strong>Нікнейм:</strong> {{ userProfile.nickname }}</p>
+      <p><strong>Email:</strong> {{ userProfile.email }}</p>
+      <p><strong>Роль:</strong> {{ userProfile.role }}</p>
+      <p><strong>Очки поведінки:</strong> {{ userProfile.behavior_points }}</p>
+      <p><strong>Стать:</strong> {{ userProfile.gender }}</p>
+      <p><strong>День народження:</strong> {{ userProfile.birthday || 'Не вказано' }}</p>
+      <p><strong>Телефон:</strong> {{ userProfile.phone_number || 'Не вказано' }}</p>
+      <p><strong>Країна:</strong> {{ userProfile.country || 'Не вказано' }}</p>
+      <p><strong>Часовий пояс:</strong> {{ userProfile.time_zones }}</p>
+      <p><strong>Статус:</strong> {{ userProfile.status }}</p>
+      <p><strong>Посада:</strong> {{ userProfile.job_title || 'Не вказано' }}</p>
+      <p><strong>Двофакторна аутентифікація:</strong> {{ userProfile.two_factor_method }}</p>
     </div>
-  </div>
 
-  <div class="tab-pane security-tab" *ngIf="activeTab === 'security'" [ngClass]="{'show': activeTab === 'security'}">
-    <h3 class="tab-title">🔒 Безпека</h3>
+    <hr>
 
-    <!-- Форма зміни пароля -->
-    <form [formGroup]="newPasswordForm" class="security-form">
-      <h3 class="section-title">🔑 Змінити пароль</h3>
+    <!-- 🔗 Соціальні мережі -->
+    <div class="profile-section">
+      <h3>🔗 Соціальні мережі</h3>
 
-      <div class="form-group">
-        <label>Старий пароль</label>
-        <input formControlName="current_password" type="password" class="form-control" placeholder="Введіть старий пароль" (input)="changePasswordServerError = null"/>
-      </div>
-
-      <div class="form-group">
-        <label>Новий пароль</label>
-        <input formControlName="new_password" type="password" class="form-control" placeholder="Введіть новий пароль"/>
-
-        <p class="error-text" *ngIf="newPasswordForm.controls['new_password'].hasError('required') && newPasswordForm.controls['new_password'].touched">
-          Поле не може бути пустим
-        </p>
-        <p class="error-text" *ngIf="newPasswordForm.controls['new_password'].hasError('pattern') && newPasswordForm.controls['new_password'].touched">
-          Пароль має містити мінімум 8 символів, одну цифру і один спеціальний символ
-        </p>
-      </div>
-
-      <div class="form-group">
-        <label>Повторіть новий пароль</label>
-        <input formControlName="confirm_password" type="password" class="form-control" placeholder="Повторіть новий пароль"/>
-
-        <p class="error-text" *ngIf="newPasswordForm.errors?.['passwordMismatch'] && newPasswordForm.controls['confirm_password'].touched">
-          Паролі не співпадають!
-        </p>
-      </div>
-
-      <p class="server-error" *ngIf="changePasswordServerError">{{ changePasswordServerError }}</p>
-
-      <button type="button" class="btn btn-primary change-password-btn" (click)="changeProfilePassword()" [disabled]="newPasswordForm.invalid">
-        🔄 Оновити пароль
-      </button>
-    </form>
-
-    <div class="blacklist-section">
-      <h3 class="section-title">🚫 Чорний список</h3>
-
-      <ng-container *ngIf="blackListUsers.length > 0; else noUsers">
-        <div class="blacklist-container">
-          <div *ngFor="let user of blackListUsers" class="blacklist-user">
-            <img src="assets/images/no_profile_avatar.png" class="user-avatar" alt="User Avatar" />
-            <div class="user-details">
-              <span class="nickname">{{ user.blocked_user.nickname }}</span>
-              <span class="username">{{ user.blocked_user.username }}</span>
-            </div>
-            <button class="unblock-button" (click)="unblockUser(user.blocked_user.id)">🚀 Розблокувати</button>
-          </div>
-        </div>
+      <!-- 🔄 Режим редагування -->
+      <ng-container *ngIf="isEditMode; else viewMode">
+        <form [formGroup]="socialsForm">
+          <ul>
+            <li *ngFor="let key of objectKeys(userProfile.socials ?? {})">
+              <strong>{{ key | titlecase }}:</strong>
+              <input [formControlName]="key" type="text" [placeholder]="'Введіть ' + key">
+            </li>
+          </ul>
+          <button type="button" (click)="saveSocials()" [disabled]="!socialsForm.dirty || socialsForm.invalid">
+            💾 Зберегти зміни
+          </button>
+          <button type="button" (click)="cancelEditMode()">
+            ❌ Скасувати
+          </button>
+        </form>
       </ng-container>
 
-      <ng-template #noUsers>
-        <div class="no-blacklist-message">
-          <p>🕊️ У вашому чорному списку поки немає заблокованих користувачів.</p>
-        </div>
+      <!-- 📄 Режим перегляду -->
+      <ng-template #viewMode>
+        <ul>
+          <li *ngFor="let key of objectKeys(userProfile.socials ?? {})">
+            <strong>{{ key | titlecase }}:</strong> {{ userProfile.socials[key] || 'Не вказано' }}
+          </li>
+        </ul>
+        <button type="button" (click)="enterEditMode()">✏️ Редагувати</button>
       </ng-template>
     </div>
+
+    <hr>
+
+    <div class="profile-section">
+      <h3>🏆 Сертифікати</h3>
+      <ul>
+        <li *ngFor="let cert of userProfile.certificates">
+          {{ cert || 'Не вказано' }}
+        </li>
+      </ul>
+    </div>
+
+    <hr>
+
+    <div class="profile-section">
+      <h3>🎓 Освіта</h3>
+      <ul>
+        <li *ngFor="let edu of userProfile.education">
+          {{ edu || 'Не вказано' }}
+        </li>
+      </ul>
+    </div>
+
+    <hr>
+
+    <div class="profile-section">
+      <h3>💼 Робота</h3>
+      <ul>
+        <li *ngFor="let job of userProfile.jobs">
+          <strong>Компанія:</strong> {{ job.company?.name || 'Не вказано' }}<br>
+          <strong>Посада:</strong> {{ job.position || 'Не вказано' }}<br>
+          <strong>Початок:</strong> {{ job.started_at || 'Не вказано' }}<br>
+          <strong>Кінець:</strong> {{ job.ended_at || 'Не вказано' }}<br>
+          <strong>Опис:</strong> {{ job.description || 'Не вказано' }}
+        </li>
+      </ul>
+    </div>
+
+    <hr>
+
+    <div class="profile-section">
+      <h3>💡 Технології</h3>
+      <ul>
+        <li *ngFor="let tech of userProfile.technologies">
+          {{ tech.name }}
+        </li>
+      </ul>
+    </div>
+
+    <hr>
+
+    <div class="profile-section">
+      <h3>👥 Друзі</h3>
+      <ul>
+        <li *ngFor="let friend of userProfile.friends">
+          <img [src]="friend.avatar" alt="Friend Avatar" class="friend-avatar">
+          {{ friend.nickname }}
+        </li>
+      </ul>
+    </div>
+
+    <hr>
+
+    <div class="profile-section">
+      <h3>🚀 Проєкти</h3>
+      <ul>
+        <li *ngFor="let project of userProfile.projects">
+          <strong>Назва:</strong> {{ project.name }}<br>
+          <strong>Опис:</strong> {{ project.description || 'Не вказано' }}<br>
+          <strong>Креатор:</strong> {{ project.creator.nickname }}
+        </li>
+      </ul>
+    </div>
+
+    <hr>
+
+    <div class="profile-section">
+      <h3>🎭 Реакції</h3>
+      <ul>
+        <li *ngFor="let reaction of userProfile.reactions">
+          {{ reaction }}
+        </li>
+      </ul>
+    </div>
+  </ng-container>
+
+  <hr>
+
+  <div class="blacklist-section">
+    <h3 class="section-title">🚫 Чорний список</h3>
+
+    <ng-container *ngIf="blackListUsers.length > 0; else noUsers">
+      <div class="blacklist-container">
+        <div *ngFor="let user of blackListUsers" class="blacklist-user">
+          <img src="assets/images/no_profile_avatar.png" class="user-avatar" alt="User Avatar" />
+          <div class="user-details">
+            <span class="nickname">{{ user.blocked_user.nickname }}</span>
+            <span class="username">{{ user.blocked_user.username }}</span>
+          </div>
+          <button class="unblock-button" (click)="unblockUser(user.blocked_user.id)">🚀 Розблокувати</button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #noUsers>
+      <div class="no-blacklist-message">
+        <p>🕊️ У вашому чорному списку поки немає заблокованих користувачів.</p>
+      </div>
+    </ng-template>
   </div>
+
+  <hr>
+
+  <form [formGroup]="newPasswordForm" class="security-form">
+    <h3 class="section-title">🔑 Змінити пароль</h3>
+
+    <div class="form-group">
+      <label>Старий пароль</label>
+      <input formControlName="current_password" type="password" class="form-control" placeholder="Введіть старий пароль" (input)="changePasswordServerError = null"/>
+    </div>
+
+    <div class="form-group">
+      <label>Новий пароль</label>
+      <input formControlName="new_password" type="password" class="form-control" placeholder="Введіть новий пароль"/>
+
+      <p class="error-text" *ngIf="newPasswordForm.get('new_password')?.hasError('required') && newPasswordForm.get('new_password')?.touched">
+        Поле не може бути пустим
+      </p>
+      <p class="error-text" *ngIf="newPasswordForm.get('new_password')?.hasError('pattern') && newPasswordForm.get('new_password')?.touched">
+        Пароль має містити мінімум 8 символів, одну цифру і один спеціальний символ
+      </p>
+    </div>
+
+    <div class="form-group">
+      <label>Повторіть новий пароль</label>
+      <input formControlName="confirm_password" type="password" class="form-control" placeholder="Повторіть новий пароль"/>
+
+      <p class="error-text" *ngIf="newPasswordForm.hasError('passwordMismatch') && newPasswordForm.get('confirm_password')?.touched">
+        Паролі не співпадають!
+      </p>
+    </div>
+
+    <p class="server-error" *ngIf="changePasswordServerError">{{ changePasswordServerError }}</p>
+
+    <button type="button" class="btn btn-primary change-password-btn" (click)="changeProfilePassword()" [disabled]="newPasswordForm.invalid">
+      🔄 Оновити пароль
+    </button>
+  </form>
 </div>

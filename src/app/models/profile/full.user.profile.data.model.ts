@@ -1,24 +1,17 @@
+import { Socials } from './socials.profile.info.model';
+import { Friend } from './profile.friend.model';
 import { Project } from '../project/different.project.list.model';
-import { FriendModel } from '../user/friends.model';
+import { Jobs } from './user.jobs.model';
+import { Technology } from './user.technology.model';
 
-export interface Socials {
-  telegram: string | null;
-  linkedin: string | null;
-  github: string | null;
-  instagram: string | null;
-  skype: string | null;
-  discord: string | null;
-  website: string | null;
-  facebook: string | null;
-  youtube: string | null;
-  business_email: string;
-}
-
-export interface PersonalUserInfo {
+export interface UserProfile {
   id: number;
   username: string;
   avatar: string;
   nickname: string;
+  about_me: string | null;
+  technologies: Technology[];
+  business_email: string;
   email: string;
   role: string;
   behavior_points: number;
@@ -31,11 +24,12 @@ export interface PersonalUserInfo {
   job_title: string;
   two_factor_method: string;
   socials: Socials;
-  friends: FriendModel[];
+  friends: Friend[];
   hobbies: string[];
   education: string[];
   certificates: string[];
-  work_experience: string[];
+  jobs: Jobs[];
   reactions: string[];
   projects: Project[];
+  [key: string]: any;
 }

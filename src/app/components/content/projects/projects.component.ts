@@ -229,6 +229,8 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   leaveCertainProject(): void {
     if (!this.selectedProject?.id) return;
 
+    const selectedProjectUsers = this.selectedProject.users.length;
+
     this.projectsService
       .leaveCertainProject(this.selectedProject.id)
       .subscribe({
@@ -245,6 +247,12 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
           );
           this.toastrService.success('You have left the project successfully');
           this.closeModal('confirmLeave');
+
+          if (selectedProjectUsers === 1) {
+            this.projects = this.projects.filter(
+              (el) => el.id !== this.selectedProject?.id
+            );
+          }
         },
         error: () => this.toastrService.error('Failed to leave the project')
       });
