@@ -15,6 +15,8 @@ import { Socials } from '../../../models/profile/socials.profile.info.model';
 import { passwordMatchValidator } from '../../../validators/password.match.validator';
 import { ChangePasswordModel } from '../../../models/profile/change.password.model';
 import { GeneralProfileModel } from '../../../models/profile/general.profile.model';
+import { BlacklistUsersListModel } from '../../../models/blacklist/blacklist.users.list';
+import { Jobs } from '../../../models/profile/user.jobs.model';
 
 @Component({
   selector: 'app-user-profile',
@@ -34,10 +36,14 @@ export class UserProfileDataComponent implements OnInit {
   isEditMode: boolean = false;
   originalSocials!: Socials;
 
-  blackListUsers: any[] = [];
+  blackListUsers: BlacklistUsersListModel[] = [];
 
   generalProfileForm!: FormGroup;
   isGeneralEditMode: boolean = false;
+
+  newJobForm!: FormGroup;
+
+  isAddingJob = false;
 
   passwordPattern: RegExp =
     /^(?=.*[!@#$%^&*()_+}{":;'?/>.<,`~])(?=.*\d)[^\s]{8,}$/;
@@ -61,6 +67,14 @@ export class UserProfileDataComponent implements OnInit {
       },
       { validators: passwordMatchValidator() }
     );
+
+    this.newJobForm = this.fb.group({
+      companyName: ['', Validators.required],
+      position: ['', Validators.required],
+      started_at: ['', Validators.required],
+      ended_at: [''],
+      description: ['']
+    });
 
     this.userProfileService.getFullMyProfileData().subscribe((user) => {
       if (user) {
@@ -94,6 +108,88 @@ export class UserProfileDataComponent implements OnInit {
         ) || []
       )
     });
+  }
+
+  deleteJob(job: Jobs): void {
+    if (!job.company?.id || !job.position) {
+      this.toastrService.error('Помилка: ID компанії або позиція не знайдені.');
+      return;
+    }
+
+    if (!confirm(`Ви впевнені, що хочете видалити роботу "${job.position}"?`)) {
+      return;
+    }
+
+    this.userProfileService
+      .deleteUserJobs({ company: job.company.id, position: job.position })
+      .subscribe({
+        next: () => {
+          this.userProfile.jobs = this.userProfile.jobs.filter(
+            (j) =>
+              j.company?.id !== job.company?.id || j.position !== job.position
+          );
+          this.userProfile$.next(this.userProfile);
+          this.toastrService.success('Роботу успішно видалено!');
+        },
+        error: () => {
+          this.toastrService.error('Помилка при видаленні роботи.');
+        }
+      });
+  }
+
+  toggleAddJob(): void {
+    this.isAddingJob = true;
+  }
+
+  saveNewJob(): void {
+    if (this.newJobForm.invalid) {
+      this.toastrService.error('Будь ласка, заповніть усі обов’язкові поля.');
+      return;
+    }
+
+    let newJob: any = {
+      company: this.newJobForm.value.companyName,
+      position: this.newJobForm.value.position,
+      started_at: this.newJobForm.value.started_at,
+      ended_at: this.newJobForm.value.ended_at,
+      description: this.newJobForm.value.description
+    };
+
+    Object.keys(newJob).forEach((key) => {
+      if (!newJob[key]) delete newJob[key];
+    });
+
+    this.userProfileService.createOrUpdateUserJobs(newJob).subscribe({
+      next: (createdJob) => {
+        this.userProfile.jobs.push({
+          ...createdJob,
+          company: { name: newJob.company }
+        });
+
+        this.userProfile$.next(this.userProfile);
+        this.toastrService.success('Роботу додано успішно!');
+        this.newJobForm.reset();
+        this.isAddingJob = false;
+        this.refreshUserProfile();
+      },
+      error: () => {
+        this.toastrService.error('Помилка при додаванні роботи.');
+      }
+    });
+  }
+
+  private refreshUserProfile(): void {
+    this.userProfileService.getFullMyProfileData().subscribe((user) => {
+      if (user) {
+        this.userProfile = user;
+        this.userProfile$.next(user);
+      }
+    });
+  }
+
+  cancelAddJob(): void {
+    this.newJobForm.reset();
+    this.isAddingJob = false;
   }
 
   enterGeneralEditMode(): void {

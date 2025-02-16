@@ -38,10 +38,6 @@ export class UserProfileService {
       );
   }
 
-  public get userProfile$(): Observable<UserProfile | null> {
-    return this.fullUserProfileInfo.asObservable();
-  }
-
   public getUserData(): Observable<UserDataModel> {
     return this.httpClient
       .get<UserDataModel>(`${environment.apiUrl}/auth/user-data`)
@@ -183,15 +179,19 @@ export class UserProfileService {
       );
   }
 
-  public deleteUserJobs(id: number) {
+  public deleteUserJobs(body: { company: number; position: string }) {
     return this.httpClient
-      .delete(`${environment.apiUrl}/profile/jobs/remove/${id}`)
+      .request('DELETE', `${environment.apiUrl}/profile/jobs/remove`, {
+        body // ✅ Передаємо компанію як ID та позицію як текст
+      })
       .pipe(
         tap(() => {
           const currentProfile = this.fullUserProfileInfo.getValue();
           if (currentProfile) {
             const updatedJobs = currentProfile.jobs.filter(
-              (job) => job.id !== id
+              (job) =>
+                job.company?.id !== body.company ||
+                job.position !== body.position
             );
             this.updateProfileField('jobs', updatedJobs);
           }
@@ -201,7 +201,7 @@ export class UserProfileService {
 
   public createOrUpdateUserJobs(body: Jobs) {
     return this.httpClient
-      .post(`${environment.apiUrl}/profile/jobs/update`, body)
+      .patch(`${environment.apiUrl}/profile/jobs/update`, body)
       .pipe(
         tap(() => {
           const currentProfile = this.fullUserProfileInfo.getValue();
