@@ -45,6 +45,9 @@ export class UserProfileDataComponent implements OnInit {
 
   isAddingJob = false;
 
+  newEducationForm!: FormGroup;
+  isAddingEducation: boolean = false;
+
   today: string = new Date().toISOString().split('T')[0];
 
   passwordPattern: RegExp =
@@ -78,6 +81,47 @@ export class UserProfileDataComponent implements OnInit {
       description: [''],
       isCurrentlyEmployed: [false] // 🔥 Додаємо чекбокс (не надсилається)
     });
+
+    this.newEducationForm = this.fb.group({
+      university: ['', Validators.required],
+      specialty: ['', Validators.required],
+      started_at: ['', [Validators.required, this.futureDateValidator()]],
+      ended_at: [{ value: '', disabled: false }],
+      isCurrentlyStudying: [false] // 🔥 Чекбокс
+    });
+
+    // 🔥 Реакція на зміну чекбокса
+    this.newEducationForm
+      .get('isCurrentlyStudying')
+      ?.valueChanges.subscribe((checked) => {
+        const endedAtControl = this.newEducationForm.get('ended_at');
+        if (checked) {
+          endedAtControl?.disable();
+          endedAtControl?.reset();
+        } else {
+          endedAtControl?.enable();
+        }
+      });
+
+    this.newEducationForm = this.fb.group({
+      university: ['', Validators.required],
+      specialty: ['', Validators.required],
+      started_at: ['', [Validators.required, this.futureDateValidator()]],
+      ended_at: [{ value: '', disabled: false }],
+      isCurrentlyStudying: [false]
+    });
+
+    this.newEducationForm
+      .get('isCurrentlyStudying')
+      ?.valueChanges.subscribe((checked) => {
+        const endedAtControl = this.newEducationForm.get('ended_at');
+        if (checked) {
+          endedAtControl?.disable();
+          endedAtControl?.reset();
+        } else {
+          endedAtControl?.enable();
+        }
+      });
 
     this.userProfileService.getFullMyProfileData().subscribe((user) => {
       if (user) {
@@ -164,6 +208,72 @@ export class UserProfileDataComponent implements OnInit {
     this.isAddingJob = true;
   }
 
+  toggleAddEducation(): void {
+    this.isAddingEducation = true;
+  }
+
+  saveNewEducation(): void {
+    if (this.newEducationForm.invalid) {
+      this.toastrService.error('Будь ласка, заповніть усі обов’язкові поля.');
+      return;
+    }
+
+    let newEducation: any = {
+      university: this.newEducationForm.value.university,
+      specialty: this.newEducationForm.value.specialty,
+      started_at: this.newEducationForm.value.started_at
+    };
+
+    // 🔥 Додаємо ended_at ТІЛЬКИ якщо користувач НЕ вибрав "Навчаюся досі"
+    if (!this.newEducationForm.value.isCurrentlyStudying) {
+      newEducation.ended_at = this.newEducationForm.value.ended_at;
+    }
+
+    this.userProfileService
+      .createOrUpdateUserEducation(newEducation)
+      .subscribe({
+        next: (createdEducation) => {
+          this.userProfile.education.push(createdEducation);
+          this.userProfile$.next(this.userProfile);
+          this.toastrService.success('Освіту додано успішно!');
+          this.newEducationForm.reset();
+          this.isAddingEducation = false;
+        },
+        error: () => {
+          this.toastrService.error('Помилка при додаванні освіти.');
+        }
+      });
+  }
+
+  deleteEducation(id?: number, university?: string): void {
+    if (!id) {
+      this.toastrService.error('Помилка: ID освіти не знайдено.');
+      return;
+    }
+
+    if (!confirm(`Ви впевнені, що хочете видалити освіту "${university}"?`)) {
+      return;
+    }
+
+    this.userProfileService.deleteUserEducation(id).subscribe({
+      next: () => {
+        this.userProfile.education = this.userProfile.education.filter(
+          (edu) => edu.id !== id
+        );
+        this.userProfile$.next(this.userProfile);
+        this.toastrService.success('Освіту успішно видалено!');
+      },
+      error: () => {
+        this.toastrService.error('Помилка при видаленні освіти.');
+      }
+    });
+  }
+
+  cancelAddEducation(): void {
+    this.newEducationForm.reset();
+    this.isAddingEducation = false;
+  }
+
   saveNewJob(): void {
     if (this.newJobForm.invalid) {
       this.toastrService.error('Будь ласка, заповніть усі обов’язкові поля.');
@@ -202,15 +312,6 @@ export class UserProfileDataComponent implements OnInit {
       },
       error: () => {
         this.toastrService.error('Помилка при додаванні роботи.');
-      }
-    });
-  }
-
-  private refreshUserProfile(): void {
-    this.userProfileService.getFullMyProfileData().subscribe((user) => {
-      if (user) {
-        this.userProfile = user;
-        this.userProfile$.next(user);
       }
     });
   }

@@ -128,22 +128,6 @@ export class UserProfileService {
       );
   }
 
-  public deleteUserEducation(educationName: string) {
-    return this.httpClient
-      .delete(`${environment.apiUrl}/profile/education/remove/${educationName}`)
-      .pipe(
-        tap(() => {
-          const currentProfile = this.fullUserProfileInfo.getValue();
-          if (currentProfile) {
-            const updatedEducation = currentProfile.education.filter(
-              (edu) => edu !== educationName
-            );
-            this.updateProfileField('education', updatedEducation);
-          }
-        })
-      );
-  }
-
   public createOrUpdateUserEducation(body: UserEducationModel) {
     return this.httpClient
       .patch(`${environment.apiUrl}/profile/education/update`, body)
@@ -152,6 +136,22 @@ export class UserProfileService {
           const currentProfile = this.fullUserProfileInfo.getValue();
           if (currentProfile) {
             const updatedEducation = [...currentProfile.education, body];
+            this.updateProfileField('education', updatedEducation);
+          }
+        })
+      );
+  }
+
+  public deleteUserEducation(id: number) {
+    return this.httpClient
+      .delete(`${environment.apiUrl}/profile/education/remove/${id}`)
+      .pipe(
+        tap(() => {
+          const currentProfile = this.fullUserProfileInfo.getValue();
+          if (currentProfile) {
+            const updatedEducation = currentProfile.education.filter(
+              (edu) => edu.id !== id
+            );
             this.updateProfileField('education', updatedEducation);
           }
         })

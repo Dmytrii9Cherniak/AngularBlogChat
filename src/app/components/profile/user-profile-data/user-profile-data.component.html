@@ -109,9 +109,46 @@
 
     <div class="profile-section">
       <h3>🎓 Освіта</h3>
-      <ul>
-        <li *ngFor="let edu of userProfile.education">{{ edu || 'Не вказано' }}</li>
+
+      <ul *ngIf="userProfile.education?.length; else noEducation">
+        <li *ngFor="let edu of userProfile.education">
+          <strong>{{ edu.university || 'Не вказано' }}</strong> <br>
+          <em>{{ edu.specialty || 'Спеціальність не вказана' }}</em> <br>
+          <strong>Дата початку:</strong> {{ edu.started_at || 'Не вказано' }} <br>
+          <strong>Дата завершення:</strong>
+          {{ edu.ended_at ? edu.ended_at : 'Навчаюся досі' }}
+
+          <button type="button" (click)="deleteEducation(edu.id, edu.university)">🗑️ Видалити</button>
+        </li>
       </ul>
+
+      <ng-template #noEducation>
+        <p>У вас поки немає доданих записів про освіту.</p>
+      </ng-template>
+
+      <button *ngIf="!isAddingEducation" type="button" (click)="toggleAddEducation()">➕ Додати освіту</button>
+
+      <form *ngIf="isAddingEducation" [formGroup]="newEducationForm">
+        <label>Університет</label>
+        <input formControlName="university" type="text" class="form-control" placeholder="Назва університету">
+
+        <label>Спеціальність</label>
+        <input formControlName="specialty" type="text" class="form-control" placeholder="Спеціальність">
+
+        <label>Дата початку</label>
+        <input formControlName="started_at" type="date" class="form-control">
+
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" formControlName="isCurrentlyStudying">
+          <label class="form-check-label">Навчаюся досі</label>
+        </div>
+
+        <label>Дата завершення</label>
+        <input formControlName="ended_at" type="date" class="form-control">
+
+        <button type="button" (click)="saveNewEducation()" [disabled]="newEducationForm.invalid">💾 Зберегти</button>
+        <button type="button" (click)="cancelAddEducation()">❌ Скасувати</button>
+      </form>
     </div>
 
     <div class="profile-section">

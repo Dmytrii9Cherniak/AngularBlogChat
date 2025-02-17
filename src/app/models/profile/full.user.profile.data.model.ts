@@ -3,6 +3,7 @@ import { Friend } from './profile.friend.model';
 import { Project } from '../project/different.project.list.model';
 import { Jobs } from './user.jobs.model';
 import { Technology } from './user.technology.model';
+import { UserEducationModel } from './user.education.model';
 
 export interface UserProfile {
   id: number;
@@ -26,7 +27,7 @@ export interface UserProfile {
   socials: Socials;
   friends: Friend[];
   hobbies: string[];
-  education: string[];
+  education: UserEducationModel[];
   certificates: string[];
   jobs: Jobs[];
   reactions: string[];
