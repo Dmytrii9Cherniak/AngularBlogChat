@@ -17,6 +17,7 @@ import { ChangePasswordModel } from '../../../models/profile/change.password.mod
 import { GeneralProfileModel } from '../../../models/profile/general.profile.model';
 import { BlacklistUsersListModel } from '../../../models/blacklist/blacklist.users.list';
 import { Jobs } from '../../../models/profile/user.jobs.model';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-user-profile',
@@ -61,8 +62,17 @@ export class UserProfileDataComponent implements OnInit {
     private fb: FormBuilder,
     private userProfileService: UserProfileService,
     private toastrService: ToastrService,
-    private usersService: UsersService
-  ) {}
+    private usersService: UsersService,
+    private translate: TranslateService
+  ) {
+    translate.setDefaultLang('en');
+    translate.use(localStorage.getItem('lang') || 'en');
+  }
+
+  changeLanguage(lang: string) {
+    this.translate.use(lang);
+    localStorage.setItem('lang', lang);
+  }
 
   ngOnInit(): void {
     this.userProfileService.getFullMyProfileData().subscribe((user) => {

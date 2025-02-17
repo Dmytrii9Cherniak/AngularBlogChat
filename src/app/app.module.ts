@@ -18,6 +18,18 @@ import { ToastrModule } from 'ngx-toastr';
 import { errorInterceptor } from './interceptors/error.interceptor';
 import { toastrMessagesSettings } from './helpers/toastr.messages.settings';
 import { LayoutModule } from './modules/layout/layout.module';
+import {
+  TranslateLoader,
+  TranslateModule,
+  TranslateService
+} from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { HttpClient } from '@angular/common/http';
+
+// Фабрика для завантаження JSON-файлів перекладу
+export function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
 
 @NgModule({
   declarations: [AppComponent],
@@ -28,7 +40,14 @@ import { LayoutModule } from './modules/layout/layout.module';
     AppRoutingModule,
     AuthRoutingModule,
     FormsModule,
-    ToastrModule.forRoot(toastrMessagesSettings)
+    ToastrModule.forRoot(toastrMessagesSettings),
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient]
+      }
+    })
   ],
   providers: [
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
@@ -40,7 +59,8 @@ import { LayoutModule } from './modules/layout/layout.module';
         UserProfileService,
         TokenService,
         WebsocketsService,
-        BroadcastChannelService
+        BroadcastChannelService,
+        TranslateService
       ],
       multi: true
     }

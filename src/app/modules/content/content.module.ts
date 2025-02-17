@@ -10,6 +10,7 @@ import { UserProfileDataComponent } from '../../components/profile/user-profile-
 import { ProjectsComponent } from '../../components/content/projects/projects.component';
 import { NotificationsComponent } from '../../components/profile/notifications/notifications.component';
 import { FriendsListDataComponent } from '../../components/profile/friends-list-data/friends-list-data.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { FriendsListDataComponent } from '../../components/profile/friends-list-
     CommonModule,
     ContentRoutingModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    TranslatePipe
   ]
 })
 export class ContentModule {}
