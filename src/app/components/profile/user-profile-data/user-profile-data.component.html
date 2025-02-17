@@ -133,7 +133,7 @@
           {{ job.ended_at ? job.ended_at : 'Обіймаю цю посаду досі' }}<br>
           <strong>Опис:</strong> {{ job.description || 'Опис відсутній' }}
 
-          <button type="button" (click)="deleteJob(job)">🗑️ Видалити</button>
+          <button type="button" (click)="deleteJob(job.id, job.position)">🗑️ Видалити</button>
         </li>
       </ul>
 
@@ -147,10 +147,21 @@
         <input formControlName="position" type="text" class="form-control" placeholder="Посада">
 
         <label>Дата початку</label>
-        <input formControlName="started_at" type="date" class="form-control">
+        <input type="date" formControlName="started_at" class="form-control" max="{{ today }}">
 
-        <label>Дата завершення (необов’язково)</label>
-        <input formControlName="ended_at" type="date" class="form-control">
+        <div class="form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            formControlName="isCurrentlyEmployed"
+          />
+          <label class="form-check-label">Обіймаю цю посаду досі</label>
+        </div>
+
+        <div class="mb-3">
+          <label>Дата завершення</label>
+          <input formControlName="ended_at" type="date" class="form-control">
+        </div>
 
         <label>Опис</label>
         <textarea formControlName="description" class="form-control" placeholder="Опис"></textarea>

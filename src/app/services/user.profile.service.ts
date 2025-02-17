@@ -179,19 +179,15 @@ export class UserProfileService {
       );
   }
 
-  public deleteUserJobs(body: { company: number; position: string }) {
+  public deleteUserJobs(id: number) {
     return this.httpClient
-      .request('DELETE', `${environment.apiUrl}/profile/jobs/remove`, {
-        body // ✅ Передаємо компанію як ID та позицію як текст
-      })
+      .delete(`${environment.apiUrl}/profile/jobs/remove/${id}`)
       .pipe(
         tap(() => {
           const currentProfile = this.fullUserProfileInfo.getValue();
           if (currentProfile) {
             const updatedJobs = currentProfile.jobs.filter(
-              (job) =>
-                job.company?.id !== body.company ||
-                job.position !== body.position
+              (job) => job.id !== id
             );
             this.updateProfileField('jobs', updatedJobs);
           }

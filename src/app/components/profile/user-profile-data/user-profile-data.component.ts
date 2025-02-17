@@ -45,6 +45,8 @@ export class UserProfileDataComponent implements OnInit {
 
   isAddingJob = false;
 
+  today: string = new Date().toISOString().split('T')[0];
+
   passwordPattern: RegExp =
     /^(?=.*[!@#$%^&*()_+}{":;'?/>.<,`~])(?=.*\d)[^\s]{8,}$/;
 
@@ -71,9 +73,10 @@ export class UserProfileDataComponent implements OnInit {
     this.newJobForm = this.fb.group({
       companyName: ['', Validators.required],
       position: ['', Validators.required],
-      started_at: ['', Validators.required],
-      ended_at: [''],
-      description: ['']
+      started_at: ['', [Validators.required, this.futureDateValidator()]], // 🔥 Заборона майбутньої дати
+      ended_at: [{ value: '', disabled: false }],
+      description: [''],
+      isCurrentlyEmployed: [false] // 🔥 Додаємо чекбокс (не надсилається)
     });
 
     this.userProfileService.getFullMyProfileData().subscribe((user) => {
@@ -85,9 +88,30 @@ export class UserProfileDataComponent implements OnInit {
       }
     });
 
+    this.newJobForm
+      .get('isCurrentlyEmployed')
+      ?.valueChanges.subscribe((checked) => {
+        const endedAtControl = this.newJobForm.get('ended_at');
+        if (checked) {
+          endedAtControl?.disable(); // 🔥 Блокуємо, якщо чекбокс активний
+          endedAtControl?.reset(); // 🔥 Очищаємо значення
+        } else {
+          endedAtControl?.enable(); // 🔥 Дозволяємо редагування, якщо чекбокс не активний
+        }
+      });
+
     this.usersService.getMyBlackUsersList().subscribe((users) => {
       this.blackListUsers = users;
     });
+  }
+
+  private futureDateValidator() {
+    return (control: FormControl) => {
+      if (control.value && new Date(control.value) > new Date()) {
+        return { futureDate: true };
+      }
+      return null;
+    };
   }
 
   private createGeneralProfileForm(user: UserProfile): void {
@@ -110,23 +134,22 @@ export class UserProfileDataComponent implements OnInit {
     });
   }
 
-  deleteJob(job: Jobs): void {
-    if (!job.company?.id || !job.position) {
-      this.toastrService.error('Помилка: ID компанії або позиція не знайдені.');
+  deleteJob(id?: number, position?: string): void {
+    if (!id) {
+      this.toastrService.error('Помилка: ID роботи не знайдено.');
       return;
     }
 
-    if (!confirm(`Ви впевнені, що хочете видалити роботу "${job.position}"?`)) {
+    if (!confirm(`Ви впевнені, що хочете видалити роботу "${position}"?`)) {
       return;
     }
 
     this.userProfileService
-      .deleteUserJobs({ company: job.company.id, position: job.position })
+      .deleteUserJobs(id) // 🔥 Передаємо тільки job.id
       .subscribe({
         next: () => {
           this.userProfile.jobs = this.userProfile.jobs.filter(
-            (j) =>
-              j.company?.id !== job.company?.id || j.position !== job.position
+            (j) => j.id !== id
           );
           this.userProfile$.next(this.userProfile);
           this.toastrService.success('Роботу успішно видалено!');
@@ -151,7 +174,9 @@ export class UserProfileDataComponent implements OnInit {
       company: this.newJobForm.value.companyName,
       position: this.newJobForm.value.position,
       started_at: this.newJobForm.value.started_at,
-      ended_at: this.newJobForm.value.ended_at,
+      ended_at: this.newJobForm.value.isCurrentlyEmployed
+        ? null
+        : this.newJobForm.value.ended_at, // 🔥 Не передаємо ended_at, якщо вибрано чекбокс
       description: this.newJobForm.value.description
     };
 
@@ -160,17 +185,20 @@ export class UserProfileDataComponent implements OnInit {
     });
 
     this.userProfileService.createOrUpdateUserJobs(newJob).subscribe({
-      next: (createdJob) => {
+      next: (createdJob: Jobs) => {
         this.userProfile.jobs.push({
-          ...createdJob,
-          company: { name: newJob.company }
+          id: createdJob.id,
+          company: { name: newJob.company, id: createdJob?.company?.id },
+          position: createdJob.position,
+          started_at: createdJob.started_at,
+          ended_at: createdJob.ended_at,
+          description: createdJob.description
         });
 
         this.userProfile$.next(this.userProfile);
         this.toastrService.success('Роботу додано успішно!');
         this.newJobForm.reset();
         this.isAddingJob = false;
-        this.refreshUserProfile();
       },
       error: () => {
         this.toastrService.error('Помилка при додаванні роботи.');
