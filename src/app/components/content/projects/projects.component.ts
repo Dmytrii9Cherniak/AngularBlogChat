@@ -27,6 +27,8 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   public invitedUsers: UsersListModel[] = [];
   public selectedUsers: { [key: number]: boolean } = {};
 
+  public newOwnerId: number | null = null;
+
   projectForm!: FormGroup;
 
   private modals: { [key: string]: Modal | null } = {
@@ -229,30 +231,48 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   leaveCertainProject(): void {
     if (!this.selectedProject?.id) return;
 
-    const selectedProjectUsers = this.selectedProject.users.length;
+    let requestBody = {};
+
+    const isOwner =
+      this.selectedProject.creator?.id === this.userProfileData?.id;
+    const hasOtherUsers = this.selectedProject.users.length > 1;
+
+    if (isOwner && hasOtherUsers) {
+      if (!this.newOwnerId) {
+        this.toastrService.error('Please select a new project owner.');
+        return;
+      }
+      requestBody = { creator_to: this.newOwnerId };
+    }
 
     this.projectsService
-      .leaveCertainProject(this.selectedProject.id)
+      .leaveCertainProject(this.selectedProject.id, requestBody)
       .subscribe({
         next: () => {
-          this.projects = this.projects.map((project) =>
-            project.id === this.selectedProject?.id
-              ? {
-                ...project,
-                users: project.users.filter(
-                  (user) => user.id !== this.userProfileData?.id
-                )
-              }
-              : project
-          );
-          this.toastrService.success('You have left the project successfully');
-          this.closeModal('confirmLeave');
+          // Перевіряємо, чи користувач був останнім у проекті
+          const isLastUser = this.selectedProject?.users.length === 1;
 
-          if (selectedProjectUsers === 1) {
+          if (isLastUser) {
+            // Видаляємо проект, якщо користувач був останнім
             this.projects = this.projects.filter(
-              (el) => el.id !== this.selectedProject?.id
+              (project) => project.id !== this.selectedProject?.id
+            );
+          } else {
+            // Якщо проект залишається, просто прибираємо користувача
+            this.projects = this.projects.map((project) =>
+              project.id === this.selectedProject?.id
+                ? {
+                    ...project,
+                  users: project.users.filter(
+                    (user) => user.id !== this.userProfileData?.id
+                  )
+                }
+                : project
             );
           }
+
+          this.toastrService.success('You have left the project successfully');
+          this.closeModal('confirmLeave');
         },
         error: () => this.toastrService.error('Failed to leave the project')
       });
@@ -267,6 +287,7 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
 
   openConfirmLeaveProjectModal(project: Project): void {
     this.selectedProject = project;
+    this.newOwnerId = null;
     this.modals['confirmLeave']?.show();
   }
 

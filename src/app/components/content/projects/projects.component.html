@@ -249,8 +249,21 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Are you sure you want to leave "{{ selectedProject?.name }}"?
+        <p *ngIf="selectedProject">
+          Are you sure you want to leave "<strong>{{ selectedProject.name }}</strong>"?
+        </p>
+
+        <!-- Вибір нового власника (показується тільки якщо користувач є власником) -->
+        <div *ngIf="selectedProject?.creator?.id === userProfileData?.id && (selectedProject?.users?.length ?? 0) > 1">
+        <label class="form-label">Select new project owner:</label>
+          <select class="form-select" [(ngModel)]="newOwnerId">
+            <option *ngFor="let user of selectedProject?.users" [value]="user.id" [disabled]="user.id === userProfileData?.id">
+              {{ user.nickname }}
+            </option>
+          </select>
+        </div>
       </div>
+
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         <button class="btn btn-danger" (click)="leaveCertainProject()">Leave Project</button>

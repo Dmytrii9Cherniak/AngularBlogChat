@@ -68,9 +68,10 @@ export class ProjectsService {
     );
   }
 
-  leaveCertainProject(id: number): Observable<Object> {
+  leaveCertainProject(id: number, body: Object): Observable<Object> {
     return this.httpClient.delete(
-      `${environment.apiUrl}/profile/projects/${id}/members/leave`
+      `${environment.apiUrl}/profile/projects/${id}/members/leave`,
+      { body }
     );
   }
 }
