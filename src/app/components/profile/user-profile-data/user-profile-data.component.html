@@ -82,7 +82,7 @@
 
     <div class="profile-section">
       <h3>🔗 Соціальні мережі</h3>
-      <ng-container *ngIf="isEditMode; else viewMode">
+      <ng-container *ngIf="isEditSocialsMode; else viewMode">
         <form [formGroup]="socialsForm">
           <ul>
             <li *ngFor="let key of objectKeys(userProfile.socials ?? {})">
@@ -91,7 +91,7 @@
             </li>
           </ul>
           <button type="button" (click)="saveSocials()">💾 Зберегти зміни</button>
-          <button type="button" (click)="cancelEditMode()">❌ Скасувати</button>
+          <button type="button" (click)="cancelEditSocialsMode()">❌ Скасувати</button>
         </form>
       </ng-container>
 
@@ -101,7 +101,7 @@
             <strong>{{ key | titlecase }}:</strong> {{ userProfile.socials[key] || 'Не вказано' }}
           </li>
         </ul>
-        <button type="button" (click)="enterEditMode()">✏️ Редагувати</button>
+        <button type="button" (click)="enterEditSocialsMode()">✏️ Редагувати</button>
       </ng-template>
     </div>
 

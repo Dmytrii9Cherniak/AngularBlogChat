@@ -33,7 +33,7 @@ export class UserProfileDataComponent implements OnInit {
   selectedFile: File | null = null;
 
   socialsForm!: FormGroup;
-  isEditMode: boolean = false;
+  isEditSocialsMode: boolean = false;
   originalSocials!: Socials;
 
   blackListUsers: BlacklistUsersListModel[] = [];
@@ -61,6 +61,15 @@ export class UserProfileDataComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.userProfileService.getFullMyProfileData().subscribe((user) => {
+      if (user) {
+        this.userProfile = user;
+        this.userProfile$.next(user);
+        this.createSocialsForm(user.socials);
+        this.createGeneralProfileForm(user);
+      }
+    });
+
     this.newPasswordForm = this.fb.group(
       {
         current_password: ['', Validators.required],
@@ -76,32 +85,11 @@ export class UserProfileDataComponent implements OnInit {
     this.newJobForm = this.fb.group({
       companyName: ['', Validators.required],
       position: ['', Validators.required],
-      started_at: ['', [Validators.required, this.futureDateValidator()]], // 🔥 Заборона майбутньої дати
-      ended_at: [{ value: '', disabled: false }],
-      description: [''],
-      isCurrentlyEmployed: [false] // 🔥 Додаємо чекбокс (не надсилається)
-    });
-
-    this.newEducationForm = this.fb.group({
-      university: ['', Validators.required],
-      specialty: ['', Validators.required],
       started_at: ['', [Validators.required, this.futureDateValidator()]],
       ended_at: [{ value: '', disabled: false }],
-      isCurrentlyStudying: [false] // 🔥 Чекбокс
+      description: [''],
+      isCurrentlyEmployed: [false]
     });
-
-    // 🔥 Реакція на зміну чекбокса
-    this.newEducationForm
-      .get('isCurrentlyStudying')
-      ?.valueChanges.subscribe((checked) => {
-        const endedAtControl = this.newEducationForm.get('ended_at');
-        if (checked) {
-          endedAtControl?.disable();
-          endedAtControl?.reset();
-        } else {
-          endedAtControl?.enable();
-        }
-      });
 
     this.newEducationForm = this.fb.group({
       university: ['', Validators.required],
@@ -123,24 +111,15 @@ export class UserProfileDataComponent implements OnInit {
         }
       });
 
-    this.userProfileService.getFullMyProfileData().subscribe((user) => {
-      if (user) {
-        this.userProfile = user;
-        this.userProfile$.next(user);
-        this.createSocialsForm(user.socials);
-        this.createGeneralProfileForm(user);
-      }
-    });
-
     this.newJobForm
       .get('isCurrentlyEmployed')
       ?.valueChanges.subscribe((checked) => {
         const endedAtControl = this.newJobForm.get('ended_at');
         if (checked) {
-          endedAtControl?.disable(); // 🔥 Блокуємо, якщо чекбокс активний
-          endedAtControl?.reset(); // 🔥 Очищаємо значення
+          endedAtControl?.disable();
+          endedAtControl?.reset();
         } else {
-          endedAtControl?.enable(); // 🔥 Дозволяємо редагування, якщо чекбокс не активний
+          endedAtControl?.enable();
         }
       });
 
@@ -188,20 +167,18 @@ export class UserProfileDataComponent implements OnInit {
       return;
     }
 
-    this.userProfileService
-      .deleteUserJobs(id) // 🔥 Передаємо тільки job.id
-      .subscribe({
-        next: () => {
-          this.userProfile.jobs = this.userProfile.jobs.filter(
-            (j) => j.id !== id
-          );
-          this.userProfile$.next(this.userProfile);
-          this.toastrService.success('Роботу успішно видалено!');
-        },
-        error: () => {
-          this.toastrService.error('Помилка при видаленні роботи.');
-        }
-      });
+    this.userProfileService.deleteUserJobs(id).subscribe({
+      next: () => {
+        this.userProfile.jobs = this.userProfile.jobs.filter(
+          (j) => j.id !== id
+        );
+        this.userProfile$.next(this.userProfile);
+        this.toastrService.success('Роботу успішно видалено!');
+      },
+      error: () => {
+        this.toastrService.error('Помилка при видаленні роботи.');
+      }
+    });
   }
 
   toggleAddJob(): void {
@@ -224,7 +201,6 @@ export class UserProfileDataComponent implements OnInit {
       started_at: this.newEducationForm.value.started_at
     };
 
-    // 🔥 Додаємо ended_at ТІЛЬКИ якщо користувач НЕ вибрав "Навчаюся досі"
     if (!this.newEducationForm.value.isCurrentlyStudying) {
       newEducation.ended_at = this.newEducationForm.value.ended_at;
     }
@@ -286,7 +262,7 @@ export class UserProfileDataComponent implements OnInit {
       started_at: this.newJobForm.value.started_at,
       ended_at: this.newJobForm.value.isCurrentlyEmployed
         ? null
-        : this.newJobForm.value.ended_at, // 🔥 Не передаємо ended_at, якщо вибрано чекбокс
+        : this.newJobForm.value.ended_at,
       description: this.newJobForm.value.description
     };
 
@@ -410,13 +386,13 @@ export class UserProfileDataComponent implements OnInit {
     });
   }
 
-  enterEditMode(): void {
-    this.isEditMode = true;
+  enterEditSocialsMode(): void {
+    this.isEditSocialsMode = true;
   }
 
-  cancelEditMode(): void {
+  cancelEditSocialsMode(): void {
     this.createSocialsForm(this.originalSocials);
-    this.isEditMode = false;
+    this.isEditSocialsMode = false;
   }
 
   saveSocials(): void {
@@ -442,7 +418,7 @@ export class UserProfileDataComponent implements OnInit {
         this.userProfile$.next(this.userProfile);
 
         this.toastrService.success('Соціальні мережі оновлено');
-        this.isEditMode = false;
+        this.isEditSocialsMode = false;
       });
   }
 
