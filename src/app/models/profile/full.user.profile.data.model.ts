@@ -4,6 +4,7 @@ import { Project } from '../project/different.project.list.model';
 import { Jobs } from './user.jobs.model';
 import { Technology } from './user.technology.model';
 import { UserEducationModel } from './user.education.model';
+import { UserCertificatesModel } from './user.certificate.model';
 
 export interface UserProfile {
   id: number;
@@ -28,7 +29,7 @@ export interface UserProfile {
   friends: Friend[];
   hobbies: string[];
   education: UserEducationModel[];
-  certificates: string[];
+  certificates: UserCertificatesModel[];
   jobs: Jobs[];
   reactions: string[];
   projects: Project[];

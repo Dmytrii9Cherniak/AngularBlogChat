@@ -98,15 +98,15 @@ export class UserProfileService {
     );
   }
 
-  public deleteUserCertificates(id: string) {
+  public deleteUserCertificate(id: string) {
     return this.httpClient
-      .delete(`${environment.apiUrl}/profile/certificates/delete/${id}`)
+      .delete(`${environment.apiUrl}/profile/certificates/delete/$  {id}`)
       .pipe(
         tap(() => {
           const currentProfile = this.fullUserProfileInfo.getValue();
           if (currentProfile) {
             const updatedCertificates = currentProfile.certificates.filter(
-              (cert) => cert !== id
+              (cert) => cert.id !== id
             );
             this.updateProfileField('certificates', updatedCertificates);
           }
@@ -114,14 +114,17 @@ export class UserProfileService {
       );
   }
 
-  public createOrUpdateUserCertificates(body: UserCertificatesModel) {
+  public createOrUpdateUserCertificates(body: FormData) {
     return this.httpClient
       .patch(`${environment.apiUrl}/profile/certificates/update`, body)
       .pipe(
-        tap(() => {
+        tap((createdCert) => {
           const currentProfile = this.fullUserProfileInfo.getValue();
           if (currentProfile) {
-            const updatedCertificates = [...currentProfile.certificates, body];
+            const updatedCertificates = [
+              ...currentProfile.certificates,
+              createdCert
+            ];
             this.updateProfileField('certificates', updatedCertificates);
           }
         })

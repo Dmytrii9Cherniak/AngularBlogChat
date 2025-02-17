@@ -153,9 +153,45 @@
 
     <div class="profile-section">
       <h3>🏆 Сертифікати</h3>
-      <ul>
-        <li *ngFor="let cert of userProfile.certificates">{{ cert || 'Не вказано' }}</li>
+
+      <ul *ngIf="userProfile.certificates.length > 0; else noCerts">
+        <li *ngFor="let cert of userProfile.certificates">
+          <strong>Назва:</strong> {{ cert.title || 'Не вказано' }} <br>
+          <strong>Організація:</strong> {{ cert.organization || 'Не вказано' }} <br>
+          <strong>Дата видачі:</strong> {{ cert.issued_at || 'Не вказано' }} <br>
+          <strong>Опис:</strong> {{ cert.description || 'Опис відсутній' }} <br>
+
+          <img *ngIf="cert.photo" [src]="cert.photo" alt="Сертифікат" class="cert-image">
+
+          <button type="button" *ngIf="cert.id" (click)="deleteCertificate(cert.id)">🗑️ Видалити</button>
+        </li>
       </ul>
+
+      <ng-template #noCerts>
+        <p>Сертифікати відсутні</p>
+      </ng-template>
+
+      <button *ngIf="!isAddingCertificate" type="button" (click)="toggleAddCertificate()">➕ Додати сертифікат</button>
+
+      <form *ngIf="isAddingCertificate" [formGroup]="newCertificateForm">
+        <label>Назва сертифіката</label>
+        <input formControlName="title" type="text" class="form-control" placeholder="Назва сертифіката">
+
+        <label>Організація</label>
+        <input formControlName="organization" type="text" class="form-control" placeholder="Організація">
+
+        <label>Дата видачі</label>
+        <input formControlName="issued_at" type="date" class="form-control">
+
+        <label>Опис</label>
+        <textarea formControlName="description" class="form-control" placeholder="Опис"></textarea>
+
+        <label>Завантажити сертифікат (зображення)</label>
+        <input type="file" (change)="onCertificateFileSelected($event)" class="form-control">
+
+        <button type="button" (click)="saveNewCertificate()" [disabled]="newCertificateForm.invalid">💾 Зберегти</button>
+        <button type="button" (click)="cancelAddCertificate()">❌ Скасувати</button>
+      </form>
     </div>
 
     <div class="profile-section">

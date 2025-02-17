@@ -50,6 +50,10 @@ export class UserProfileDataComponent implements OnInit {
 
   today: string = new Date().toISOString().split('T')[0];
 
+  newCertificateForm!: FormGroup;
+  isAddingCertificate = false;
+  selectedCertificateFile: File | null = null;
+
   passwordPattern: RegExp =
     /^(?=.*[!@#$%^&*()_+}{":;'?/>.<,`~])(?=.*\d)[^\s]{8,}$/;
 
@@ -99,6 +103,13 @@ export class UserProfileDataComponent implements OnInit {
       isCurrentlyStudying: [false]
     });
 
+    this.newCertificateForm = this.fb.group({
+      title: [''],
+      organization: [''],
+      issued_at: [''],
+      description: ['']
+    });
+
     this.newEducationForm
       .get('isCurrentlyStudying')
       ?.valueChanges.subscribe((checked) => {
@@ -135,6 +146,86 @@ export class UserProfileDataComponent implements OnInit {
       }
       return null;
     };
+  }
+
+  toggleAddCertificate(): void {
+    this.isAddingCertificate = true;
+  }
+
+  cancelAddCertificate(): void {
+    this.newCertificateForm.reset();
+    this.isAddingCertificate = false;
+  }
+
+  onCertificateFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedCertificateFile = file;
+    }
+  }
+
+  saveNewCertificate(): void {
+    if (this.newCertificateForm.invalid) {
+      this.toastrService.error('Будь ласка, заповніть усі обов’язкові поля.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', this.newCertificateForm.value.title);
+    formData.append('organization', this.newCertificateForm.value.organization);
+    formData.append('issued_at', this.newCertificateForm.value.issued_at);
+
+    if (this.newCertificateForm.value.description) {
+      formData.append('description', this.newCertificateForm.value.description);
+    }
+
+    if (this.selectedCertificateFile) {
+      formData.append('photo', this.selectedCertificateFile);
+    }
+
+    this.sendCertificate(formData);
+  }
+
+  private sendCertificate(certFormData: FormData): void {
+    this.userProfileService
+      .createOrUpdateUserCertificates(certFormData)
+      .subscribe({
+        next: (createdCert) => {
+          this.userProfile.certificates.push(createdCert);
+          this.userProfile$.next(this.userProfile);
+          this.toastrService.success('Сертифікат додано успішно!');
+          this.newCertificateForm.reset();
+          this.isAddingCertificate = false;
+          this.selectedCertificateFile = null;
+        },
+        error: () => {
+          this.toastrService.error('Помилка при додаванні сертифіката.');
+        }
+      });
+  }
+
+  deleteCertificate(id: string): void {
+    if (!id) {
+      this.toastrService.error('Помилка: ID сертифіката не знайдено.');
+      return;
+    }
+
+    if (!confirm('Ви впевнені, що хочете видалити цей сертифікат?')) {
+      return;
+    }
+
+    this.userProfileService.deleteUserCertificate(id).subscribe({
+      next: () => {
+        this.userProfile.certificates = this.userProfile.certificates.filter(
+          (cert) => cert.id !== id
+        );
+        this.userProfile$.next(this.userProfile);
+        this.toastrService.success('Сертифікат успішно видалено!');
+      },
+      error: () => {
+        this.toastrService.error('Помилка при видаленні сертифіката.');
+      }
+    });
   }
 
   private createGeneralProfileForm(user: UserProfile): void {

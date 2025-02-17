@@ -1,10 +1,10 @@
 export class UserCertificatesModel {
-  id: string | null;
-  title: string | null;
-  photo: File | null;
-  organization: string | null;
-  issued_at: string | null;
-  description: string | null;
+  id?: string | null;
+  title?: string | null;
+  photo?: File | null;
+  organization?: string | null;
+  issued_at?: string | null;
+  description?: string | null;
 
   constructor(
     id: string | null = null,
