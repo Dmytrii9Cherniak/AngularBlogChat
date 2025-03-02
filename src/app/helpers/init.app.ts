@@ -6,20 +6,26 @@ import { WebsocketsService } from '../services/websockets.service';
 import { BroadcastChannelService } from '../services/broadcast-channel.service';
 import { v4 as uuidv4 } from 'uuid';
 import { TranslateService } from '@ngx-translate/core';
+import { ProjectsService } from '../services/projects.service';
 
 export function initializeApp(
   authService: AuthService,
   userService: UserProfileService,
   tokenService: TokenService,
+  projectsService: ProjectsService,
   websocketsService: WebsocketsService,
   broadcastChannelService: BroadcastChannelService,
   translate: TranslateService
 ): () => Promise<void> {
   return async () => {
-    // 1. Завантажуємо вибрану мову
     const savedLang = localStorage.getItem('lang') || 'en';
     translate.setDefaultLang(savedLang);
     await firstValueFrom(translate.use(savedLang)); // Чекаємо завантаження мови
+
+    projectsService.getAllProjects().subscribe({
+      next: (projects) => console.log('Projects loaded:', projects),
+      error: (error) => console.error('Error loading projects:', error)
+    });
 
     // 2. Налаштовуємо сесію
     const sessionId = localStorage.getItem('sessionId') || uuidv4();
@@ -73,6 +79,8 @@ export function initializeApp(
     } else {
       authService.logout();
     }
+
+    projectsService.getAllProjects();
 
     // 4. Обробка виходу
     window.addEventListener('beforeunload', () => {

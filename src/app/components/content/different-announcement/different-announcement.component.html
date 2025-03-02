@@ -1,0 +1,43 @@
+<div class="container py-5">
+  <ng-container *ngIf="isLoading; else announcementContent">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Завантаження...</span>
+    </div>
+  </ng-container>
+
+  <ng-template #announcementContent>
+    <ng-container *ngIf="announcement; else noData">
+      <h1 class="text-gradient">{{ announcement.title }}</h1>
+      <p>{{ announcement.description }}</p>
+
+      <div *ngIf="announcement.job_titles?.length">
+        <h3>Job Titles</h3>
+        <ul>
+          <li *ngFor="let job of announcement.job_titles">{{ job }}</li>
+        </ul>
+      </div>
+
+      <div *ngIf="announcement.technologies?.length">
+        <h3>Technologies</h3>
+        <ul>
+          <li *ngFor="let tech of announcement.technologies">{{ tech }}</li>
+        </ul>
+      </div>
+
+      <div *ngIf="announcement.project">
+
+        <h3> Creator: {{ announcement.project.creator.nickname }} </h3>
+
+
+        <ul>
+          Members
+          <li *ngFor="let member of announcement.project.members"> {{ member.nickname }} </li>
+        </ul>
+      </div>
+    </ng-container>
+
+    <ng-template #noData>
+      <div class="alert alert-warning text-center">Оголошення не знайдено</div>
+    </ng-template>
+  </ng-template>
+</div>

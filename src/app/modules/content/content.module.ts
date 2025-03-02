@@ -12,9 +12,13 @@ import { NotificationsComponent } from '../../components/profile/notifications/n
 import { FriendsListDataComponent } from '../../components/profile/friends-list-data/friends-list-data.component';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ModalWrapperComponent } from '../../components/layout/modal-wrapper/modal-wrapper.component';
+import { AnnouncementsComponent } from '../../components/content/announcements/announcements.component';
+import { DifferentAnnouncementComponent } from '../../components/content/different-announcement/different-announcement.component';
 
 @NgModule({
   declarations: [
+    AnnouncementsComponent,
+    DifferentAnnouncementComponent,
     ChatComponent,
     AllUsersListComponent,
     UserDetailsInfoComponent,

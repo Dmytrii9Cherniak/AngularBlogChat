@@ -9,6 +9,7 @@ export interface User {
   nickname: string;
   email: string;
   avatar: string;
+  job_title?: string;
 }
 
 export interface Creator {
@@ -25,4 +26,10 @@ export interface Project {
   technologies: Technology[];
   users: User[];
   creator: Creator;
+  members?: {
+    id: number;
+    nickname: string;
+    avatar: string;
+    job_title?: string;
+  }[];
 }

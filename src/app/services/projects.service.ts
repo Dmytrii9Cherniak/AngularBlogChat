@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Project } from '../models/project/different.project.list.model';
 import { CreateProjectModel } from '../models/project/create.project.model';
 import { environment } from '../../environments/environment';
@@ -10,12 +10,20 @@ import { CreateProjectInvite } from '../models/project/create.project.invite';
   providedIn: 'root'
 })
 export class ProjectsService {
+  public allProjectList: BehaviorSubject<Project[]> = new BehaviorSubject<
+    Project[]
+  >([]);
+
   constructor(private httpClient: HttpClient) {}
 
   getAllProjects(): Observable<Project[]> {
-    return this.httpClient.get<Project[]>(
-      `${environment.apiUrl}/profile/projects`
-    );
+    return this.httpClient
+      .get<Project[]>(`${environment.apiUrl}/profile/projects`)
+      .pipe(
+        tap((value) => {
+          this.allProjectList.next(value);
+        })
+      );
   }
 
   createNewProject(body: CreateProjectModel) {

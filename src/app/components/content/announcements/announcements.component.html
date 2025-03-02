@@ -1,0 +1,177 @@
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="text-gradient">🚀 Announcements</h1>
+    <button class="btn btn-primary btn-lg px-4 rounded-pill shadow-lg"
+            (click)="openModal('create_project_announcement')"
+            *ngIf="isAuthenticated$ | async">
+      ➕ Create Announcement
+    </button>
+  </div>
+
+  <ng-template #loadingTemplate>
+    <div class="spinner-container d-flex justify-content-center align-items-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Завантаження...</span>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #emptyTemplate>
+    <div class="alert alert-warning text-center" role="alert">
+      ❗️ No announcements found
+    </div>
+  </ng-template>
+
+  <ng-container *ngIf="isLoading; else dataLoaded">
+    <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
+  </ng-container>
+
+  <ng-template #dataLoaded>
+    <ng-container *ngIf="listOfAnnouncements?.length; else emptyTemplate">
+      <ul class="list-group">
+        <li *ngFor="let announcement of listOfAnnouncements"
+            class="list-group-item d-flex align-items-center justify-content-between">
+          <h4> {{ announcement.title }} </h4>
+          <section class="d-flex column-gap-3">
+            <button (click)="openUpdateModal(announcement)" class="btn btn-success float-end">
+              Змінити
+            </button>
+            <button [routerLink]="'/announcements/details'" [queryParams]="{ id: announcement.id }"
+                    class="btn btn-info float-end">
+              Деталі
+            </button>
+            <button *ngIf="announcement.id" (click)="deleteProjectAnnouncement(announcement.id)"
+                    class="btn btn-danger float-end"> Видалити оголошення
+            </button>
+          </section>
+        </li>
+      </ul>
+    </ng-container>
+  </ng-template>
+</div>
+
+<app-modal-wrapper [isModalShow]="isModalVisible('create_project_announcement')"
+                   (modalVisibleChange)="handleModalVisibilityChange('create_project_announcement', $event)">
+
+  <ng-template #modalHeader>
+    <h3> Створити оголошення </h3>
+  </ng-template>
+
+  <ng-template #modalBody>
+    <form [formGroup]="newAnnouncementForm" class="d-flex flex-column row-gap-3">
+
+      <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input type="text" class="form-control" formControlName="title" placeholder="Enter title">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" formControlName="description" rows="3"
+                  placeholder="Enter description"></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Select Project</label>
+        <select class="form-select" formControlName="project">
+          <option value="" disabled selected>Select your project</option>
+          <option *ngFor="let project of myProjects" [value]="project.id">
+            {{ project.name }}
+          </option>
+        </select>
+      </div>
+
+      <div formArrayName="job_titles" class="mb-3">
+        <label class="form-label">Job Titles</label>
+        <div *ngFor="let job of job_titles.controls; let i = index" class="input-group mb-2">
+          <input class="form-control" [formControlName]="i" placeholder="Job title">
+          <button type="button" class="btn btn-outline-danger" (click)="removeJobTitle(i)">Remove</button>
+        </div>
+        <button type="button" class="btn btn-outline-success w-100" (click)="addJobTitle()">+ Add Job Title</button>
+      </div>
+
+      <div formArrayName="technologies" class="mb-3">
+        <label class="form-label">Technologies</label>
+        <div *ngFor="let tech of technologies.controls; let i = index" class="input-group mb-2">
+          <input class="form-control" [formControlName]="i" placeholder="Technology name">
+          <button type="button" class="btn btn-outline-danger" (click)="removeTechnology(i)">Remove</button>
+        </div>
+        <button type="button" class="btn btn-outline-success w-100" (click)="addTechnology()">+ Add Technology</button>
+      </div>
+
+    </form>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button class="btn btn-outline-success"
+            [disabled]="newAnnouncementForm.invalid"
+            (click)="createNewAnnouncement()">
+      Create
+    </button>
+  </ng-template>
+</app-modal-wrapper>
+
+<app-modal-wrapper [isModalShow]="isModalVisible('update_project_announcement')"
+                   (modalVisibleChange)="handleModalVisibilityChange('update_project_announcement', $event)">
+
+  <ng-template #modalHeader>
+    <h3> Оновити оголошення </h3>
+  </ng-template>
+
+  <ng-template #modalBody>
+    <form [formGroup]="updateAnnouncementForm" class="d-flex flex-column row-gap-3">
+
+      <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input type="text" class="form-control" formControlName="title" placeholder="Enter title">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" formControlName="description" rows="3"
+                  placeholder="Enter description"></textarea>
+      </div>
+
+      <div formArrayName="job_titles" class="mb-3">
+        <label class="form-label">Job Titles</label>
+        <div *ngFor="let job of updateJobTitles.controls; let i = index" class="input-group mb-2">
+          <input class="form-control" [formControlName]="i" placeholder="Job title">
+          <button type="button" class="btn btn-outline-danger" (click)="removeUpdateJobTitle(i)">Remove</button>
+        </div>
+        <button type="button" class="btn btn-outline-success w-100" (click)="addUpdateJobTitle()">+ Add Job Title</button>
+      </div>
+
+      <div formArrayName="technologies" class="mb-3">
+        <label class="form-label">Technologies</label>
+        <div *ngFor="let tech of updateTechnologies.controls; let i = index" class="input-group mb-2">
+          <input class="form-control" [formControlName]="i" placeholder="Technology name">
+          <button type="button" class="btn btn-outline-danger" (click)="removeUpdateTechnology(i)">Remove</button>
+        </div>
+        <button type="button" class="btn btn-outline-success w-100" (click)="addUpdateTechnology()">+ Add Technology</button>
+      </div>
+
+    </form>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button class="btn btn-outline-success"
+            [disabled]="updateAnnouncementForm.invalid"
+            (click)="updateProjectAnnouncement()">
+      Оновити
+    </button>
+  </ng-template>
+</app-modal-wrapper>
+
+
+<app-modal-wrapper [isModalShow]="isModalVisible('delete_project_announcement')"
+                   (modalVisibleChange)="handleModalVisibilityChange('delete_project_announcement', $event)">
+
+  <ng-template #modalHeader>
+    <h3> Ви дійсно хочете видалити дане оголошення </h3>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button> Видалити</button>
+    <button (click)="closeModal('delete_project_announcement')"> Скасувати</button>
+  </ng-template>
+</app-modal-wrapper>

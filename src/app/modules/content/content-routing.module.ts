@@ -8,6 +8,8 @@ import { ProjectsComponent } from '../../components/content/projects/projects.co
 import { authGuard } from '../../guards/auth.guard';
 import { NotificationsComponent } from '../../components/profile/notifications/notifications.component';
 import { FriendsListDataComponent } from '../../components/profile/friends-list-data/friends-list-data.component';
+import { AnnouncementsComponent } from '../../components/content/announcements/announcements.component';
+import { DifferentAnnouncementComponent } from '../../components/content/different-announcement/different-announcement.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'projects', pathMatch: 'full' },
@@ -29,7 +31,17 @@ const routes: Routes = [
     component: FriendsListDataComponent,
     canActivate: [authGuard]
   },
-  { path: 'projects', component: ProjectsComponent }
+  { path: 'projects', component: ProjectsComponent },
+  {
+    path: 'announcements',
+    component: AnnouncementsComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'announcements/details',
+    component: DifferentAnnouncementComponent,
+    canActivate: [authGuard]
+  }
 ];
 
 @NgModule({

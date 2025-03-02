@@ -39,6 +39,12 @@
           <span *ngIf="isFullyExpanded">Projects</span>
         </a>
       </li>
+      <li *ngIf="(isAuthenticated | async)">
+        <a routerLink="/announcements" (click)="closeSidebar()">
+          <i class="bi bi-kanban"></i>
+          <span *ngIf="isFullyExpanded">Announcements</span>
+        </a>
+      </li>
       <li>
         <a routerLink="/notifications" (click)="closeSidebar()">
           <i class="bi bi-bell"></i>

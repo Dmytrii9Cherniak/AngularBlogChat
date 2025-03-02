@@ -25,6 +25,7 @@ import {
 } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HttpClient } from '@angular/common/http';
+import { ProjectsService } from './services/projects.service';
 
 // Фабрика для завантаження JSON-файлів перекладу
 export function HttpLoaderFactory(http: HttpClient) {
@@ -58,6 +59,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         AuthService,
         UserProfileService,
         TokenService,
+        ProjectsService,
         WebsocketsService,
         BroadcastChannelService,
         TranslateService

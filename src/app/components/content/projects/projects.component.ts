@@ -177,9 +177,10 @@ export class ProjectsComponent implements OnInit, AfterViewInit {
   }
 
   private loadProjects(): void {
-    this.projectsService.getAllProjects().subscribe({
-      next: (projects) => (this.projects = projects),
-      error: () => this.toastrService.error('Failed to load projects')
+    this.projectsService.allProjectList.subscribe({
+      next: (value: Project[]) => {
+        this.projects = value;
+      }
     });
   }
 
