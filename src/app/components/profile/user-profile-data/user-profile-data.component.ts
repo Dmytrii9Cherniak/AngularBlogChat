@@ -587,9 +587,8 @@ export class UserProfileDataComponent extends ModalManager implements OnInit {
 
     this.userProfileService.resetUserAccount(password).subscribe({
       next: () => {
-        this.authService.logout();
-        this.router.navigate(['/auth/login']);
-        this.toastrService.success(`Акаунт видалено успішно`);
+        this.router.navigate(['/']);
+        this.toastrService.success(`Налаштування акаунту було скинуто успішно`);
       },
       error: (err) => {
         this.toastrService.error(err);
