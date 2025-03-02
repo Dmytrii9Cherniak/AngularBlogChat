@@ -10,7 +10,6 @@ import { Socials } from '../models/profile/socials.profile.info.model';
 import { UserEducationModel } from '../models/profile/user.education.model';
 import { environment } from '../../environments/environment';
 import { GeneralProfileModel } from '../models/profile/general.profile.model';
-import { UserCertificatesModel } from '../models/profile/user.certificate.model';
 import { Jobs } from '../models/profile/user.jobs.model';
 
 @Injectable({
@@ -228,5 +227,22 @@ export class UserProfileService {
 
     const updatedProfile = { ...currentProfile, [field]: newValue };
     this.fullUserProfileInfo.next(updatedProfile);
+  }
+
+  resetUserAccount(password: string): Observable<unknown> {
+    const body = {
+      password: password
+    };
+
+    return this.httpClient.put<unknown>(
+      `${environment.apiUrl}/auth/account/reset`,
+      body
+    );
+  }
+
+  deleteUserAccount(): Observable<unknown> {
+    return this.httpClient.delete<unknown>(
+      `${environment.apiUrl}/auth/account/delete`
+    );
   }
 }

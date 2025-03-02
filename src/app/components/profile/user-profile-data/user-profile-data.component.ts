@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -18,13 +18,18 @@ import { GeneralProfileModel } from '../../../models/profile/general.profile.mod
 import { BlacklistUsersListModel } from '../../../models/blacklist/blacklist.users.list';
 import { Jobs } from '../../../models/profile/user.jobs.model';
 import { TranslateService } from '@ngx-translate/core';
+import { ModalManager } from '../../../OOP/modal.manager';
+import { AuthService } from '../../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-profile',
   templateUrl: './user-profile-data.component.html',
   styleUrls: ['./user-profile-data.component.scss']
 })
-export class UserProfileDataComponent implements OnInit {
+export class UserProfileDataComponent extends ModalManager implements OnInit {
+  @ViewChild('passwordInput') passwordInput!: ElementRef;
+
   newPasswordForm: FormGroup;
   changePasswordServerError: string | null = null;
   userProfile$ = new BehaviorSubject<UserProfile | null>(null);
@@ -55,6 +60,8 @@ export class UserProfileDataComponent implements OnInit {
   isAddingCertificate = false;
   selectedCertificateFile: File | null = null;
 
+  isFreezeAccountButtonDisabled: boolean = true;
+
   passwordPattern: RegExp =
     /^(?=.*[!@#$%^&*()_+}{":;'?/>.<,`~])(?=.*\d)[^\s]{8,}$/;
 
@@ -63,8 +70,11 @@ export class UserProfileDataComponent implements OnInit {
     private userProfileService: UserProfileService,
     private toastrService: ToastrService,
     private usersService: UsersService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private authService: AuthService,
+    private router: Router
   ) {
+    super();
     translate.setDefaultLang('en');
     translate.use(localStorage.getItem('lang') || 'en');
   }
@@ -570,6 +580,36 @@ export class UserProfileDataComponent implements OnInit {
       };
       reader.readAsDataURL(file);
     }
+  }
+
+  resetUserAccount() {
+    const password = this.passwordInput.nativeElement.value;
+
+    this.userProfileService.resetUserAccount(password).subscribe({
+      next: () => {
+        this.authService.logout();
+        this.router.navigate(['/auth/login']);
+        this.toastrService.success(`Акаунт видалено успішно`);
+      },
+      error: (err) => {
+        this.toastrService.error(err);
+      }
+    });
+  }
+
+  deleteUserAccount() {
+    this.userProfileService.deleteUserAccount().subscribe({
+      next: () => {
+        this.authService.logout();
+        this.router.navigate(['/auth/login']);
+        this.toastrService.success(`Акаунт видалено успішно`);
+      }
+    });
+  }
+
+  onPasswordInput() {
+    this.isFreezeAccountButtonDisabled =
+      !this.passwordInput.nativeElement.value;
   }
 
   objectKeys(obj: object | null | undefined): string[] {

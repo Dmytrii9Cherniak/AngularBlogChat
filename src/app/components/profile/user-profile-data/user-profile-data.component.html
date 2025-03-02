@@ -277,9 +277,48 @@
     </ng-template>
   </div>
 
+  <div class="delete-account-settings">
+    <h3> Видалити або заморозити акаунт </h3>
+
+    <button (click)="openModal('choice_freeze_account')"> Скинути акаунт </button>
+    <button (click)="openModal('choice_delete_account')"> Видалити акаунт </button>
+
+  </div>
+
 <!--  <h1>{{ 'Home' | translate }}</h1>-->
 <!--  <p>{{ 'Welcome' | translate }}</p>-->
 
 <!--  <button (click)="changeLanguage('en')">EN</button>-->
 <!--  <button (click)="changeLanguage('uk')">UK</button>-->
 </div>
+
+<app-modal-wrapper [isModalShow]="isModalVisible('choice_freeze_account')"
+                   (modalVisibleChange)="handleModalVisibilityChange('choice_freeze_account', $event)">
+
+  <ng-template #modalHeader>
+    <h3> Чи впевнені ви, що хочете скидання акаунт </h3>
+  </ng-template>
+
+  <ng-template #modalBody>
+    <h4> Для скидання акаунту потрібно ввести ваший пароль </h4>
+    <input type="password" (input)="onPasswordInput()" #passwordInput>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button (click)="resetUserAccount()" [disabled]="isFreezeAccountButtonDisabled"> Заморозити </button>
+    <button (click)="closeModal('choice_freeze_account')"> Скасувати </button>
+  </ng-template>
+</app-modal-wrapper>
+
+<app-modal-wrapper [isModalShow]="isModalVisible('choice_delete_account')"
+           (modalVisibleChange)="handleModalVisibilityChange('choice_delete_account', $event)">
+
+  <ng-template #modalHeader>
+    <h3> Чи впевнені ви, що хочете видалити акаунт </h3>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button (click)="deleteUserAccount()"> Видалити </button>
+    <button (click)="closeModal('choice_delete_account')"> Скасувати </button>
+  </ng-template>
+</app-modal-wrapper>

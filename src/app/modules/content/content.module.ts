@@ -11,6 +11,7 @@ import { ProjectsComponent } from '../../components/content/projects/projects.co
 import { NotificationsComponent } from '../../components/profile/notifications/notifications.component';
 import { FriendsListDataComponent } from '../../components/profile/friends-list-data/friends-list-data.component';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ModalWrapperComponent } from '../../components/layout/modal-wrapper/modal-wrapper.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { TranslatePipe } from '@ngx-translate/core';
     UserProfileDataComponent,
     ProjectsComponent,
     NotificationsComponent,
-    FriendsListDataComponent
+    FriendsListDataComponent,
+    ModalWrapperComponent
   ],
   imports: [
     CommonModule,
@@ -28,6 +30,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     ReactiveFormsModule,
     FormsModule,
     TranslatePipe
-  ]
+  ],
+  exports: [ModalWrapperComponent]
 })
 export class ContentModule {}
