@@ -37,6 +37,12 @@ export class UserProfileService {
       );
   }
 
+  public getOtherUserProfileInfo(id: number): Observable<UserProfile> {
+    return this.httpClient.get<UserProfile>(
+      `${environment.apiUrl}/profile/${id}`
+    );
+  }
+
   public getUserData(): Observable<UserDataModel> {
     return this.httpClient
       .get<UserDataModel>(`${environment.apiUrl}/auth/user-data`)

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UsersService } from '../../../services/users.service';
 import { Observable } from 'rxjs';
-import { DifferentUserDetailsInfoModel } from '../../../models/user/different.user.details.info.model';
+import { UserProfileService } from '../../../services/user.profile.service';
+import { UserProfile } from '../../../models/profile/full.user.profile.data.model';
 
 @Component({
   selector: 'app-user-details-info',
@@ -10,18 +10,21 @@ import { DifferentUserDetailsInfoModel } from '../../../models/user/different.us
   styleUrls: ['./user-details-info.component.scss']
 })
 export class UserDetailsInfoComponent implements OnInit {
-  public user$: Observable<DifferentUserDetailsInfoModel>;
+  public user$: Observable<UserProfile>;
 
   constructor(
     private route: ActivatedRoute,
-    private usersService: UsersService,
+    private userProfileService: UserProfileService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     const userId = this.route.snapshot.paramMap.get('id');
+    console.log(userId);
     if (userId) {
-      this.user$ = this.usersService.getDifferentUser(userId);
+      this.user$ = this.userProfileService.getOtherUserProfileInfo(
+        Number(userId)
+      );
     }
   }
 

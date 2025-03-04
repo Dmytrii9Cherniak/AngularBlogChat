@@ -4,7 +4,6 @@ import { UsersService } from '../../../services/users.service';
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
 import { UsersListModel } from '../../../models/user/users.list.model';
-import { DifferentUserDetailsInfoModel } from '../../../models/user/different.user.details.info.model';
 import { UserProfileService } from '../../../services/user.profile.service';
 
 @Component({
@@ -28,13 +27,13 @@ export class AllUsersListComponent implements OnInit {
     this.allUsersList = this.usersService.getAllUsers();
   }
 
-  navigateToChat(user: DifferentUserDetailsInfoModel): void {
+  navigateToChat(user: UsersListModel): void {
     this.router.navigate(['/chat'], {
       queryParams: { userId: user.id, username: user.username }
     });
   }
 
-  navigateToUserInfo(user: DifferentUserDetailsInfoModel): void {
+  navigateToUserInfo(user: UsersListModel): void {
     this.router.navigate(['/users', user.id]);
   }
 
