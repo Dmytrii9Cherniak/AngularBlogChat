@@ -9,6 +9,7 @@ export class NewAnnouncementModel {
   created_at?: string;
   job_titles?: string[];
   technologies?: string[];
+  owner?: number;
   [key: string]: any;
 
   constructor(

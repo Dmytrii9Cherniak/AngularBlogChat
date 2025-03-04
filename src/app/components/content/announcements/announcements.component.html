@@ -33,14 +33,14 @@
             class="list-group-item d-flex align-items-center justify-content-between">
           <h4> {{ announcement.title }} </h4>
           <section class="d-flex column-gap-3">
-            <button (click)="openUpdateModal(announcement)" class="btn btn-success float-end">
+            <button *ngIf="announcement.id && announcement.owner === userProfileData?.id" (click)="openUpdateModal(announcement)" class="btn btn-success float-end">
               Змінити
             </button>
             <button [routerLink]="'/announcements/details'" [queryParams]="{ id: announcement.id }"
                     class="btn btn-info float-end">
               Деталі
             </button>
-            <button *ngIf="announcement.id" (click)="deleteProjectAnnouncement(announcement.id)"
+            <button *ngIf="announcement.id && announcement.owner === userProfileData?.id" (click)="deleteProjectAnnouncement(announcement.id)"
                     class="btn btn-danger float-end"> Видалити оголошення
             </button>
           </section>
