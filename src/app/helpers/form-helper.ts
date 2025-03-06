@@ -18,10 +18,7 @@ export class FormHelper {
         isWindows ? 'dcheyrnak10@gmail.com' : 'stepanenko.dan@e-u.edu.ua',
         Validators.required
       ],
-      password: [
-        !isWindows ? 'password1%' : '380984438849Sofia!',
-        Validators.required
-      ]
+      password: [!isWindows ? 'password1%' : 'password1!', Validators.required]
     });
 
     return this.form;

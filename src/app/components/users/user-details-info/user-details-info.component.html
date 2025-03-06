@@ -1,9 +1,82 @@
-<div *ngIf="user$ | async as user">
-  <h1>Інформація про користувача</h1>
-  <p>ID: {{ user.id }}</p>
-  <p>Nickname: {{ user.nickname }}</p>
-  <p>Username: {{ user.username }}</p>
-  <button (click)="navigateToChat(user.id, user.username)">
-    Написати цьому користувачу
-  </button>
+<div *ngIf="user$ | async as user" class="container mt-4">
+  <div class="card shadow-sm p-4">
+    <h2 class="mb-3">Інформація про користувача</h2>
+    <p><strong>ID:</strong> {{ user.id }}</p>
+    <p><strong>Nickname:</strong> {{ user.nickname }}</p>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+
+    <ul>
+      <li
+        *ngFor="let item of user.reviews"> {{ item.user }}  {{ item.review }} {{ item.reaction }} {{ item.university }} {{ item.company }} {{ item.project }}
+        <button *ngIf="item.id" (click)="deleteUserReview(item.id)"> Видалити</button>
+      </li>
+    </ul>
+
+    <div class="d-flex gap-2 mt-3">
+      <button class="btn btn-primary" (click)="navigateToChat(user.id, user.username)" *ngIf="isAuthenticated$ | async">
+        Написати цьому користувачу
+      </button>
+      <button class="btn btn-secondary" (click)="openModal('create_profile_review')" *ngIf="isAuthenticated$ | async">
+        Написати відгук користувача
+      </button>
+    </div>
+
+    <app-modal-wrapper [isModalShow]="isModalVisible('create_profile_review')"
+                       (modalVisibleChange)="handleModalVisibilityChange('create_profile_review', $event)">
+      <ng-template #modalHeader>
+        <h3>Написати відгук для {{ user.nickname }}</h3>
+      </ng-template>
+      <ng-template #modalBody>
+        <form [formGroup]="userReviewForm" class="form-container">
+          <div class="mb-3">
+            <label class="form-label">Оцінка</label>
+            <select formControlName="reaction" class="form-select">
+              <option value="">Оберіть оцінку</option>
+              <option value="none">Жодна</option>
+              <option value="like">Позитивна</option>
+              <option value="dislike">Негативна</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Відгук</label>
+            <textarea formControlName="review" class="form-control" rows="3"></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Проєкт</label>
+            <select formControlName="project" class="form-select">
+              <option value="">Оберіть проєкт (необов’язково)</option>
+              <option value="project1">Проєкт 1</option>
+              <option value="project2">Проєкт 2</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Університет</label>
+            <select formControlName="university" class="form-select">
+              <option value="">Оберіть університет (необов’язково)</option>
+              <option value="university1">Університет 1</option>
+              <option value="university2">Університет 2</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Компанія</label>
+            <select formControlName="company" class="form-select">
+              <option value="">Оберіть компанію (необов’язково)</option>
+              <option value="company1">Компанія 1</option>
+              <option value="company2">Компанія 2</option>
+            </select>
+          </div>
+        </form>
+      </ng-template>
+      <ng-template #modalFooter>
+        <button class="btn btn-success" (click)="submitReview()">Створити</button>
+        <button class="btn btn-outline-secondary" (click)="handleModalVisibilityChange('create_profile_review', false)">
+          Скасувати
+        </button>
+      </ng-template>
+    </app-modal-wrapper>
+  </div>
 </div>

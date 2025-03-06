@@ -5,6 +5,7 @@ import { Jobs } from './user.jobs.model';
 import { Technology } from './user.technology.model';
 import { UserEducationModel } from './user.education.model';
 import { UserCertificatesModel } from './user.certificate.model';
+import { ReviewUserModel } from '../review.user.model';
 
 export interface UserProfile {
   id: number;
@@ -32,6 +33,7 @@ export interface UserProfile {
   certificates: UserCertificatesModel[];
   jobs: Jobs[];
   reactions: string[];
+  reviews: ReviewUserModel[];
   projects: Project[];
   [key: string]: any;
 }

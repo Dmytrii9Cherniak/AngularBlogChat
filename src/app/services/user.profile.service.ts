@@ -11,6 +11,7 @@ import { UserEducationModel } from '../models/profile/user.education.model';
 import { environment } from '../../environments/environment';
 import { GeneralProfileModel } from '../models/profile/general.profile.model';
 import { Jobs } from '../models/profile/user.jobs.model';
+import { ReviewUserModel } from '../models/review.user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -249,6 +250,25 @@ export class UserProfileService {
   deleteUserAccount(): Observable<unknown> {
     return this.httpClient.delete<unknown>(
       `${environment.apiUrl}/auth/account/delete`
+    );
+  }
+
+  createNewUserProfileReview(
+    id: number,
+    body: ReviewUserModel
+  ): Observable<ReviewUserModel> {
+    return this.httpClient.post(
+      `${environment.apiUrl}/profile/${id}/reviews/create`,
+      body
+    );
+  }
+
+  deleteNewUserProfileReview(
+    userId: number,
+    reviewId: number
+  ): Observable<void> {
+    return this.httpClient.delete<void>(
+      `${environment.apiUrl}/profile/${userId}/reviews/${reviewId}/delete`
     );
   }
 }
