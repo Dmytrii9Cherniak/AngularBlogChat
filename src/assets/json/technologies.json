@@ -1,0 +1,474 @@
+{
+  "languages": [
+    {
+      "name": "JavaScript",
+      "type": "language",
+      "technologies": [
+        {"name": "React", "category": "library"},
+        {"name": "Angular", "category": "framework"},
+        {"name": "Vue", "category": "framework"},
+        {"name": "Node.js", "category": "runtime"},
+        {"name": "Express", "category": "framework"},
+        {"name": "Next.js", "category": "framework"},
+        {"name": "jQuery", "category": "library"},
+        {"name": "D3.js", "category": "library"},
+        {"name": "Svelte", "category": "framework"}
+      ]
+    },
+    {
+      "name": "TypeScript",
+      "type": "language",
+      "technologies": [
+        {"name": "NestJS", "category": "framework"},
+        {"name": "TypeORM", "category": "ORM"},
+        {"name": "ts-node", "category": "runtime"}
+      ]
+    },
+    {
+      "name": "Python",
+      "type": "language",
+      "technologies": [
+        {"name": "Django", "category": "framework"},
+        {"name": "Flask", "category": "framework"},
+        {"name": "Pandas", "category": "library"},
+        {"name": "NumPy", "category": "library"},
+        {"name": "FastAPI", "category": "framework"},
+        {"name": "TensorFlow", "category": "library"},
+        {"name": "PyTorch", "category": "library"}
+      ]
+    },
+    {
+      "name": "Java",
+      "type": "language",
+      "technologies": [
+        {"name": "Spring Boot", "category": "framework"},
+        {"name": "Hibernate", "category": "ORM"},
+        {"name": "Apache Kafka", "category": "streaming"},
+        {"name": "Quarkus", "category": "framework"}
+      ]
+    },
+    {
+      "name": "C#",
+      "type": "language",
+      "technologies": [
+        {"name": ".NET", "category": "framework"},
+        {"name": "Entity Framework", "category": "ORM"},
+        {"name": "Blazor", "category": "UI framework"}
+      ]
+    },
+    {
+      "name": "C",
+      "type": "language",
+      "technologies": [
+
+      ]
+    },
+    {
+      "name": "C++",
+      "type": "language",
+      "technologies": [
+        {"name": "Boost", "category": "library"},
+        {"name": "Qt", "category": "framework"},
+        {"name": "OpenCV", "category": "library"}
+      ]
+    },
+    {
+      "name": "Go",
+      "type": "language",
+      "technologies": [
+        {"name": "Gin", "category": "framework"},
+        {"name": "Echo", "category": "framework"},
+        {"name": "Beego", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Rust",
+      "type": "language",
+      "technologies": [
+        {"name": "Rocket", "category": "framework"},
+        {"name": "Actix", "category": "framework"},
+        {"name": "Tokio", "category": "runtime"}
+      ]
+    },
+    {
+      "name": "PHP",
+      "type": "language",
+      "technologies": [
+        {"name": "Laravel", "category": "framework"},
+        {"name": "Symfony", "category": "framework"},
+        {"name": "CodeIgniter", "category": "framework"},
+        {"name": "Yii", "category": "framework"},
+        {"name": "Phalcon", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Swift",
+      "type": "language",
+      "technologies": [
+        {"name": "SwiftUI", "category": "UI framework"},
+        {"name": "Vapor", "category": "framework"},
+        {"name": "Kitura", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Kotlin",
+      "type": "language",
+      "technologies": [
+        {"name": "Ktor", "category": "framework"},
+        {"name": "Spring", "category": "framework"},
+        {"name": "Anko", "category": "library"}
+      ]
+    },
+    {
+      "name": "Ruby",
+      "type": "language",
+      "technologies": [
+        {"name": "Ruby on Rails", "category": "framework"},
+        {"name": "Sinatra", "category": "framework"},
+        {"name": "Hanami", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Dart",
+      "type": "language",
+      "technologies": [
+        {"name": "Flutter", "category": "UI framework"},
+        {"name": "Angel", "category": "framework"},
+        {"name": "Aqueduct", "category": "framework"}
+      ]
+    },
+    {
+      "name": "R",
+      "type": "language",
+      "technologies": [
+        {"name": "Shiny", "category": "UI framework"},
+        {"name": "ggplot2", "category": "framework"},
+        {"name": "dplyr", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Scala",
+      "type": "language",
+      "technologies": [
+        {"name": "Play Framework", "category": "UI framework"},
+        {"name": "Akka", "category": "framework"},
+        {"name": "Scalatest", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Objective-C",
+      "type": "language",
+      "technologies": [
+        {"name": "Cocoa", "category": "UI framework"},
+        {"name": "Foundation", "category": "framework"},
+        {"name": "Core Data", "category": "framework"}
+      ]
+    },
+    {
+      "name": "SQL (PL/SQL, T-SQL)",
+      "type": "language",
+      "technologies": [
+        {"name": "Oracle APEX", "category": "UI framework"},
+        {"name": "Entity Framework", "category": "framework"},
+        {"name": "Hibernate", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Shell (Bash, Zsh)",
+      "type": "language",
+      "technologies": [
+        {"name": "Oh My Zsh", "category": "UI framework"},
+        {"name": "Bash-it", "category": "framework"},
+        {"name": "Powerline", "category": "framework"}
+      ]
+    },
+    {
+      "name": "MATLAB",
+      "type": "language",
+      "technologies": [
+        {"name": "MATLAB App Designer", "category": "UI framework"},
+        {"name": "Simulink", "category": "framework"},
+        {"name": "Optimization Toolbox", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Groovy",
+      "type": "language",
+      "technologies": [
+        {"name": "Grails", "category": "UI framework"},
+        {"name": "Spock", "category": "framework"},
+        {"name": "GPars", "category": "framework"}
+      ]
+    },
+    {
+      "name": "PowerShell",
+      "type": "language",
+      "technologies": [
+        {"name": "Windows PowerShell ISE", "category": "UI framework"},
+        {"name": "PowerCLI", "category": "framework"},
+        {"name": "Pester", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Perl",
+      "type": "language",
+      "technologies": [
+        {"name": "Mojolicious", "category": "UI framework"},
+        {"name": "Dancer2", "category": "framework"},
+        {"name": "Catalyst", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Lua",
+      "type": "language",
+      "technologies": [
+        {"name": "LÖVE", "category": "UI framework"},
+        {"name": "OpenResty", "category": "framework"},
+        {"name": "Corona SDK", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Haskell",
+      "type": "language",
+      "technologies": [
+        {"name": "Yesod", "category": "UI framework"},
+        {"name": "Servant", "category": "framework"},
+        {"name": "Snap", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Julia",
+      "type": "language",
+      "technologies": [
+        {"name": "Pluto.jl", "category": "UI framework"},
+        {"name": "JuMP", "category": "framework"},
+        {"name": "Gadfly", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Clojure",
+      "type": "language",
+      "technologies": [
+        {"name": "Reagent", "category": "UI framework"},
+        {"name": "Ring", "category": "framework"},
+        {"name": "Compojure", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Elixir",
+      "type": "language",
+      "technologies": [
+        {"name": "Phoenix", "category": "UI framework"},
+        {"name": "Ecto", "category": "framework"},
+        {"name": "Absinthe", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Erlang",
+      "type": "language",
+      "technologies": [
+        {"name": "Nitrogen", "category": "UI framework"},
+        {"name": "Cowboy", "category": "framework"},
+        {"name": "OTP", "category": "framework"}
+      ]
+    },
+    {
+      "name": "F#",
+      "type": "language",
+      "technologies": [
+        {"name": "Fabulous", "category": "UI framework"},
+        {"name": "Giraffe", "category": "framework"},
+        {"name": "SAFE Stack", "category": "framework"}
+      ]
+    },
+    {
+      "name": "OCaml",
+      "type": "language",
+      "technologies": [
+        {"name": "Js_of_ocaml", "category": "UI framework"},
+        {"name": "Core", "category": "framework"},
+        {"name": "Async", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Crystal",
+      "type": "language",
+      "technologies": [
+        {"name": "Amber", "category": "UI framework"},
+        {"name": "Kemal", "category": "framework"},
+        {"name": "Lucky", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Nim",
+      "type": "language",
+      "technologies": [
+        {"name": "Karax", "category": "UI framework"},
+        {"name": "Nimble", "category": "framework"},
+        {"name": "WebSockets", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Zig",
+      "type": "language",
+      "technologies": [
+        {"name": "zig-gamedev", "category": "UI framework"},
+        {"name": "std", "category": "framework"},
+        {"name": "zig-sockets", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Ada",
+      "type": "language",
+      "technologies": [
+        {"name": "GNATcoll", "category": "UI framework"},
+        {"name": "AWS (Ada Web Server)", "category": "framework"},
+        {"name": "GtkAda", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Fortran",
+      "type": "language",
+      "technologies": [
+        {"name": "fpm (Fortran Package Manager)", "category": "UI framework"},
+        {"name": "LAPACK", "category": "framework"},
+        {"name": "OpenMP", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Pascal",
+      "type": "language",
+      "technologies": [
+        {"name": "Lazarus", "category": "UI framework"},
+        {"name": "Free Vision", "category": "framework"},
+        {"name": "Turbo Vision", "category": "framework"}
+      ]
+    },
+    {
+      "name": "COBOL",
+      "type": "language",
+      "technologies": [
+        {"name": "Visual COBOL", "category": "UI framework"},
+        {"name": "GnuCOBOL", "category": "framework"},
+        {"name": "COBOL-IT Compiler Suite", "category": "framework"}
+      ]
+    },
+    {
+      "name": "AWK",
+      "type": "language",
+      "technologies": [
+        {"name": "Gawk (GNU Awk)", "category": "UI framework"},
+        {"name": "MAWK", "category": "framework"},
+        {"name": "NAWK", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Tcl",
+      "type": "language",
+      "technologies": [
+        {"name": "Tk", "category": "UI framework"},
+        {"name": "Tcllib", "category": "framework"},
+        {"name": "Expect", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Prolog",
+      "type": "language",
+      "technologies": [
+        {"name": "SWI-Prolog", "category": "UI framework"},
+        {"name": "Logtalk", "category": "framework"},
+        {"name": "XPCE", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Racket",
+      "type": "language",
+      "technologies": [
+        {"name": "DrRacket", "category": "UI framework"},
+        {"name": "Typed Racket", "category": "framework"},
+        {"name": "Pict3D", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Elm",
+      "type": "language",
+      "technologies": [
+        {"name": "Elm UI", "category": "UI framework"},
+        {"name": "elm-css", "category": "framework"},
+        {"name": "elm-test", "category": "framework"}
+      ]
+    },
+    {
+      "name": "PureScript",
+      "type": "language",
+      "technologies": [
+        {"name": "Halogen", "category": "UI framework"},
+        {"name": "Pux", "category": "framework"},
+        {"name": "Aff", "category": "framework"}
+      ]
+    },
+    {
+      "name": "V",
+      "type": "language",
+      "technologies": [
+        {"name": "vweb", "category": "UI framework"},
+        {"name": "V ORM", "category": "framework"},
+        {"name": "V Graphics", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Janet",
+      "type": "language",
+      "technologies": [
+        {"name": "Peg", "category": "UI framework"},
+        {"name": "JPM (Janet Project Manager)", "category": "framework"},
+        {"name": "Grove", "category": "framework"}
+      ]
+    },
+    {
+      "name": "D",
+      "type": "language",
+      "technologies": [
+        {"name": "DlangUI", "category": "UI framework"},
+        {"name": "Vibe.d", "category": "framework"},
+        {"name": "Mir", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Smalltalk",
+      "type": "language",
+      "technologies": [
+        {"name": "Seaside", "category": "UI framework"},
+        {"name": "Pharo", "category": "framework"},
+        {"name": "GemStone/S", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Scratch",
+      "type": "language",
+      "technologies": [
+        {"name": "Scratch Editor", "category": "UI framework"},
+        {"name": "Scratch Extensions", "category": "framework"},
+        {"name": "Scratch Link", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Solidity",
+      "type": "language",
+      "technologies": [
+        {"name": "Truffle", "category": "UI framework"},
+        {"name": "Hardhat", "category": "framework"},
+        {"name": "OpenZeppelin", "category": "framework"}
+      ]
+    },
+    {
+      "name": "Pony",
+      "type": "language",
+      "technologies": [
+        {"name": "Ponylang Playground", "category": "UI framework"},
+        {"name": "Pony Stdlib", "category": "framework"},
+        {"name": "Pony Actor Model", "category": "framework"}
+      ]
+    }
+  ]
+}

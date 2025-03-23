@@ -10,9 +10,13 @@ import { environment } from '../../environments/environment';
 export class AnnouncementsService {
   constructor(private httpClient: HttpClient) {}
 
-  public getAllAnnouncements(): Observable<NewAnnouncementModel[]> {
+  public getAllAnnouncements(
+    title?: string
+  ): Observable<NewAnnouncementModel[]> {
+    const params = title ? { params: { title } } : {};
     return this.httpClient.get<NewAnnouncementModel[]>(
-      `${environment.apiUrl}/teamup/announcements/list`
+      `${environment.apiUrl}/teamup/announcements/list`,
+      params
     );
   }
 

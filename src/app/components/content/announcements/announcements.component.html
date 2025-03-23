@@ -16,6 +16,29 @@
     </div>
   </ng-template>
 
+  <div class="mb-4">
+    <form [formGroup]="searchItemsForm">
+      <div class="input-group input-group-lg shadow-lg position-relative">
+        <input type="text" class="form-control rounded-pill" placeholder="🔍 Пошук оголошень" formControlName="search">
+
+        <!-- Спінер під час пошуку -->
+        <div *ngIf="isSearching" class="spinner-border spinner-border-sm position-absolute end-0 top-50 me-3" role="status">
+          <span class="visually-hidden">Завантаження...</span>
+        </div>
+
+        <button class="btn btn-info rounded-pill ms-2"
+                *ngIf="searchItemsForm.controls['search'].value && !isSearching"
+                (click)="clearSearchForm()">Clear</button>
+
+        <button class="btn btn-outline-primary rounded-pill ms-2"
+                (click)="searchTitleAnnouncement()"
+                [disabled]="!searchItemsForm.controls['search'].value?.trim() || isSearching">
+          Search
+        </button>
+      </div>
+    </form>
+  </div>
+
   <ng-template #emptyTemplate>
     <div class="alert alert-warning text-center" role="alert">
       ❗️ No announcements found

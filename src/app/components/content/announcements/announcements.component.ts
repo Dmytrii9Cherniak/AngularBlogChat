@@ -30,8 +30,11 @@ export class AnnouncementsComponent extends ModalManager implements OnInit {
   public newAnnouncementForm: FormGroup;
   public userProfileData: UserDataModel | null = null;
   public myProjects: Project[] = [];
-  updateAnnouncementForm: FormGroup;
-  selectedAnnouncement: NewAnnouncementModel | null = null;
+  public updateAnnouncementForm: FormGroup;
+  public searchItemsForm: FormGroup;
+  public leftFiltersForm: FormGroup;
+  public selectedAnnouncement: NewAnnouncementModel | null = null;
+  public isSearching: boolean = false;
 
   constructor(
     private announcementService: AnnouncementsService,
@@ -63,6 +66,10 @@ export class AnnouncementsComponent extends ModalManager implements OnInit {
       }
     });
 
+    this.searchItemsForm = this.formBuilder.group({
+      search: ['', Validators.required]
+    });
+
     this.newAnnouncementForm = this.formBuilder.group({
       title: ['', Validators.required],
       description: ['', Validators.required],
@@ -89,6 +96,20 @@ export class AnnouncementsComponent extends ModalManager implements OnInit {
         this.isLoading = false;
       }
     });
+
+    this.searchItemsForm
+      .get('search')
+      ?.valueChanges.subscribe((value: string) => {
+        const trimmedValue = value.trim();
+
+        if (!trimmedValue) {
+          this.loadAllAnnouncements();
+        }
+      });
+
+    fetch('assets/json/technologies.json')
+      .then((res) => res.json())
+      .then((data) => console.log(data));
   }
 
   get job_titles(): FormArray {
@@ -107,22 +128,18 @@ export class AnnouncementsComponent extends ModalManager implements OnInit {
     return this.updateAnnouncementForm.get('technologies') as FormArray;
   }
 
-  // Додає новий Job Title у форму оновлення
   addUpdateJobTitle(): void {
     this.updateJobTitles.push(new FormControl('', Validators.required));
   }
 
-  // Видаляє Job Title за індексом
   removeUpdateJobTitle(index: number): void {
     if (this.updateJobTitles.length > 0) this.updateJobTitles.removeAt(index);
   }
 
-  // Додає нову Technology у форму оновлення
   addUpdateTechnology(): void {
     this.updateTechnologies.push(new FormControl('', Validators.required));
   }
 
-  // Видаляє Technology за індексом
   removeUpdateTechnology(index: number): void {
     if (this.updateTechnologies.length > 0)
       this.updateTechnologies.removeAt(index);
@@ -243,5 +260,49 @@ export class AnnouncementsComponent extends ModalManager implements OnInit {
           this.toastrService.error('Помилка при оновленні оголошення');
         }
       });
+  }
+
+  public searchTitleAnnouncement(): void {
+    const title = this.searchItemsForm.get('search')?.value?.trim();
+
+    if (!title) {
+      this.clearSearchForm();
+      return;
+    }
+
+    this.isSearching = true;
+    this.announcementService.getAllAnnouncements(title).subscribe({
+      next: (value) => {
+        this.listOfAnnouncements = value;
+        this.isLoading = false;
+        this.isSearching = false;
+      },
+      error: () => {
+        this.toastrService.error('Помилка при пошуку оголошень');
+        this.isLoading = false;
+        this.isSearching = false;
+      }
+    });
+  }
+
+  private loadAllAnnouncements(): void {
+    this.isLoading = true;
+    this.announcementService.getAllAnnouncements().subscribe({
+      next: (value) => {
+        this.listOfAnnouncements = value;
+        this.isLoading = false;
+        this.isSearching = false;
+      },
+      error: () => {
+        this.toastrService.error('Помилка при завантаженні оголошень');
+        this.isLoading = false;
+        this.isSearching = false;
+      }
+    });
+  }
+
+  public clearSearchForm(): void {
+    this.searchItemsForm.controls['search'].setValue('');
+    this.loadAllAnnouncements();
   }
 }
