@@ -10,8 +10,7 @@
         (mouseenter)="hoveredDifferentChatId = chat.chat_id"
         (mouseleave)="hoveredDifferentChatId = null"
         (click)="selectChat(chat.chat_id)"
-        [ngClass]="{ 'active-chat': chat.chat_id === selectedChatId }"
-      >
+        [ngClass]="{ 'active-chat': chat.chat_id === selectedChatId }">
         <div class="chat-info">
           <span class="chat-users">{{ chat.chat_users }}</span>
           <span class="last-message-time">{{
@@ -20,8 +19,7 @@
           <button
             (click)="deleteChat(chat.chat_id); $event.stopPropagation()"
             *ngIf="hoveredDifferentChatId === chat.chat_id"
-            class="delete-button"
-          >
+            class="delete-button">
             Видалити
           </button>
         </div>
@@ -88,51 +86,41 @@
           </button>
 
           <button
-            *ngIf="
-              hoveredMessageId === message.message_id && !message.is_pinned
-            "
+            *ngIf="hoveredMessageId === message.message_id && !message.is_pinned"
             class="action-btn pin-btn"
-            (click)="pinMessage(message.message_id)"
-          >
+            (click)="pinMessage(message.message_id)">
             Закріпити
           </button>
 
-          <button
-            *ngIf="hoveredMessageId === message.message_id"
+          <button *ngIf="hoveredMessageId === message.message_id"
             class="action-btn forward-btn"
-            (click)="openForwardModal(message.message_id, message.message)"
-          >
+            (click)="openForwardModal(message.message_id, message.message)">
             Переслати
           </button>
         </div>
 
-        <span class="message-time">{{
-          message.timestamp | date: 'shortTime'
-        }}</span>
+        <span class="message-time">
+          {{ message.timestamp | date: 'shortTime' }}
+        </span>
         <span *ngIf="message.user_id === currentUserId">
           {{ message?.['status:'] }}
         </span>
       </div>
     </div>
 
-    <form
-      [formGroup]="formHelper.form"
+    <form [formGroup]="formHelper.form"
       (ngSubmit)="editedMessageId ? confirmEdit() : sendMessage()"
-      class="chat-input-container"
-    >
+      class="chat-input-container">
       <input
         formControlName="message"
         placeholder="Введіть повідомлення..."
         class="message-input"
-        (keydown.escape)="cancelEdit()"
-      />
+        (keydown.escape)="cancelEdit()" />
 
-      <button
-        *ngIf="editedMessageId"
+      <button *ngIf="editedMessageId"
         type="button"
         class="cancel-btn"
-        (click)="cancelEdit()"
-      >
+        (click)="cancelEdit()">
         Відмінити
       </button>
 

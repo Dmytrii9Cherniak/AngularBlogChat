@@ -13,7 +13,7 @@ import { DifferentAnnouncementComponent } from '../../components/content/differe
 
 const routes: Routes = [
   { path: '', redirectTo: 'projects', pathMatch: 'full' },
-  { path: 'chat', component: ChatComponent },
+  { path: 'chat', component: ChatComponent, canActivate: [authGuard] },
   { path: 'users', component: AllUsersListComponent },
   { path: 'users/:id', component: UserDetailsInfoComponent },
   {

@@ -27,7 +27,7 @@
           <span *ngIf="isFullyExpanded">Users</span>
         </a>
       </li>
-      <li>
+      <li *ngIf="userProfileData && (isAuthenticated | async)">
         <a routerLink="/chat" (click)="closeSidebar()">
           <i class="bi bi-chat-dots"></i>
           <span *ngIf="isFullyExpanded">Chats</span>
@@ -45,13 +45,13 @@
           <span *ngIf="isFullyExpanded">Announcements</span>
         </a>
       </li>
-      <li>
+      <li *ngIf="userProfileData && (isAuthenticated | async)">
         <a routerLink="/notifications" (click)="closeSidebar()">
           <i class="bi bi-bell"></i>
           <span *ngIf="isFullyExpanded">Notifications</span>
         </a>
       </li>
-      <li>
+      <li *ngIf="userProfileData && (isAuthenticated | async)">
         <a routerLink="/friends" (click)="closeSidebar()">
           <i class="bi bi-person-heart"></i>
           <span *ngIf="isFullyExpanded">Friends</span>

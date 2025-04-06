@@ -13,7 +13,6 @@ import { AuthService } from './services/auth.service';
 import { UserProfileService } from './services/user.profile.service';
 import { TokenService } from './services/token.service';
 import { WebsocketsService } from './services/websockets.service';
-import { BroadcastChannelService } from './services/broadcast-channel.service';
 import { ToastrModule } from 'ngx-toastr';
 import { errorInterceptor } from './interceptors/error.interceptor';
 import { toastrMessagesSettings } from './helpers/toastr.messages.settings';
@@ -61,7 +60,6 @@ export function HttpLoaderFactory(http: HttpClient) {
         TokenService,
         ProjectsService,
         WebsocketsService,
-        BroadcastChannelService,
         TranslateService
       ],
       multi: true

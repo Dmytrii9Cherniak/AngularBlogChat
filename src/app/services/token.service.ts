@@ -12,7 +12,7 @@ export class TokenService {
   }
 
   saveAccessToken(token: string | undefined): void {
-    const expirationDate = new Date(Date.now() + 5 * 60 * 1000);
+    const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
     document.cookie = `${this.accessTokenKey}=${token}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Strict`;
   }
 

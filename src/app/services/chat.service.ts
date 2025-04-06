@@ -18,7 +18,7 @@ export class ChatService {
     this.listenForChatList();
   }
 
-  private listenForChatList(): void {
+  public listenForChatList(): void {
     this.wsService
       .onMessage()
       .pipe(
@@ -30,7 +30,6 @@ export class ChatService {
           } => message.type === WebsocketEventType.ALL_CHATS_LIST
         ),
         tap((message) => {
-          console.log('Отримано список чатів:', message);
           this.chatsListSubject.next(message.chats || []);
         })
       )
@@ -56,9 +55,6 @@ export class ChatService {
     });
 
     return this.wsService.onMessage().pipe(
-      tap((message) =>
-        console.log('🟢 Отримано повідомлення від WebSocket:', message)
-      ),
       filter(
         (message: any) => message.type === WebsocketEventType.CHAT_MESSAGES
       ),
@@ -156,4 +152,12 @@ export class ChatService {
       messages: messageIds.join(',')
     });
   }
+
+  // Для голосових дзвінків
+
+  // type: 'send_voice_message'
+  // audio_file: тут голосовуха записанная или звукой файл
+  // chat_id: чат куда его оптравляешь
+  // sender_username: юзернейм отправителя
+  // sender_nickname: никнейм отправителя
 }

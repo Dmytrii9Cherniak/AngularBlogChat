@@ -131,11 +131,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   sendMessage(): void {
     const message = this.formHelper.form.value.message?.trim();
 
-    if (!message) {
-      return;
-    }
-
-    if (!this.selectedChatId && !this.recipientUserId) {
+    if (!message || (!this.selectedChatId && !this.recipientUserId)) {
       return;
     }
 
