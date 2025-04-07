@@ -105,7 +105,7 @@ export class AuthService {
                   `Ласкаво просимо в систему, ${userData.username}`
                 );
                 if (userData.id) {
-                  this.websocketsService.connect(userData.id);
+                  this.websocketsService.connect(response.access_token);
                 }
 
                 this.chatService.initializeChatList();

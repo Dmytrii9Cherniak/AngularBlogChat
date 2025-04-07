@@ -45,10 +45,9 @@ export function initializeApp(
       userService.userProfileData.next(userData);
 
       if (userData.id) {
-        websocketsService.connect(userData.id); // ✅ лише один виклик
+        websocketsService.connect(accessToken);
       }
     } catch (error) {
-      console.error('Auth/init error:', error);
       authService.logout();
     }
 

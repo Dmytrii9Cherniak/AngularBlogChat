@@ -14,8 +14,8 @@ export class WebsocketsService {
 
   constructor() {}
 
-  connect(userId: number): void {
-    const wsUrl = `ws://127.0.0.1:8000/ws/community?userId=${userId}`;
+  connect(token: string): void {
+    const wsUrl = `ws://127.0.0.1:8000/ws/community?accessToken=${token}`;
     this.connectWithRetry(wsUrl);
   }
 
