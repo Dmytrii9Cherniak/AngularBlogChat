@@ -87,15 +87,7 @@ export class AnnouncementsComponent extends ModalManager implements OnInit {
 
     this.isAuthenticated$ = this.authService.isAuthenticated$;
 
-    this.announcementService.getAllAnnouncements().subscribe({
-      next: (value) => {
-        this.listOfAnnouncements = value;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
-      }
-    });
+    this.loadAllAnnouncements();
 
     this.searchItemsForm
       .get('search')
@@ -288,8 +280,8 @@ export class AnnouncementsComponent extends ModalManager implements OnInit {
   private loadAllAnnouncements(): void {
     this.isLoading = true;
     this.announcementService.getAllAnnouncements().subscribe({
-      next: (value) => {
-        this.listOfAnnouncements = value;
+      next: (value: any) => {
+        this.listOfAnnouncements = value.results;
         this.isLoading = false;
         this.isSearching = false;
       },
