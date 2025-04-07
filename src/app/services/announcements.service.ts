@@ -1,8 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { NewAnnouncementModel } from '../models/announcements/new.announcement.model';
 import { environment } from '../../environments/environment';
+
+export interface AnnouncementFilterParams {
+  title?: string;
+  technologies?: string[];
+  job_title?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -11,12 +17,24 @@ export class AnnouncementsService {
   constructor(private httpClient: HttpClient) {}
 
   public getAllAnnouncements(
-    title?: string
+    params?: AnnouncementFilterParams
   ): Observable<NewAnnouncementModel[]> {
-    const params = title ? { params: { title } } : {};
+    let httpParams = new HttpParams();
+
+    if (params && typeof params === 'object') {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== null && value !== undefined && value !== '') {
+          const paramValue = Array.isArray(value)
+            ? value.join(',')
+            : String(value);
+          httpParams = httpParams.set(key, paramValue);
+        }
+      });
+    }
+
     return this.httpClient.get<NewAnnouncementModel[]>(
       `${environment.apiUrl}/teamup/announcements/list`,
-      params
+      { params: httpParams }
     );
   }
 

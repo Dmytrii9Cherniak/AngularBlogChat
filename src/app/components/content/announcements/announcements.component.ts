@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { AnnouncementsService } from '../../../services/announcements.service';
+import {
+  AnnouncementFilterParams,
+  AnnouncementsService
+} from '../../../services/announcements.service';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { ModalManager } from '../../../OOP/modal.manager';
@@ -32,9 +35,12 @@ export class AnnouncementsComponent extends ModalManager implements OnInit {
   public myProjects: Project[] = [];
   public updateAnnouncementForm: FormGroup;
   public searchItemsForm: FormGroup;
-  public leftFiltersForm: FormGroup;
   public selectedAnnouncement: NewAnnouncementModel | null = null;
   public isSearching: boolean = false;
+
+  public allTechnologies: string[] = [];
+  public filteredTechnologies: string[] = [];
+  public selectedTechnologies: string[] = [];
 
   constructor(
     private announcementService: AnnouncementsService,
@@ -67,6 +73,8 @@ export class AnnouncementsComponent extends ModalManager implements OnInit {
     });
 
     this.searchItemsForm = this.formBuilder.group({
+      job_title: [''],
+      technologies: [''],
       search: ['', Validators.required]
     });
 
@@ -87,7 +95,33 @@ export class AnnouncementsComponent extends ModalManager implements OnInit {
 
     this.isAuthenticated$ = this.authService.isAuthenticated$;
 
-    this.loadAllAnnouncements();
+    this.searchAnnouncementsWithFilters();
+
+    fetch('assets/json/technologies.json')
+      .then((res) => res.json())
+      .then((data) => {
+        const techSet = new Set<string>();
+        data.languages.forEach((lang: any) => {
+          lang.technologies.forEach((tech: any) => techSet.add(tech.name));
+        });
+        this.allTechnologies = Array.from(techSet).sort();
+      });
+
+    this.searchItemsForm
+      .get('technologies')
+      ?.valueChanges.subscribe((value: string) => {
+        const query = value?.toLowerCase().trim();
+        if (!query) {
+          this.filteredTechnologies = [];
+          return;
+        }
+
+        this.filteredTechnologies = this.allTechnologies.filter(
+          (tech) =>
+            tech.toLowerCase().includes(query) &&
+            !this.selectedTechnologies.includes(tech) // ❗не показуємо вже вибрані
+        );
+      });
 
     this.searchItemsForm
       .get('search')
@@ -95,13 +129,9 @@ export class AnnouncementsComponent extends ModalManager implements OnInit {
         const trimmedValue = value.trim();
 
         if (!trimmedValue) {
-          this.loadAllAnnouncements();
+          this.searchAnnouncementsWithFilters();
         }
       });
-
-    fetch('assets/json/technologies.json')
-      .then((res) => res.json())
-      .then((data) => console.log(data));
   }
 
   get job_titles(): FormArray {
@@ -277,16 +307,27 @@ export class AnnouncementsComponent extends ModalManager implements OnInit {
     });
   }
 
-  private loadAllAnnouncements(): void {
-    this.isLoading = true;
-    this.announcementService.getAllAnnouncements().subscribe({
-      next: (value: any) => {
-        this.listOfAnnouncements = value.results;
+  public searchAnnouncementsWithFilters(): void {
+    const title = this.searchItemsForm.get('search')?.value?.trim();
+    const jobTitle = this.searchItemsForm.get('job_title')?.value?.trim();
+    const technologies = this.selectedTechnologies;
+
+    const filterObject: AnnouncementFilterParams = {};
+
+    if (title) filterObject.title = title;
+    if (jobTitle) filterObject.job_title = jobTitle;
+    if (technologies.length > 0) filterObject.technologies = technologies;
+
+    this.isSearching = true;
+
+    this.announcementService.getAllAnnouncements(filterObject).subscribe({
+      next: (res: any) => {
+        this.listOfAnnouncements = res.results ?? res;
         this.isLoading = false;
         this.isSearching = false;
       },
       error: () => {
-        this.toastrService.error('Помилка при завантаженні оголошень');
+        this.toastrService.error('Помилка при пошуку оголошень');
         this.isLoading = false;
         this.isSearching = false;
       }
@@ -295,6 +336,17 @@ export class AnnouncementsComponent extends ModalManager implements OnInit {
 
   public clearSearchForm(): void {
     this.searchItemsForm.controls['search'].setValue('');
-    this.loadAllAnnouncements();
+    this.searchAnnouncementsWithFilters();
+  }
+
+  toggleTechnology(tech: string): void {
+    const index = this.selectedTechnologies.indexOf(tech);
+    if (index === -1) {
+      this.selectedTechnologies.push(tech);
+    } else {
+      this.selectedTechnologies.splice(index, 1);
+    }
+
+    this.searchItemsForm.get('technologies')?.setValue(''); // очищає поле
   }
 }

@@ -18,24 +18,81 @@
 
   <div class="mb-4">
     <form [formGroup]="searchItemsForm">
+
+      <!-- ✅ Обрані -->
+      <div class="mb-3" *ngIf="selectedTechnologies.length > 0">
+        <small class="text-muted">Обрані технології:</small>
+        <div class="d-flex flex-wrap gap-2 mt-1">
+    <span
+      *ngFor="let tech of selectedTechnologies"
+      class="badge bg-success text-white py-2 px-3"
+      style="font-size: 0.85rem;">
+      {{ tech }}
+      <span
+        style="cursor: pointer; margin-left: 6px;"
+        (click)="toggleTechnology(tech)"
+      >&times;</span>
+    </span>
+        </div>
+      </div>
+
+      <!-- 🔍 Поле пошуку -->
+      <div class="input-group input-group-lg shadow-lg position-relative mb-3">
+        <input
+          type="text"
+          class="form-control rounded-pill"
+          placeholder="🔍 Пошук технологій"
+          formControlName="technologies"
+        />
+
+        <button class="btn btn-info rounded-pill ms-2"
+                *ngIf="searchItemsForm.controls['technologies'].value"
+                (click)="searchItemsForm.controls['technologies'].setValue('')">
+          Clear
+        </button>
+      </div>
+
+      <!-- 🧩 Знайдені бейджі -->
+      <div class="d-flex flex-wrap gap-2 px-2 mb-4">
+  <span
+    *ngFor="let tech of filteredTechnologies"
+    class="badge rounded-pill py-2 px-3 bg-light text-dark border"
+    style="cursor: pointer; font-size: 0.9rem;"
+    (click)="toggleTechnology(tech)">
+    {{ tech }}
+  </span>
+      </div>
+
+
+      <!-- 🔍 Поле пошуку оголошень -->
       <div class="input-group input-group-lg shadow-lg position-relative">
-        <input type="text" class="form-control rounded-pill" placeholder="🔍 Пошук оголошень" formControlName="search">
+        <input
+          type="text"
+          class="form-control rounded-pill"
+          placeholder="🔍 Пошук оголошень"
+          formControlName="search"
+        />
 
         <!-- Спінер під час пошуку -->
-        <div *ngIf="isSearching" class="spinner-border spinner-border-sm position-absolute end-0 top-50 me-3" role="status">
+        <div *ngIf="isSearching"
+             class="spinner-border spinner-border-sm position-absolute end-0 top-50 me-3"
+             role="status">
           <span class="visually-hidden">Завантаження...</span>
         </div>
 
         <button class="btn btn-info rounded-pill ms-2"
                 *ngIf="searchItemsForm.controls['search'].value && !isSearching"
-                (click)="clearSearchForm()">Clear</button>
+                (click)="clearSearchForm()">
+          Clear
+        </button>
 
         <button class="btn btn-outline-primary rounded-pill ms-2"
                 (click)="searchTitleAnnouncement()"
-                [disabled]="!searchItemsForm.controls['search'].value?.trim() || isSearching">
+                [disabled]="isSearching">
           Search
         </button>
       </div>
+
     </form>
   </div>
 
